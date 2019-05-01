@@ -45,6 +45,10 @@ Additionally, an initialize option is provided to configure LXDE for Raspberry P
   - true
   - false 
 
+`--lxde` enables initialization of LXDE
+
+`--lxde-home` specifies home directory of LXDE user (default /home/pi)
+
 ### Hosted Grafana using grafana.com authentication
 
 This will login to a Hosted Grafana instance and take the browser to the default dashboard in fullscreen kiosk mode:

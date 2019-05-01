@@ -109,10 +109,4 @@ func main() {
 		println("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(urlPtr, *autoFit)
 	}
-	// local login
-	//kiosk.GrafanaKioskLocal(urlPtr, usernamePtr, passwordPtr)
-	// GCOM auth
-	//kiosk.GrafanaKioskGCOM(urlPtr, usernamePtr, passwordPtr)
-	// Anonymous
-	//kiosk.GrafanaKioskAnonymous(urlPtr)
 }

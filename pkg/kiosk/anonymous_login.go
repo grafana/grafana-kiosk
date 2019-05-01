@@ -81,16 +81,15 @@ func GrafanaKioskAnonymous(urlPtr *string, autoFit bool) {
 	fmt.Println("Navigating to ", u.String())
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(u.String()),
-		// main-view for play.grafana.org
-		//chromedp.WaitVisible("main-view", chromedp.ByID),
 		chromedp.WaitVisible("//div[@class=\"main-view\"]", chromedp.BySearch),
-		//chromedp.WaitVisible("notnputPassword", chromedp.ByID),
+		// wait forever (for now)
+		chromedp.WaitVisible("notnputPassword", chromedp.ByID),
 	); err != nil {
 		panic(err)
 	}
 	fmt.Println("Sleep before exit...")
 	// wait here for the process to exit
-	time.Sleep(5000 * time.Millisecond)
+	time.Sleep(2000 * time.Millisecond)
 	fmt.Println("Exit...")
 
 }

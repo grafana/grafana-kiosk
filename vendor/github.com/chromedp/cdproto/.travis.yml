@@ -1,0 +1,12 @@
+language: go
+go:
+  - 1.12.x
+addons:
+  apt:
+    chrome: stable
+before_install:
+  - go get -d github.com/chromedp/chromedp
+script:
+  - go build ./...
+  - cd $GOPATH/src/github.com/chromedp/chromedp
+  - go test -v

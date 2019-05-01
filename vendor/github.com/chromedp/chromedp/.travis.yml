@@ -1,0 +1,11 @@
+language: go
+
+go:
+  - 1.12.x
+
+addons:
+  apt:
+    chrome: stable
+
+script:
+  - go test -v ./...

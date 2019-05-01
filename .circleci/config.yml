@@ -1,0 +1,26 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.12.4
+    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: make
+  cmd-lint:
+    docker:
+      - image: circleci/golang:1.12.4
+    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    steps:
+      - checkout
+      - run:
+          name: backend lint
+          command: build/circle-cmd-lint.sh
+workflows:
+  version: 2
+  build:
+    jobs:
+      - cmd-lint

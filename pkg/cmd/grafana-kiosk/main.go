@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/grafana/grafana-kiosk/pkg/initialize"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 )
 
@@ -52,6 +53,8 @@ func main() {
 	autoFit := flag.Bool("autofit", true, "autofit panels in kiosk mode")
 	// when the URL is a playlist, append "inactive" to the URL
 	isPlayList := flag.Bool("playlist", false, "URL is a playlist: [true|false]")
+	LXDEEnabled := flag.Bool("lxde", true, "initialize LXDE for kiosk mode")
+	LXDEHomePtr := flag.String("lxde-home", "/home/pi", "path to home directory of LXDE user running X Server")
 	flag.Parse()
 
 	// make sure the url has content
@@ -70,6 +73,9 @@ func main() {
 		println("playlist")
 	}
 
+	if *LXDEEnabled == true {
+		initialize.LXDE(*LXDEHomePtr)
+	}
 	switch *kioskModePtr {
 	case "tv": // NO SIDEBAR ACCESS
 		kioskMode = TV

@@ -17,6 +17,7 @@ The utitilty provides these options:
 - display a specified dashboard
 - start a playlist immediately (inactive mode enable)
 
+Additionally, an initialize option is provided to configure LXDE for Raspberry Pi Desktop.
 
 ## Usage
 

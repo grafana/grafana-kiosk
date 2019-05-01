@@ -105,5 +105,5 @@ This will generate executables in "bin" that can be run on a variety of platform
 - Support for OAuth2 logins
 
 ## References
-
+https://grafana.com/docs/guides/whats-new-in-v5-3/#tv-and-kiosk-mode
 https://grafana.com/docs/reference/playlist/

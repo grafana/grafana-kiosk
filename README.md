@@ -1,5 +1,6 @@
 # Grafana Kiosk
 [![CircleCI](https://circleci.com/gh/grafana/grafana-kiosk.svg?style=svg)](https://circleci.com/gh/grafana/grafana-kiosk)
+[![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana-kiosk)](https://goreportcard.com/report/github.com/grafana/grafana-kiosk) [![codecov](https://codecov.io/gh/grafana/grafana-kiosk/branch/master/graph/badge.svg)](https://codecov.io/gh/grafana/grafana-kiosk)
 
 A very useful feature of Grafana is the ability to display dashboards and playlists on a large TV.
 

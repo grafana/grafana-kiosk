@@ -1,4 +1,5 @@
 # Grafana Kiosk
+[![CircleCI](https://circleci.com/gh/grafana/grafana-kiosk.svg?style=svg)](https://circleci.com/gh/grafana/grafana-kiosk)
 
 A very useful feature of Grafana is the ability to display dashboards and playlists on a large TV.
 

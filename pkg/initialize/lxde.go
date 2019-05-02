@@ -45,6 +45,8 @@ func runCommand(path string, command string, args []string, waitForEnd bool) {
 	if waitForEnd {
 		log.Printf("Waiting for command to finish...")
 		err = cmd.Wait()
-		log.Printf("Command finished with error: %v", err)
+		if err != nil {
+			log.Printf("Command finished with error: %v", err)
+		}
 	}
 }

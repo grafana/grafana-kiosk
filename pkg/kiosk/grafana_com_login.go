@@ -12,7 +12,7 @@ import (
 )
 
 // GrafanaKioskGCOM creates a chrome-based kiosk using a grafana.com authenticated account
-func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, autoFit bool) {
+func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, kioskMode int, autoFit *bool, isPlayList *bool) {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
 		panic(err)
@@ -45,6 +45,8 @@ func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, 
 		panic(err)
 	}
 
+	var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+
 	/*
 		Launch chrome, click the grafana.com button, fill out login form and submit
 	*/
@@ -52,7 +54,7 @@ func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, 
 
 	// Click the grafana_com login button
 	if err := chromedp.Run(taskCtx,
-		chromedp.Navigate(*urlPtr),
+		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible("//*[@href=\"login/grafana_com\"]/i", chromedp.BySearch),
 		chromedp.Click("//*[@href=\"login/grafana_com\"]/..", chromedp.BySearch),
 	); err != nil {

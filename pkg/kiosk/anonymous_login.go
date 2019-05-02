@@ -4,7 +4,6 @@ import (
 	"context"
 	"io/ioutil"
 	"log"
-	"net/url"
 	"os"
 	"time"
 
@@ -13,7 +12,7 @@ import (
 )
 
 // GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account
-func GrafanaKioskAnonymous(urlPtr *string, autoFit bool) {
+func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayList *bool) {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
 		panic(err)
@@ -57,29 +56,13 @@ func GrafanaKioskAnonymous(urlPtr *string, autoFit bool) {
 	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
 	time.Sleep(2000 * time.Millisecond)
 
+	var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
 	/*
 		Launch chrome and look for main-view element
 	*/
-	//params := url.Values{}
-	//params.Add("kiosk", nil)
-	//var newURL = *urlPtr + "?kiosk" // + params.Encode()
-	//var newURL = *urlPtr + params.Encode()
-	u, _ := url.ParseRequestURI(*urlPtr)
-	q, _ := url.ParseQuery(u.RawQuery)
-	//q.Set("kiosk", "tv") // no sidebar or topnav (full screen kiosk)
-	// omit autofitpanels to not scale
-	if autoFit {
-		q.Set("autofitpanels", "1") // scale panels to fill screen
-	}
-	//q.Set("kiosk", "tv") // no sidebar, topnav without buttons
-	//q.Set("kiosk", "true") // sidebar and topnav always shown
-	//m, _ := url.ParseQuery(u.RawQuery)
-	//q.Set("inactive", "1") //
-	u.RawQuery = q.Encode()
-	//u.Query = m.Encode()
-	log.Println("Navigating to ", u.String())
+	log.Println("Navigating to ", generatedURL)
 	if err := chromedp.Run(taskCtx,
-		chromedp.Navigate(u.String()),
+		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible("//div[@class=\"main-view\"]", chromedp.BySearch),
 		// wait forever (for now)
 		chromedp.WaitVisible("notnputPassword", chromedp.ByID),

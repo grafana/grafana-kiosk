@@ -21,17 +21,14 @@ const (
 	GCOM      LoginMethod = 2
 )
 
-// KioskMode specifes the mode of the kiosk
-type KioskMode int
-
 // Kiosk Modes
 const (
 	// TV will hide the sidebar but allow usage of menu
-	TV KioskMode = 0
+	TV int = 0
 	// NORMAL will disable sidebar and top navigation bar
-	NORMAL KioskMode = 1
-	// NONE will not enter kiosk mode
-	NONE KioskMode = 2
+	NORMAL int = 1
+	// DISABLED will omit kiosk option
+	DISABLED int = 2
 )
 
 var (
@@ -72,7 +69,7 @@ func main() {
 	passwordPtr := flag.String("password", "guest", "password (Required)")
 	// kiosk=tv includes sidebar menu
 	// kiosk no sidebar ever
-	kioskModePtr := flag.String("kiosk-mode", "default", "kiosk mode [default|tv|false]")
+	kioskModePtr := flag.String("kiosk-mode", "full", "kiosk mode [full|tv|disabled]")
 	autoFit := flag.Bool("autofit", true, "autofit panels in kiosk mode")
 	// when the URL is a playlist, append "inactive" to the URL
 	isPlayList := flag.Bool("playlist", false, "URL is a playlist: [true|false]")
@@ -102,10 +99,10 @@ func main() {
 	switch *kioskModePtr {
 	case "tv": // NO SIDEBAR ACCESS
 		kioskMode = TV
-	case "false": // DO NOT USE KIOSK MODE
-		kioskMode = NONE
-	case "default": // NO TOPNAV or SIDEBAR
+	case "full": // NO TOPNAV or SIDEBAR
 		kioskMode = NORMAL
+	case "disabled": // NO TOPNAV or SIDEBAR
+		kioskMode = DISABLED
 	default:
 		kioskMode = NORMAL
 	}
@@ -127,12 +124,12 @@ func main() {
 	switch loginMethod {
 	case LOCAL:
 		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(urlPtr, usernamePtr, passwordPtr, *autoFit)
+		kiosk.GrafanaKioskLocal(urlPtr, usernamePtr, passwordPtr, kioskMode, autoFit, isPlayList)
 	case GCOM:
 		log.Printf("Launching GCOM login kiosk")
-		kiosk.GrafanaKioskGCOM(urlPtr, usernamePtr, passwordPtr, *autoFit)
+		kiosk.GrafanaKioskGCOM(urlPtr, usernamePtr, passwordPtr, kioskMode, autoFit, isPlayList)
 	case ANONYMOUS:
 		log.Printf("Launching ANON login kiosk")
-		kiosk.GrafanaKioskAnonymous(urlPtr, *autoFit)
+		kiosk.GrafanaKioskAnonymous(urlPtr, kioskMode, autoFit, isPlayList)
 	}
 }

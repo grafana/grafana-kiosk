@@ -46,6 +46,7 @@ func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string,
 	}
 
 	var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+	log.Println("Navigating to ", generatedURL)
 	/*
 		Launch chrome and login with local user account
 

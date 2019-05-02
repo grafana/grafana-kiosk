@@ -36,7 +36,7 @@ Additionally, an initialize option is provided to configure LXDE for Raspberry P
 
 `--password` used with local and gcom login methods
 
-`--kiosk`
+`--kiosk-mode`
   - full  (no sidebar, top navigation disabled)
   - tv (no sidebar, top navigation enabled)
   - disabled (sidebar and top navigation enabled)

@@ -57,10 +57,10 @@ func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayL
 	time.Sleep(2000 * time.Millisecond)
 
 	var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+	log.Println("Navigating to ", generatedURL)
 	/*
 		Launch chrome and look for main-view element
 	*/
-	log.Println("Navigating to ", generatedURL)
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible("//div[@class=\"main-view\"]", chromedp.BySearch),

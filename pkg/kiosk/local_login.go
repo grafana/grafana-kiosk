@@ -12,7 +12,7 @@ import (
 )
 
 // GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account
-func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string, autoFit bool) {
+func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string, kioskMode int, autoFit *bool, isPlayList *bool) {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
 		panic(err)
@@ -44,6 +44,8 @@ func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string,
 	if err := chromedp.Run(taskCtx); err != nil {
 		panic(err)
 	}
+
+	var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
 	/*
 		Launch chrome and login with local user account
 
@@ -54,7 +56,7 @@ func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string,
 	time.Sleep(2000 * time.Millisecond)
 
 	if err := chromedp.Run(taskCtx,
-		chromedp.Navigate(*urlPtr),
+		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible("inputPassword", chromedp.ByID),
 		chromedp.SendKeys("inputPassword", kb.Shift+kb.Tab+"\n"+*usernamePtr, chromedp.ByID),
 		chromedp.SendKeys("inputPassword", *passwordPtr, chromedp.ByID),

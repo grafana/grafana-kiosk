@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 
@@ -38,6 +39,28 @@ var (
 	kioskMode   = NORMAL
 )
 
+func setEnvironment() {
+	// for linux/X display must be set
+	var displayEnv = os.Getenv("DISPLAY")
+	if displayEnv == "" {
+		log.Println("DISPLAY not set, autosetting to :0.0")
+		os.Setenv("DISPLAY", ":0.0")
+		displayEnv = os.Getenv("DISPLAY")
+	}
+	log.Println("DISPLAY=", displayEnv)
+
+	var xAuthorityEnv = os.Getenv("XAUTHORITY")
+	if xAuthorityEnv == "" {
+		log.Println("XAUTHORITY not set, autosetting")
+		// use HOME of current user
+		var homeEnv = os.Getenv("HOME")
+		os.Setenv("XAUTHORITY", homeEnv+"/.Xauthority")
+		xAuthorityEnv = os.Getenv("XAUTHORITY")
+	}
+	log.Println("XAUTHORITY=", xAuthorityEnv)
+
+}
+
 func main() {
 	var Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %v\n", os.Args[0])
@@ -53,7 +76,7 @@ func main() {
 	autoFit := flag.Bool("autofit", true, "autofit panels in kiosk mode")
 	// when the URL is a playlist, append "inactive" to the URL
 	isPlayList := flag.Bool("playlist", false, "URL is a playlist: [true|false]")
-	LXDEEnabled := flag.Bool("lxde", true, "initialize LXDE for kiosk mode")
+	LXDEEnabled := flag.Bool("lxde", false, "initialize LXDE for kiosk mode")
 	LXDEHomePtr := flag.String("lxde-home", "/home/pi", "path to home directory of LXDE user running X Server")
 	flag.Parse()
 
@@ -70,7 +93,7 @@ func main() {
 	}
 
 	if *isPlayList == true {
-		println("playlist")
+		log.Printf("playlist")
 	}
 
 	if *LXDEEnabled == true {
@@ -98,15 +121,18 @@ func main() {
 		loginMethod = ANONYMOUS
 	}
 
+	// for linux/X display must be set
+	setEnvironment()
+
 	switch loginMethod {
 	case LOCAL:
-		println("Launching local login kiosk")
+		log.Printf("Launching local login kiosk")
 		kiosk.GrafanaKioskLocal(urlPtr, usernamePtr, passwordPtr, *autoFit)
 	case GCOM:
-		println("Launching GCOM login kiosk")
+		log.Printf("Launching GCOM login kiosk")
 		kiosk.GrafanaKioskGCOM(urlPtr, usernamePtr, passwordPtr, *autoFit)
 	case ANONYMOUS:
-		println("Launching ANON login kiosk")
+		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(urlPtr, *autoFit)
 	}
 }

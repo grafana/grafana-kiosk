@@ -2,7 +2,6 @@ package kiosk
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/url"
@@ -44,9 +43,9 @@ func GrafanaKioskAnonymous(urlPtr *string, autoFit bool) {
 	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
 		switch ev := ev.(type) {
 		case *runtime.EventConsoleAPICalled:
-			fmt.Printf("console.%s call:\n", ev.Type)
+			log.Printf("console.%s call:\n", ev.Type)
 			for _, arg := range ev.Args {
-				fmt.Printf("%s - %s\n", arg.Type, arg.Value)
+				log.Printf("%s - %s\n", arg.Type, arg.Value)
 			}
 		}
 	})
@@ -78,7 +77,7 @@ func GrafanaKioskAnonymous(urlPtr *string, autoFit bool) {
 	//q.Set("inactive", "1") //
 	u.RawQuery = q.Encode()
 	//u.Query = m.Encode()
-	fmt.Println("Navigating to ", u.String())
+	log.Println("Navigating to ", u.String())
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(u.String()),
 		chromedp.WaitVisible("//div[@class=\"main-view\"]", chromedp.BySearch),
@@ -87,9 +86,9 @@ func GrafanaKioskAnonymous(urlPtr *string, autoFit bool) {
 	); err != nil {
 		panic(err)
 	}
-	fmt.Println("Sleep before exit...")
+	log.Println("Sleep before exit...")
 	// wait here for the process to exit
 	time.Sleep(2000 * time.Millisecond)
-	fmt.Println("Exit...")
+	log.Println("Exit...")
 
 }

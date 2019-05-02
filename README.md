@@ -37,9 +37,9 @@ Additionally, an initialize option is provided to configure LXDE for Raspberry P
 `--password` used with local and gcom login methods
 
 `--kiosk`
-  - default  (no sidebar, top navigation disabled)
+  - full  (no sidebar, top navigation disabled)
   - tv (no sidebar, top navigation enabled)
-  - false (sidebar and top navigation enabled)
+  - disabled (sidebar and top navigation enabled)
 
 `--autofit` scales panels to fit the display (default is true)
   - true
@@ -47,37 +47,37 @@ Additionally, an initialize option is provided to configure LXDE for Raspberry P
 
 `--lxde` enables initialization of LXDE
 
-`--lxde-home` specifies home directory of LXDE user (default /home/pi)
+`--lxde-home` specifies home directory of LXDE user (default $HOME)
 
 ### Hosted Grafana using grafana.com authentication
 
 This will login to a Hosted Grafana instance and take the browser to the default dashboard in fullscreen kiosk mode:
 
-```BASH
-./bin/grafana-kiosk --URL https://bkgann3.grafana.net --login-method gcom --user bkgann --password abc123 --kiosk-mode tv
+```bash
+./bin/grafana-kiosk --URL https://bkgann3.grafana.net --login-method gcom --user bkgann --password abc123 --kiosk-mode full
 ```
 
-This will login to a Hosted Grafana instance and take the browser to a specific dashboard in fullscreen kiosk mode:
+This will login to a Hosted Grafana instance and take the browser to a specific dashboard in tv kiosk mode:
 
-```BASH
+```bash
 ./bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --user bkgann --password abc123 --kiosk-mode tv
 ```
 
 This will login to a Hosted Grafana instance and take the browser to a playlist in fullscreen kiosk mode, and autofit the panels to fill the display.
 
-```BASH
-./bin/grafana-kiosk --URL https://bkgann3.grafana.net/playlists/play/1 --login-method gcom --user bkgann --password abc123 --kiosk-mode tv --playlist --autofit
+```bash
+./bin/grafana-kiosk --URL https://bkgann3.grafana.net/playlists/play/1 --login-method gcom --user bkgann --password abc123 --kiosk-mode full --playlist --autofit
 ```
 
 ### Grafana Server with Local Accounts
 
 This will login to a grafana server that uses local accounts:
 
-```BASH
+```bash
 ./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --user admin --password admin --kiosk-mode tv
 ```
 
-```BASH
+```bash
 ./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --user admin --password admin --kiosk-mode tv
 ```
 
@@ -85,14 +85,14 @@ This will login to a grafana server that uses local accounts:
 
 This will take the browser to the default dashboard on play.grafana.org in fullscreen kiosk mode (no login needed):
 
-```BASH
+```bash
 ./bin/grafana-kiosk --URL https://play.grafana.org --login-method anon --kiosk-mode tv
 ```
 
 
 This will take the browser to a playlist on play.grafana.org in fullscreen kiosk mode (no login needed):
 
-```BASH
+```bash
 ./bin/grafana-kiosk --URL https://play.grafana.org/playlists/play/1 --login-method anon --kiosk-mode tv
 ```
 
@@ -100,7 +100,7 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 
 A Makefile is provided for building the utility.
 
-```BASH
+```bash
 make
 ```
 

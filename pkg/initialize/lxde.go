@@ -23,8 +23,9 @@ func LXDE(path string) {
 	args = []string{"s", "noblank"}
 	runCommand(path, command, args, true)
 	command = "/usr/bin/unclutter"
-	args = []string{"-display", "$DISPLAY", "-idle", "5"}
-	runCommand(path, command, args, false)
+	var displayEnv = os.Getenv("DISPLAY")
+	args = []string{"-display", displayEnv, "-idle", "5"}
+	go runCommand(path, command, args, true)
 }
 
 func runCommand(path string, command string, args []string, waitForEnd bool) {

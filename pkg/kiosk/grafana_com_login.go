@@ -46,6 +46,7 @@ func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, 
 	}
 
 	var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+	log.Println("Navigating to ", generatedURL)
 
 	/*
 		Launch chrome, click the grafana.com button, fill out login form and submit

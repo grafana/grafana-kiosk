@@ -16,6 +16,7 @@ grafana-kiosk: dev
 	GOOS=linux GOARCH=arm GOARM=5 go build -o bin/grafana-kiosk.linux.armv5 pkg/cmd/grafana-kiosk/main.go
 	GOOS=linux GOARCH=arm GOARM=6 go build -o bin/grafana-kiosk.linux.armv6 pkg/cmd/grafana-kiosk/main.go
 	GOOS=linux GOARCH=arm GOARM=7 go build -o bin/grafana-kiosk.linux.armv7 pkg/cmd/grafana-kiosk/main.go
+	GOOS=linux GOARCH=arm64 go build -o bin/grafana-kiosk.linux.arm64 pkg/cmd/grafana-kiosk/main.go
 
 test-circleci:
 	@echo "Testing build in circleci"

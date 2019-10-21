@@ -54,19 +54,19 @@ Additionally, an initialize option is provided to configure LXDE for Raspberry P
 This will login to a Hosted Grafana instance and take the browser to the default dashboard in fullscreen kiosk mode:
 
 ```bash
-./bin/grafana-kiosk --URL https://bkgann3.grafana.net --login-method gcom --user bkgann --password abc123 --kiosk-mode full
+./bin/grafana-kiosk --URL https://bkgann3.grafana.net --login-method gcom --username bkgann --password abc123 --kiosk-mode full
 ```
 
 This will login to a Hosted Grafana instance and take the browser to a specific dashboard in tv kiosk mode:
 
 ```bash
-./bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --user bkgann --password abc123 --kiosk-mode tv
+./bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode tv
 ```
 
 This will login to a Hosted Grafana instance and take the browser to a playlist in fullscreen kiosk mode, and autofit the panels to fill the display.
 
 ```bash
-./bin/grafana-kiosk --URL https://bkgann3.grafana.net/playlists/play/1 --login-method gcom --user bkgann --password abc123 --kiosk-mode full --playlist --autofit
+./bin/grafana-kiosk --URL https://bkgann3.grafana.net/playlists/play/1 --login-method gcom --username bkgann --password abc123 --kiosk-mode full --playlist --autofit
 ```
 
 ### Grafana Server with Local Accounts
@@ -74,11 +74,11 @@ This will login to a Hosted Grafana instance and take the browser to a playlist 
 This will login to a grafana server that uses local accounts:
 
 ```bash
-./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --user admin --password admin --kiosk-mode tv
+./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --username admin --password admin --kiosk-mode tv
 ```
 
 ```bash
-./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --user admin --password admin --kiosk-mode tv
+./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --username admin --password admin --kiosk-mode tv
 ```
 
 ### Grafana Server with Anonymous access enabled

@@ -20,7 +20,7 @@ The utitilty provides these options:
 
 Additionally, an initialize option is provided to configure LXDE for Raspberry Pi Desktop.
 
-## Installing
+## Installing on Linux
 
 Download the zip or tar file from [releases](https://github.com/grafana/grafana-kiosk/releases)
 
@@ -36,6 +36,12 @@ The release file includes pre-built binaries. See table below for the types avai
 | linux  | arm          | ARM v7         | grafana-kiosk.linux.armv7       |
 | darwin | amd64        | 64bit          | grafana-kiosk.darwin.amd64      |
 | windows| amd64        | 64bit          | grafana-kiosk.windows.amd64.exe |
+
+Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana-kiosk:
+
+```BASH
+$ sudo cp -p grafana-kiosk.linux.armv7 /usr/bin/grafana-kiosk
+```
 
 ## Usage
 
@@ -133,6 +139,90 @@ Actions Performed:
 
 The `--lxde-home` option allows you to specify a different $HOME directory where the lxde configuration files can be found.
 
+## Automatic Startup
+
+### Session-based
+
+LXDE can start the kiosk automatically by creating this file:
+
+Create/edit the file: `/home/pi/.config/lxsession/LXDE-pi/autostart`
+
+```BASH
+/usr/bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode full --lxde
+```
+
+#### Session with disconnected "screen"
+
+Alternatively you can run grafana-kiosk under screen, which can very useful for debugging.
+
+Create/edit the file: `/home/pi/.config/lxsession/LXDE-pi/autostart`
+
+```BASH
+screen -d -m bash -c "/usr/bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode full --lxde"
+```
+
+### Desktop Link
+
+Create/edit the file: `/home/pi/.config/autostart/grafana-kiosk.desktop`
+
+```INI
+[Desktop Entry]
+Type=Application
+Exec=/usr/bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode full --lxde
+```
+
+#### Desktop Link with disconnected "screen"
+
+```INI
+[Desktop Entry]
+Type=Application
+Exec=screen -d -m bash -c /usr/bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode full --lxde
+```
+
+## Systemd startup
+
+```BASH
+$ sudo touch /etc/systemd/system/grafana-kiosk.service
+$ sudo chmod 664 /etc/systemd/system/grafana-kiosk.service
+```
+
+```INI
+[Unit]
+Description=Grafana Kiosk
+Documentation=https://github.com/grafana/grafana-kiosk
+Documentation=https://grafana.com/blog/2019/05/02/grafana-tutorial-how-to-create-kiosks-to-display-dashboards-on-a-tv
+After=network.target
+
+[Service]
+User=pi
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/pi/.Xauthority"
+ExecStart=/usr/bin/grafana-kiosk --URL <url>  -login-method local -username <username> -password <password> -playlist true
+
+[Install]
+WantedBy=graphical.target
+```
+
+Reload systemd:
+
+```BASH
+$ sudo systemctl daemon-reload
+```
+
+Enable, Start, Get Status, and logs:
+
+```BASH
+$ sudo systemctl enable grafana-kiosk
+$ sudo systemctl start grafana-kiosk
+$ sudo systemctl status grafana-kiosk
+```
+
+Logs:
+
+```BASH
+journalctl -u grafana-kiosk
+```
+
 ## Building
 
 A Makefile is provided for building the utility.
@@ -146,8 +236,15 @@ This will generate executables in "bin" that can be run on a variety of platform
 ## TODO
 
 - Support for OAuth2 logins
+- RHEL/CentOS auto-startup
+- Everything in issues!
 
 ## References
 
 - [TV and Kiosk Mode](https://grafana.com/docs/guides/whats-new-in-v5-3/#tv-and-kiosk-mode)
 - [Grafana Playlists](https://grafana.com/docs/reference/playlist)
+
+## Thanks to our Contributors
+
+- [Michael Pasqualone](https://github.com/michaelp85) for the session-based startup ideas!
+- [Brendan Ball](https://github.com/BrendanBall) for contributing the desktop link startup example for LXDE!

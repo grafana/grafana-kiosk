@@ -44,6 +44,7 @@ jobs:
             go test -covermode=count -coverprofile=coverage/count.out fmt ./...
             go test -v -coverpkg=./... --coverprofile=coverage/coverage.out ./...
             go test ./... -coverprofile coverage/cover.out; go tool cover -func coverage/cover.out
+            go tool cover -html=coverage/coverage.out  -o coverage/coverage.html
       - persist_to_workspace:
           root: .
           paths:
@@ -94,10 +95,10 @@ jobs:
             git add --force bin
             git add --force coverage
             git commit -m "automated release $VERSION [skip ci]"
-            git push -f origin release-${VERSION}
-            git tag -f v${VERSION}
-            git push -f origin v${VERSION}
-            ghr \
+            #git push -f origin release-${VERSION}
+            #git tag -f v${VERSION}
+            #git push -f origin v${VERSION}
+            echo ghr \
               -t ${GITHUB_TOKEN} \
               -u ${CIRCLE_PROJECT_USERNAME} \
               -r ${CIRCLE_PROJECT_REPONAME} \
@@ -123,8 +124,8 @@ workflows:
           type: approval
           requires:
           - build
-          filters: *filter-only-master
+          #filters: *filter-only-master
       - publish_github_release:
           requires:
           - approve_release
-          filters: *filter-only-master
+          #filters: *filter-only-master

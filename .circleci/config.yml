@@ -122,7 +122,7 @@ workflows:
       - approve_release:
           type: approval
           requires:
-          - report
+          - build
           filters: *filter-only-master
       - publish_github_release:
           requires:

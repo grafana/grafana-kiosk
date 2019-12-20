@@ -17,10 +17,19 @@ grafana-kiosk: dev
 	GOOS=linux GOARCH=arm GOARM=6 go build -o bin/grafana-kiosk.linux.armv6 pkg/cmd/grafana-kiosk/main.go
 	GOOS=linux GOARCH=arm GOARM=7 go build -o bin/grafana-kiosk.linux.armv7 pkg/cmd/grafana-kiosk/main.go
 	GOOS=linux GOARCH=arm64 go build -o bin/grafana-kiosk.linux.arm64 pkg/cmd/grafana-kiosk/main.go
+	GOOS=darwin GOARCH=amd64 go build -o bin/grafana-kiosk.darwin.amd64 -a -tags netgo -ldflags '-w' pkg/cmd/grafana-kiosk/main.go
+	GOOS=windows GOARCH=amd64 go build -o bin/grafana-kiosk.windows.amd64.exe -a -tags netgo -ldflags '-w' pkg/cmd/grafana-kiosk/main.go
 
-test-circleci:
-	@echo "Testing build in circleci"
-	circleci local execute --job cmd-lint
+circleci-lint:
+	@echo "Linting in circleci"
+	circleci local execute --job cmd_lint
+
+circleci-test:
+	@echo "Testing in circleci"
+	circleci local execute --job cmd_test
+
+circleci-build:
+	@echo "Build in circleci"
 	circleci local execute --job build
 
 package: grafana-kiosk

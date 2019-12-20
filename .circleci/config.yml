@@ -1,26 +1,130 @@
 version: 2
 
+aliases:
+  # Workflow filters
+  - &filter-only-master
+    branches:
+      only: master
+
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.12.4
+      - image: circleci/golang:1.13.5
     working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
       - run:
           name: Build
           command: make
-  cmd-lint:
+      - persist_to_workspace:
+          root: .
+          paths:
+          - bin
+
+  cmd_lint:
     docker:
-      - image: circleci/golang:1.12.4
+      - image: circleci/golang:1.13.5
     working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
       - run:
           name: backend lint
           command: build/circle-cmd-lint.sh
+
+  cmd_test:
+    docker:
+      - image: circleci/golang:1.13.5
+    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    steps:
+      - checkout
+      - run:
+          name: Test and Coverage
+          command: |
+            mkdir -p coverage
+            go test -covermode=count -coverprofile=coverage/count.out fmt ./...
+            go test -v -coverpkg=./... --coverprofile=coverage/coverage.out ./...
+            go test ./... -coverprofile coverage/cover.out; go tool cover -func coverage/cover.out
+      - persist_to_workspace:
+          root: .
+          paths:
+          - coverage
+      - store_artifacts:
+          path: coverage
+
+  publish_github_release:
+    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    docker:
+      - image: cibuilds/github:0.13
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "04:ac:cd:48:76:33:82:a2:b7:37:ca:2c:c2:7c:c3:e3"
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            PROJECT_NAME=grafana-kiosk
+            RELEASE_NOTES=`awk 'BEGIN {FS="##"; RS=""} FNR==3 {print; exit}' CHANGELOG.md`
+            VERSION=`awk 'BEGIN {FS="##"; RS=""} FNR==2 {print; exit}' CHANGELOG.md | cut -f2 -d' '`
+            # create zip file
+            echo "Creating ZIP"
+            cd /go/src/github.com/grafana
+            zip \
+              -x grafana-kiosk/.git/**\* \
+              -r /tmp/grafana-kiosk-${VERSION}.zip \
+              grafana-kiosk
+            # create tar file
+            echo "Creating TAR"
+            tar \
+              --exclude .git \
+              -cvf /tmp/grafana-kiosk-${VERSION}.tar \
+              grafana-kiosk
+            gzip /tmp/grafana-kiosk-${VERSION}.tar
+            # create artifacts
+            mkdir -p /go/src/github.com/grafana/grafana-kiosk/artifacts
+            mv /tmp/grafana-kiosk-${VERSION}.zip /go/src/github.com/grafana/grafana-kiosk/artifacts/
+            mv /tmp/grafana-kiosk-${VERSION}.tar.gz /go/src/github.com/grafana/grafana-kiosk/artifacts/
+            ls -al
+            git config user.email "eng@grafana.com"
+            git config user.name "CircleCI Automation"
+            git checkout -b release-${VERSION}
+            git add --force artifacts
+            git add --force bin
+            git add --force coverage
+            git commit -m "automated release $VERSION [skip ci]"
+            git push -f origin release-${VERSION}
+            git tag -f v${VERSION}
+            git push -f origin v${VERSION}
+            ghr \
+              -t ${GITHUB_TOKEN} \
+              -u ${CIRCLE_PROJECT_USERNAME} \
+              -r ${CIRCLE_PROJECT_REPONAME} \
+              -c ${CIRCLE_SHA1} \
+              -n "${PROJECT_NAME} v${VERSION}" \
+              -b "${RELEASE_NOTES}" \
+              -delete \
+              v${VERSION} \
+              ./artifacts/
+
 workflows:
   version: 2
-  build:
+  build_workflow:
     jobs:
-      - cmd-lint
+      - cmd_lint
+      - cmd_test:
+          requires:
+          - cmd_lint
+      - build:
+          requires:
+          - cmd_test
+      - approve_release:
+          type: approval
+          requires:
+          - report
+          filters: *filter-only-master
+      - publish_github_release:
+          requires:
+          - approve_release
+          filters: *filter-only-master

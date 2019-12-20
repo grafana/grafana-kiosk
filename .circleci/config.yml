@@ -73,14 +73,30 @@ jobs:
             echo "Creating ZIP"
             cd /go/src/github.com/grafana
             zip \
+              -x grafana-kiosk/.circleci/**\* \
               -x grafana-kiosk/.git/**\* \
+              -x grafana-kiosk/.gitignore \
+              -x grafana-kiosk/Gopkg.lock \
+              -x grafana-kiosk/Gopkg.toml \
+              -x grafana-kiosk/Makefile \
+              -x grafana-kiosk/build/**\* \
+              -x grafana-kiosk/coverage/**\* \
+              -x grafana-kiosk/pkg/**\* \
               -x grafana-kiosk/vendor/**\* \
               -r /tmp/grafana-kiosk-${VERSION}.zip \
               grafana-kiosk
             # create tar file
             echo "Creating TAR"
             tar \
+              --exclude .circleci \
               --exclude .git \
+              --exclude .gitignore \
+              --exclude Gopkg.lock \
+              --exclude Gopkg.toml \
+              --exclude Makefile \
+              --exclude build \
+              --exclude coverage \
+              --exclude pkg \
               --exclude vendor \
               -cvf /tmp/grafana-kiosk-${VERSION}.tar \
               grafana-kiosk

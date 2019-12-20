@@ -28,7 +28,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: backend lint
+          name: Linters
           command: build/circle-cmd-lint.sh
 
   cmd_test:

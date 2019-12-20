@@ -35,6 +35,7 @@ exit_if_fail golangci-lint --verbose run\
   --enable=goconst\
   --enable=gocyclo\
   --enable=gocognit\
+  --enable=gofmt\
   --enable=maligned\
   --enable=depguard\
   --enable=misspell\

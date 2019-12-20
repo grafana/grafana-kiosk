@@ -24,7 +24,8 @@ Additionally, an initialize option is provided to configure LXDE for Raspberry P
 
 Download the zip or tar file from [releases](https://github.com/grafana/grafana-kiosk/releases)
 
-The release file includes pre-built binaries for the following:
+The release file includes pre-built binaries. See table below for the types available.
+
 |  OS    | Architecture | Description    | Executable                      |
 | ------ | ------------ | -------------- | ------------------------------- |
 | linux  | amd64        | 64bit          | grafana-kiosk.linux.amd64       |

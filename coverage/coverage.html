@@ -1,0 +1,602 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/grafana/grafana-kiosk/pkg/cmd/grafana-kiosk/main.go (0.0%)</option>
+				
+				<option value="file1">github.com/grafana/grafana-kiosk/pkg/initialize/lxde.go (0.0%)</option>
+				
+				<option value="file2">github.com/grafana/grafana-kiosk/pkg/kiosk/anonymous_login.go (0.0%)</option>
+				
+				<option value="file3">github.com/grafana/grafana-kiosk/pkg/kiosk/grafana_com_login.go (0.0%)</option>
+				
+				<option value="file4">github.com/grafana/grafana-kiosk/pkg/kiosk/listen_chrome_events.go (0.0%)</option>
+				
+				<option value="file5">github.com/grafana/grafana-kiosk/pkg/kiosk/local_login.go (0.0%)</option>
+				
+				<option value="file6">github.com/grafana/grafana-kiosk/pkg/kiosk/utils.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "flag"
+        "fmt"
+        "log"
+        "net/url"
+        "os"
+
+        "github.com/grafana/grafana-kiosk/pkg/initialize"
+        "github.com/grafana/grafana-kiosk/pkg/kiosk"
+)
+
+// LoginMethod specifies the type of login to be used by the kiosk
+type LoginMethod int
+
+// Login Methods
+const (
+        ANONYMOUS LoginMethod = 0
+        LOCAL     LoginMethod = 1
+        GCOM      LoginMethod = 2
+)
+
+// Kiosk Modes
+const (
+        // TV will hide the sidebar but allow usage of menu
+        TV int = 0
+        // NORMAL will disable sidebar and top navigation bar
+        NORMAL int = 1
+        // DISABLED will omit kiosk option
+        DISABLED int = 2
+)
+
+var (
+        loginMethod = LOCAL
+        kioskMode   = NORMAL
+)
+
+func setEnvironment() <span class="cov0" title="0">{
+        // for linux/X display must be set
+        var displayEnv = os.Getenv("DISPLAY")
+        if displayEnv == "" </span><span class="cov0" title="0">{
+                log.Println("DISPLAY not set, autosetting to :0.0")
+                os.Setenv("DISPLAY", ":0.0")
+                displayEnv = os.Getenv("DISPLAY")
+        }</span>
+        <span class="cov0" title="0">log.Println("DISPLAY=", displayEnv)
+
+        var xAuthorityEnv = os.Getenv("XAUTHORITY")
+        if xAuthorityEnv == "" </span><span class="cov0" title="0">{
+                log.Println("XAUTHORITY not set, autosetting")
+                // use HOME of current user
+                var homeEnv = os.Getenv("HOME")
+                os.Setenv("XAUTHORITY", homeEnv+"/.Xauthority")
+                xAuthorityEnv = os.Getenv("XAUTHORITY")
+        }</span>
+        <span class="cov0" title="0">log.Println("XAUTHORITY=", xAuthorityEnv)</span>
+
+}
+
+func main() <span class="cov0" title="0">{
+        var Usage = func() </span><span class="cov0" title="0">{
+                fmt.Fprintf(os.Stderr, "Usage: %v\n", os.Args[0])
+                flag.PrintDefaults()
+        }</span>
+        <span class="cov0" title="0">urlPtr := flag.String("URL", "https://play.grafana.org", "URL to Grafana server (Required)")
+        methodPtr := flag.String("login-method", "anon", "login method: [anon|local|gcom]")
+        usernamePtr := flag.String("username", "guest", "username (Required)")
+        passwordPtr := flag.String("password", "guest", "password (Required)")
+        // kiosk=tv includes sidebar menu
+        // kiosk no sidebar ever
+        kioskModePtr := flag.String("kiosk-mode", "full", "kiosk mode [full|tv|disabled]")
+        autoFit := flag.Bool("autofit", true, "autofit panels in kiosk mode")
+        // when the URL is a playlist, append "inactive" to the URL
+        isPlayList := flag.Bool("playlist", false, "URL is a playlist: [true|false]")
+        LXDEEnabled := flag.Bool("lxde", false, "initialize LXDE for kiosk mode")
+        LXDEHomePtr := flag.String("lxde-home", "/home/pi", "path to home directory of LXDE user running X Server")
+        flag.Parse()
+
+        // make sure the url has content
+        if *urlPtr == "" </span><span class="cov0" title="0">{
+                Usage()
+                os.Exit(1)
+        }</span>
+        // validate url
+        <span class="cov0" title="0">_, err := url.ParseRequestURI(*urlPtr)
+        if err != nil </span><span class="cov0" title="0">{
+                Usage()
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">if *isPlayList == true </span><span class="cov0" title="0">{
+                log.Printf("playlist")
+        }</span>
+
+        <span class="cov0" title="0">if *LXDEEnabled == true </span><span class="cov0" title="0">{
+                initialize.LXDE(*LXDEHomePtr)
+        }</span>
+        <span class="cov0" title="0">switch *kioskModePtr </span>{
+        case "tv":<span class="cov0" title="0"> // NO SIDEBAR ACCESS
+                kioskMode = TV</span>
+        case "full":<span class="cov0" title="0"> // NO TOPNAV or SIDEBAR
+                kioskMode = NORMAL</span>
+        case "disabled":<span class="cov0" title="0"> // NO TOPNAV or SIDEBAR
+                kioskMode = DISABLED</span>
+        default:<span class="cov0" title="0">
+                kioskMode = NORMAL</span>
+        }
+
+        <span class="cov0" title="0">switch *methodPtr </span>{
+        case "anon":<span class="cov0" title="0">
+                loginMethod = ANONYMOUS</span>
+        case "local":<span class="cov0" title="0">
+                loginMethod = LOCAL</span>
+        case "gcom":<span class="cov0" title="0">
+                loginMethod = GCOM</span>
+        default:<span class="cov0" title="0">
+                loginMethod = ANONYMOUS</span>
+        }
+
+        // for linux/X display must be set
+        <span class="cov0" title="0">setEnvironment()
+
+        switch loginMethod </span>{
+        case LOCAL:<span class="cov0" title="0">
+                log.Printf("Launching local login kiosk")
+                kiosk.GrafanaKioskLocal(urlPtr, usernamePtr, passwordPtr, kioskMode, autoFit, isPlayList)</span>
+        case GCOM:<span class="cov0" title="0">
+                log.Printf("Launching GCOM login kiosk")
+                kiosk.GrafanaKioskGCOM(urlPtr, usernamePtr, passwordPtr, kioskMode, autoFit, isPlayList)</span>
+        case ANONYMOUS:<span class="cov0" title="0">
+                log.Printf("Launching ANON login kiosk")
+                kiosk.GrafanaKioskAnonymous(urlPtr, kioskMode, autoFit, isPlayList)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package initialize
+
+import (
+        "log"
+        "os"
+        "os/exec"
+)
+
+// LXDE runs shell commands to setup LXDE for kiosk mode
+func LXDE(path string) <span class="cov0" title="0">{
+        var command = "/usr/bin/lxpanel"
+        args := []string{"--profile", "LXDE"}
+        runCommand(path, command, args, true)
+        command = "/usr/bin/pcmanfm"
+        args = []string{"--desktop", "--profile", "LXDE"}
+        runCommand(path, command, args, true)
+        command = "/usr/bin/xset"
+        runCommand(path, command, args, true)
+        args = []string{"s", "off"}
+        runCommand(path, command, args, true)
+        args = []string{"-dpms"}
+        runCommand(path, command, args, true)
+        args = []string{"s", "noblank"}
+        runCommand(path, command, args, true)
+        command = "/usr/bin/unclutter"
+        var displayEnv = os.Getenv("DISPLAY")
+        args = []string{"-display", displayEnv, "-idle", "5"}
+        go runCommand(path, command, args, true)
+}</span>
+
+func runCommand(path string, command string, args []string, waitForEnd bool) <span class="cov0" title="0">{
+        // check if command exists
+        log.Printf("path: %v", path)
+        log.Printf("command: %v", command)
+        log.Printf("arg0: %v", args[0])
+        cmd := exec.Command(command, args...)
+        cmd.Env = append(os.Environ(),
+                "DISPLAY=:0.0",
+                "XAUTHORITY="+path+"/.Xauthority",
+        )
+        err := cmd.Start()
+        if err != nil </span><span class="cov0" title="0">{
+                //log.Printf(err)
+                log.Printf("Error in output, ignoring...")
+        }</span>
+        <span class="cov0" title="0">if waitForEnd </span><span class="cov0" title="0">{
+                log.Printf("Waiting for command to finish...")
+                err = cmd.Wait()
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Printf("Command finished with error: %v", err)
+                }</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package kiosk
+
+import (
+        "context"
+        "io/ioutil"
+        "log"
+        "os"
+        "time"
+
+        "github.com/chromedp/chromedp"
+)
+
+// GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account
+func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayList *bool) <span class="cov0" title="0">{
+        dir, err := ioutil.TempDir("", "chromedp-example")
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">defer os.RemoveAll(dir)
+
+        opts := []chromedp.ExecAllocatorOption{
+                chromedp.NoFirstRun,
+                chromedp.NoDefaultBrowserCheck,
+                // chromedp.DisableGPU, // needed?
+                chromedp.Flag("noerrdialogs", true),
+                chromedp.Flag("kiosk", true),
+                chromedp.Flag("bwsi", true),
+                chromedp.Flag("incognito", true),
+                chromedp.Flag("disable-sync", true),
+                chromedp.Flag("disable-notifications", true),
+                chromedp.Flag("disable-overlay-scrollbar", true),
+                chromedp.UserDataDir(dir),
+        }
+
+        allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+        defer cancel()
+
+        // also set up a custom logger
+        taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+        defer cancel()
+
+        listenChromeEvents(taskCtx, consoleAPICall|targetCrashed)
+
+        // ensure that the browser process is started
+        if err := chromedp.Run(taskCtx); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        // Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
+        <span class="cov0" title="0">time.Sleep(2000 * time.Millisecond)
+
+        var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+        log.Println("Navigating to ", generatedURL)
+        /*
+                Launch chrome and look for main-view element
+        */
+        if err := chromedp.Run(taskCtx,
+                chromedp.Navigate(generatedURL),
+                chromedp.WaitVisible("//div[@class=\"main-view\"]", chromedp.BySearch),
+                // wait forever (for now)
+                chromedp.WaitVisible("notnputPassword", chromedp.ByID),
+        ); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">log.Println("Sleep before exit...")
+        // wait here for the process to exit
+        time.Sleep(2000 * time.Millisecond)
+        log.Println("Exit...")</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package kiosk
+
+import (
+        "context"
+        "io/ioutil"
+        "log"
+        "os"
+        "time"
+
+        "github.com/chromedp/chromedp"
+        "github.com/chromedp/chromedp/kb"
+)
+
+// GrafanaKioskGCOM creates a chrome-based kiosk using a grafana.com authenticated account
+func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, kioskMode int, autoFit *bool, isPlayList *bool) <span class="cov0" title="0">{
+        dir, err := ioutil.TempDir("", "chromedp-example")
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">defer os.RemoveAll(dir)
+
+        opts := []chromedp.ExecAllocatorOption{
+                chromedp.NoFirstRun,
+                chromedp.NoDefaultBrowserCheck,
+                // chromedp.DisableGPU, // needed?
+                chromedp.Flag("noerrdialogs", true),
+                chromedp.Flag("kiosk", true),
+                chromedp.Flag("bwsi", true),
+                chromedp.Flag("incognito", true),
+                chromedp.Flag("disable-sync", true),
+                chromedp.Flag("disable-notifications", true),
+                chromedp.Flag("disable-overlay-scrollbar", true),
+                chromedp.UserDataDir(dir),
+        }
+
+        allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+        defer cancel()
+
+        // also set up a custom logger
+        taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+        defer cancel()
+
+        listenChromeEvents(taskCtx, targetCrashed)
+
+        // ensure that the browser process is started
+        if err := chromedp.Run(taskCtx); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+        log.Println("Navigating to ", generatedURL)
+
+        /*
+                Launch chrome, click the grafana.com button, fill out login form and submit
+        */
+        // XPATH of grafana.com login button = //*[@href="login/grafana_com"]/i
+
+        // Click the grafana_com login button
+        if err := chromedp.Run(taskCtx,
+                chromedp.Navigate(generatedURL),
+                chromedp.WaitVisible("//*[@href=\"login/grafana_com\"]/i", chromedp.BySearch),
+                chromedp.Click("//*[@href=\"login/grafana_com\"]/..", chromedp.BySearch),
+        ); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        // Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
+        <span class="cov0" title="0">time.Sleep(2000 * time.Millisecond)
+        // Fill out grafana_com login page
+        if err := chromedp.Run(taskCtx,
+                chromedp.WaitVisible("//input[@name=\"login\"]", chromedp.BySearch),
+                chromedp.SendKeys("//input[@name=\"login\"]", *usernamePtr, chromedp.BySearch),
+                chromedp.SendKeys("//input[@name=\"password\"]", *passwordPtr+kb.Enter, chromedp.BySearch),
+                chromedp.WaitVisible("notinputPassword", chromedp.ByID),
+        ); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package kiosk
+
+import (
+        "context"
+        "log"
+
+        "github.com/chromedp/cdproto/inspector"
+        "github.com/chromedp/cdproto/runtime"
+        "github.com/chromedp/chromedp"
+)
+
+type chromeEvents int
+
+const (
+        consoleAPICall chromeEvents = 1 &lt;&lt; iota
+        targetCrashed
+)
+
+func listenChromeEvents(taskCtx context.Context, events chromeEvents) <span class="cov0" title="0">{
+        chromedp.ListenTarget(taskCtx, func(ev interface{}) </span><span class="cov0" title="0">{
+                switch ev := ev.(type) </span>{
+                case *runtime.EventConsoleAPICalled:<span class="cov0" title="0">
+                        if events&amp;consoleAPICall != 0 </span><span class="cov0" title="0">{
+                                log.Printf("console.%s call:\n", ev.Type)
+                                for _, arg := range ev.Args </span><span class="cov0" title="0">{
+                                        log.Printf("        %s - %s\n", arg.Type, arg.Value)
+                                }</span>
+                        }
+                case *inspector.EventTargetCrashed:<span class="cov0" title="0">
+                        if events&amp;targetCrashed != 0 </span><span class="cov0" title="0">{
+                                log.Printf("target crashed, reload...")
+                                go func() </span><span class="cov0" title="0">{
+                                        chromedp.Run(taskCtx, chromedp.Reload())
+                                }</span>()
+                        }
+                }
+        })
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package kiosk
+
+import (
+        "context"
+        "io/ioutil"
+        "log"
+        "os"
+        "time"
+
+        "github.com/chromedp/chromedp"
+        "github.com/chromedp/chromedp/kb"
+)
+
+// GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account
+func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string, kioskMode int, autoFit *bool, isPlayList *bool) <span class="cov0" title="0">{
+        dir, err := ioutil.TempDir("", "chromedp-example")
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">defer os.RemoveAll(dir)
+
+        opts := []chromedp.ExecAllocatorOption{
+                chromedp.NoFirstRun,
+                chromedp.NoDefaultBrowserCheck,
+                // chromedp.DisableGPU, // needed?
+                chromedp.Flag("noerrdialogs", true),
+                chromedp.Flag("kiosk", true),
+                chromedp.Flag("bwsi", true),
+                chromedp.Flag("incognito", true),
+                chromedp.Flag("disable-sync", true),
+                chromedp.Flag("disable-notifications", true),
+                chromedp.Flag("disable-overlay-scrollbar", true),
+                chromedp.UserDataDir(dir),
+        }
+
+        allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+        defer cancel()
+
+        // also set up a custom logger
+        taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+        defer cancel()
+
+        listenChromeEvents(taskCtx, targetCrashed)
+
+        // ensure that the browser process is started
+        if err := chromedp.Run(taskCtx); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+        log.Println("Navigating to ", generatedURL)
+        /*
+                Launch chrome and login with local user account
+
+                name=username, type=text
+                id=inputPassword, type=password, name=password
+        */
+        // Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
+        time.Sleep(2000 * time.Millisecond)
+
+        if err := chromedp.Run(taskCtx,
+                chromedp.Navigate(generatedURL),
+                chromedp.WaitVisible(`#inputPassword`, chromedp.ByID),
+                chromedp.SendKeys(`#login-view &gt; form &gt; div:nth-child(1) &gt; input`, *usernamePtr, chromedp.ByID),
+                chromedp.SendKeys(`#inputPassword`, *passwordPtr, chromedp.ByID),
+                chromedp.SendKeys(`#inputPassword`, kb.Enter, chromedp.ByID),
+                chromedp.WaitVisible(`notnputPassword`, chromedp.ByID),
+        ); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package kiosk
+
+import (
+        "log"
+        "net/url"
+)
+
+// GenerateURL constructs URL with appropriate parameters for kiosk mode
+func GenerateURL(anURL string, kioskMode int, autoFit *bool, isPlayList *bool) string <span class="cov0" title="0">{
+        u, _ := url.ParseRequestURI(anURL)
+        q, _ := url.ParseQuery(u.RawQuery)
+        switch kioskMode </span>{
+        case 0:<span class="cov0" title="0"> // TV
+                q.Set("kiosk", "tv") // no sidebar, topnav without buttons
+                log.Printf("KioskMode: TV")</span>
+        case 1:<span class="cov0" title="0"> // FULLSCREEN
+                q.Set("kiosk", "1") // sidebar and topnav always shown
+                log.Printf("KioskMode: Fullscreen")</span>
+        default:<span class="cov0" title="0"> // disabled
+                log.Printf("KioskMode: Disabled")</span>
+        }
+        // a playlist should also go inactive immediately
+        <span class="cov0" title="0">if *isPlayList == true </span><span class="cov0" title="0">{
+                q.Set("inactive", "1")
+        }</span>
+        <span class="cov0" title="0">u.RawQuery = q.Encode()
+        if *autoFit == true </span><span class="cov0" title="0">{
+                u.RawQuery = u.RawQuery + "&amp;autofitpanels"
+        }</span>
+        <span class="cov0" title="0">return u.String()</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

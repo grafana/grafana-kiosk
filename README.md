@@ -118,6 +118,21 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 ./bin/grafana-kiosk --URL https://play.grafana.org/playlists/play/1 --login-method anon --kiosk-mode tv
 ```
 
+## LXDE Options
+
+The `--lxde` option initializes settings for the desktop.
+
+Actions Performed:
+
+- sets profile via lxpanel to LXDE
+- sets pcmanfs profile to LXDE
+- runs `xset s off` to disable screensaver
+- runs `xset -dpms` to disable power-saving (prevents screen from turning off)
+- runs `xset s noblank` disables blank mode for screensaver (maybe not needed)
+- runs `unclutter` to hide the mouse
+
+The `--lxde-home` option allows you to specify a different $HOME directory where the lxde configuration files can be found.
+
 ## Building
 
 A Makefile is provided for building the utility.

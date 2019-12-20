@@ -19,6 +19,24 @@ The utitilty provides these options:
 
 Additionally, an initialize option is provided to configure LXDE for Raspberry Pi Desktop.
 
+## Installing
+
+Download the zip or tar file from [releases](https://github.com/grafana/grafana-kiosk/releases)
+
+The release file includes pre-built binaries for the following:
+|  OS    | Architecture | Description    | Executable                      |
+|--------|--------------|----------------|---------------------------------|
+| linux  | amd64        | 64bit          | grafana-kiosk.linux.amd64       |
+| linux  | 386          | 32bit          | grafana-kiosk.linux.386         |
+| linux  | arm64        | 64bit Arm v7   | grafana-kiosk.linux.arm64       |
+| linux  | arm          | ARM v5         | grafana-kiosk.linux.armv5       |
+| linux  | arm          | ARM v6         | grafana-kiosk.linux.armv6       |
+| linux  | arm          | ARM v7         | grafana-kiosk.linux.armv7       |
+| * darwin | amd64        | 64bit          | grafana-kiosk.darwin.amd64     |
+| * windows| amd64        | 64bit          | grafana-kiosk.windows.amd64.exe|
+
+* NOTE darwin and windows builds are still under development
+
 ## Usage
 
 `--URL`

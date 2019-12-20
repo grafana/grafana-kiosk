@@ -11,6 +11,9 @@ function exit_if_fail {
   fi
 }
 
+# gometalinter needs newer version of go-i18n
+#go get -u github.com/nicksnyder/go-i18n/v2/i18n
+go get -u github.com/nicksnyder/go-i18n
 go get -u github.com/alecthomas/gometalinter
 go get -u github.com/jgautheron/goconst/cmd/goconst
 go get -u honnef.co/go/tools/cmd/staticcheck

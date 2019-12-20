@@ -117,11 +117,10 @@ workflows:
   build_workflow:
     jobs:
       - cmd_lint
-      - cmd_test:
-          requires:
-          - cmd_lint
+      - cmd_test
       - build:
           requires:
+          - cmd_lint
           - cmd_test
       - approve_release:
           type: approval

@@ -17,13 +17,13 @@ go get -u github.com/mgechev/revive
 go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 
 # use golangci-when possible
-exit_if_fail golangci-lint run --deadline 10m --disable-all \
-  --enable=deadcode\
-  --enable=gofmt\
-  --enable=ineffassign\
-  --enable=structcheck\
-  --enable=unconvert\
-  --enable=varcheck
+# exit_if_fail golangci-lint run --deadline 10m --disable-all \
+#  --enable=deadcode\
+#  --enable=gofmt\
+#  --enable=ineffassign\
+#  --enable=structcheck\
+#  --enable=unconvert\
+#  --enable=varcheck
 
 exit_if_fail golangci-lint --verbose run\
   --deadline 5m\

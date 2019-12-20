@@ -18,12 +18,16 @@ grafana-kiosk: dev
 	GOOS=linux GOARCH=arm GOARM=7 go build -o bin/grafana-kiosk.linux.armv7 pkg/cmd/grafana-kiosk/main.go
 	GOOS=linux GOARCH=arm64 go build -o bin/grafana-kiosk.linux.arm64 pkg/cmd/grafana-kiosk/main.go
 
-lint-circleci:
+circleci-lint:
 	@echo "Linting in circleci"
 	circleci local execute --job cmd_lint
 
-test-circleci:
-	@echo "Testing build in circleci"
+circleci-test:
+	@echo "Testing in circleci"
+	circleci local execute --job cmd_test
+
+circleci-build:
+	@echo "Build in circleci"
 	circleci local execute --job build
 
 package: grafana-kiosk

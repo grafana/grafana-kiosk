@@ -7,7 +7,9 @@ import (
 
 // TestKiosk checks kiosk command
 func TestKioskCommand(t *testing.T) {
-	SkipConvey("Kiosk args", t, func() {
-		So(true, ShouldBeTrue)
+	Convey("Given Kiosk CMD", t, func() {
+		Convey("cmd should...", func() {
+			So(true, ShouldBeTrue)
+		})
 	})
 }

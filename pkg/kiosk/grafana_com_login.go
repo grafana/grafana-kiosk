@@ -74,5 +74,4 @@ func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, 
 	); err != nil {
 		panic(err)
 	}
-
 }

@@ -25,7 +25,7 @@ func GenerateURL(anURL string, kioskMode int, autoFit *bool, isPlayList *bool) s
 	}
 	u.RawQuery = q.Encode()
 	if *autoFit {
-		u.RawQuery = u.RawQuery + "&autofitpanels"
+		u.RawQuery += "&autofitpanels"
 	}
 	return u.String()
 }

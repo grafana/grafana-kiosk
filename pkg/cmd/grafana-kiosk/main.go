@@ -55,7 +55,6 @@ func setEnvironment() {
 		xAuthorityEnv = os.Getenv("XAUTHORITY")
 	}
 	log.Println("XAUTHORITY=", xAuthorityEnv)
-
 }
 
 func main() {

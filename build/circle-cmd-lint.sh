@@ -25,6 +25,37 @@ exit_if_fail golangci-lint run --deadline 10m --disable-all \
   --enable=unconvert\
   --enable=varcheck
 
-exit_if_fail go vet ./pkg/...
+exit_if_fail golangci-lint --verbose run\
+  --deadline 5m\
+  --enable=bodyclose\
+  --enable=gosec\
+  --enable=interfacer\
+  --enable=unconvert\
+  --enable=dupl\
+  --enable=goconst\
+  --enable=gocyclo\
+  --enable=gocognit\
+  --enable=maligned\
+  --enable=depguard\
+  --enable=misspell\
+  --enable=dogsled\
+  --enable=nakedret\
+  --enable=prealloc\
+  --enable=scopelint\
+  --enable=gocritic\
+  --enable=gochecknoinits\
+  --enable=godox\
+  --enable=whitespace\
+    ./...
+
+# TODO: Enable these linters in the future
+# --enable=funlen
+# --enable=gochecknoglobals
+# --enable=lll
+# --enable=unparam
+# --enable=wsl
+
+# go vet is already run by linter above
+#exit_if_fail go vet ./pkg/...
 
 exit_if_fail revive -formatter stylish -config ./build/revive.toml

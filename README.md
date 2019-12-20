@@ -26,7 +26,7 @@ Download the zip or tar file from [releases](https://github.com/grafana/grafana-
 
 The release file includes pre-built binaries for the following:
 |  OS    | Architecture | Description    | Executable                      |
-|--------|--------------|----------------|---------------------------------|
+| ------ | ------------ | -------------- | ------------------------------- |
 | linux  | amd64        | 64bit          | grafana-kiosk.linux.amd64       |
 | linux  | 386          | 32bit          | grafana-kiosk.linux.386         |
 | linux  | arm64        | 64bit Arm v7   | grafana-kiosk.linux.arm64       |

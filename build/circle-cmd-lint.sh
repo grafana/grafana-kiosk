@@ -11,28 +11,52 @@ function exit_if_fail {
   fi
 }
 
-go get -u github.com/alecthomas/gometalinter
 go get -u github.com/jgautheron/goconst/cmd/goconst
 go get -u honnef.co/go/tools/cmd/staticcheck
 go get -u github.com/mgechev/revive
 go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 
-# use gometalinter when lints are not available in golangci or
-# when gometalinter is better. Eg. goconst for gometalinter does not lint test files
-# which is not desired.
-exit_if_fail gometalinter --enable-gc --vendor --deadline 10m --disable-all \
-  --enable=goconst\
-  --enable=staticcheck
-
 # use golangci-when possible
-exit_if_fail golangci-lint run --deadline 10m --disable-all \
-  --enable=deadcode\
-  --enable=gofmt\
-  --enable=ineffassign\
-  --enable=structcheck\
-  --enable=unconvert\
-  --enable=varcheck
+# exit_if_fail golangci-lint run --deadline 10m --disable-all \
+#  --enable=deadcode\
+#  --enable=gofmt\
+#  --enable=ineffassign\
+#  --enable=structcheck\
+#  --enable=unconvert\
+#  --enable=varcheck
 
-exit_if_fail go vet ./pkg/...
+exit_if_fail golangci-lint --verbose run\
+  --deadline 5m\
+  --enable=bodyclose\
+  --enable=gosec\
+  --enable=interfacer\
+  --enable=unconvert\
+  --enable=dupl\
+  --enable=goconst\
+  --enable=gocyclo\
+  --enable=gocognit\
+  --enable=gofmt\
+  --enable=maligned\
+  --enable=depguard\
+  --enable=misspell\
+  --enable=dogsled\
+  --enable=nakedret\
+  --enable=prealloc\
+  --enable=scopelint\
+  --enable=gocritic\
+  --enable=gochecknoinits\
+  --enable=godox\
+  --enable=whitespace\
+    ./...
+
+# TODO: Enable these linters in the future
+# --enable=funlen
+# --enable=gochecknoglobals
+# --enable=lll
+# --enable=unparam
+# --enable=wsl
+
+# go vet is already run by linter above
+#exit_if_fail go vet ./pkg/...
 
 exit_if_fail revive -formatter stylish -config ./build/revive.toml

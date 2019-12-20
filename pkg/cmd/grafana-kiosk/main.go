@@ -55,7 +55,6 @@ func setEnvironment() {
 		xAuthorityEnv = os.Getenv("XAUTHORITY")
 	}
 	log.Println("XAUTHORITY=", xAuthorityEnv)
-
 }
 
 func main() {
@@ -89,11 +88,11 @@ func main() {
 		panic(err)
 	}
 
-	if *isPlayList == true {
+	if *isPlayList {
 		log.Printf("playlist")
 	}
 
-	if *LXDEEnabled == true {
+	if *LXDEEnabled {
 		initialize.LXDE(*LXDEHomePtr)
 	}
 	switch *kioskModePtr {

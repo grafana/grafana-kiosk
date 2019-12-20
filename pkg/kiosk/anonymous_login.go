@@ -66,5 +66,4 @@ func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayL
 	// wait here for the process to exit
 	time.Sleep(2000 * time.Millisecond)
 	log.Println("Exit...")
-
 }

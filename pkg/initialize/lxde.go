@@ -9,6 +9,7 @@ import (
 // LXDE runs shell commands to setup LXDE for kiosk mode
 func LXDE(path string) {
 	var command = "/usr/bin/lxpanel"
+
 	args := []string{"--profile", "LXDE"}
 	runCommand(path, command, args, true)
 	command = "/usr/bin/pcmanfm"
@@ -23,8 +24,9 @@ func LXDE(path string) {
 	args = []string{"s", "noblank"}
 	runCommand(path, command, args, true)
 	command = "/usr/bin/unclutter"
-	var displayEnv = os.Getenv("DISPLAY")
+	displayEnv := os.Getenv("DISPLAY")
 	args = []string{"-display", displayEnv, "-idle", "5"}
+
 	go runCommand(path, command, args, true)
 }
 

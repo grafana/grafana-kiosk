@@ -20,12 +20,12 @@ func GenerateURL(anURL string, kioskMode int, autoFit *bool, isPlayList *bool) s
 		log.Printf("KioskMode: Disabled")
 	}
 	// a playlist should also go inactive immediately
-	if *isPlayList == true {
+	if *isPlayList {
 		q.Set("inactive", "1")
 	}
 	u.RawQuery = q.Encode()
-	if *autoFit == true {
-		u.RawQuery = u.RawQuery + "&autofitpanels"
+	if *autoFit {
+		u.RawQuery += "&autofitpanels"
 	}
 	return u.String()
 }

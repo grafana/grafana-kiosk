@@ -30,7 +30,7 @@ func listenChromeEvents(taskCtx context.Context, events chromeEvents) {
 			if events&targetCrashed != 0 {
 				log.Printf("target crashed, reload...")
 				go func() {
-					chromedp.Run(taskCtx, chromedp.Reload())
+					_ = chromedp.Run(taskCtx, chromedp.Reload())
 				}()
 			}
 		}

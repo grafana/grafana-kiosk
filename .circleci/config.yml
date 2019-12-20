@@ -114,10 +114,10 @@ jobs:
             git add --force bin
             git add --force coverage
             git commit -m "automated release $VERSION [skip ci]"
-            #git push -f origin release-${VERSION}
-            #git tag -f v${VERSION}
-            #git push -f origin v${VERSION}
-            echo ghr \
+            git push -f origin release-${VERSION}
+            git tag -f v${VERSION}
+            git push -f origin v${VERSION}
+            ghr \
               -t ${GITHUB_TOKEN} \
               -u ${CIRCLE_PROJECT_USERNAME} \
               -r ${CIRCLE_PROJECT_REPONAME} \
@@ -127,6 +127,10 @@ jobs:
               -delete \
               v${VERSION} \
               ./artifacts/
+      - store_artifacts:
+          path: artifacts
+      - store_artifacts:
+          path: coverage
 
 workflows:
   version: 2
@@ -142,8 +146,8 @@ workflows:
           type: approval
           requires:
           - build
-          #filters: *filter-only-master
+          filters: *filter-only-master
       - publish_github_release:
           requires:
           - approve_release
-          #filters: *filter-only-master
+          filters: *filter-only-master

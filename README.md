@@ -37,8 +37,6 @@ The release file includes pre-built binaries. See table below for the types avai
 | darwin | amd64        | 64bit          | grafana-kiosk.darwin.amd64      |
 | windows| amd64        | 64bit          | grafana-kiosk.windows.amd64.exe |
 
-- NOTE darwin and windows builds are still under development
-
 ## Usage
 
 `--URL`

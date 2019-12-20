@@ -40,6 +40,8 @@ func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, 
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
+	listenChromeEvents(taskCtx, targetCrashed)
+
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {
 		panic(err)

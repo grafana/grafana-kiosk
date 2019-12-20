@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 )
 
@@ -39,15 +38,9 @@ func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayL
 	// also set up a custom logger
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
-	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
-		switch ev := ev.(type) {
-		case *runtime.EventConsoleAPICalled:
-			log.Printf("console.%s call:\n", ev.Type)
-			for _, arg := range ev.Args {
-				log.Printf("%s - %s\n", arg.Type, arg.Value)
-			}
-		}
-	})
+
+	listenChromeEvents(taskCtx, consoleAPICall|targetCrashed)
+
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {
 		panic(err)

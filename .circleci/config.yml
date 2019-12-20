@@ -74,12 +74,14 @@ jobs:
             cd /go/src/github.com/grafana
             zip \
               -x grafana-kiosk/.git/**\* \
+              -x grafana-kiosk/vendor/**\* \
               -r /tmp/grafana-kiosk-${VERSION}.zip \
               grafana-kiosk
             # create tar file
             echo "Creating TAR"
             tar \
               --exclude .git \
+              --exclude vendor \
               -cvf /tmp/grafana-kiosk-${VERSION}.tar \
               grafana-kiosk
             gzip /tmp/grafana-kiosk-${VERSION}.tar
@@ -87,6 +89,7 @@ jobs:
             mkdir -p /go/src/github.com/grafana/grafana-kiosk/artifacts
             mv /tmp/grafana-kiosk-${VERSION}.zip /go/src/github.com/grafana/grafana-kiosk/artifacts/
             mv /tmp/grafana-kiosk-${VERSION}.tar.gz /go/src/github.com/grafana/grafana-kiosk/artifacts/
+            cd /go/src/github.com/grafana/grafana-kiosk
             ls -al
             git config user.email "eng@grafana.com"
             git config user.name "CircleCI Automation"

@@ -67,7 +67,7 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             PROJECT_NAME=grafana-kiosk
-            RELEASE_NOTES=`awk 'BEGIN {FS="##"; RS=""} FNR==2 {print; exit}' CHANGELOG.md`
+            RELEASE_NOTES=`awk 'BEGIN {FS="##"; RS=""} FNR==3 {print; exit}' CHANGELOG.md`
             VERSION=`awk 'BEGIN {FS="##"; RS=""} FNR==2 {print; exit}' CHANGELOG.md | cut -f2 -d' '`
             # create zip file
             echo "Creating ZIP"

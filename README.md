@@ -63,6 +63,8 @@ $ sudo cp -p grafana-kiosk.linux.armv7 /usr/bin/grafana-kiosk
 
 `--password` used with local and gcom login methods
 
+`--ignore-certificate-errors` used with local and anonymous login methods
+
 `--kiosk-mode`
 
 - full  (no sidebar, top navigation disabled)
@@ -106,8 +108,10 @@ This will login to a grafana server that uses local accounts:
 ./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --username admin --password admin --kiosk-mode tv
 ```
 
+If you are using a self-signed certificate, you can remove the certificate error with `--ignore-certificate-errors`
+
 ```bash
-./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --username admin --password admin --kiosk-mode tv
+./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --username admin --password admin --kiosk-mode tv --ignore-certificate-errors
 ```
 
 ### Grafana Server with Anonymous access enabled

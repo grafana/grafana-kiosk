@@ -66,6 +66,7 @@ func main() {
 	methodPtr := flag.String("login-method", "anon", "login method: [anon|local|gcom]")
 	usernamePtr := flag.String("username", "guest", "username (Required)")
 	passwordPtr := flag.String("password", "guest", "password (Required)")
+	ignoreCertificateErrors := flag.Bool("ignore-certificate-errors", false, "ignore SSL/TLS certificate errors")
 	// kiosk=tv includes sidebar menu
 	// kiosk no sidebar ever
 	kioskModePtr := flag.String("kiosk-mode", "full", "kiosk mode [full|tv|disabled]")
@@ -123,12 +124,12 @@ func main() {
 	switch loginMethod {
 	case LOCAL:
 		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(urlPtr, usernamePtr, passwordPtr, kioskMode, autoFit, isPlayList)
+		kiosk.GrafanaKioskLocal(urlPtr, usernamePtr, passwordPtr, kioskMode, autoFit, isPlayList, ignoreCertificateErrors)
 	case GCOM:
 		log.Printf("Launching GCOM login kiosk")
 		kiosk.GrafanaKioskGCOM(urlPtr, usernamePtr, passwordPtr, kioskMode, autoFit, isPlayList)
 	case ANONYMOUS:
 		log.Printf("Launching ANON login kiosk")
-		kiosk.GrafanaKioskAnonymous(urlPtr, kioskMode, autoFit, isPlayList)
+		kiosk.GrafanaKioskAnonymous(urlPtr, kioskMode, autoFit, isPlayList, ignoreCertificateErrors)
 	}
 }

@@ -11,7 +11,7 @@ import (
 )
 
 // GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account
-func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayList *bool) {
+func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayList *bool, ignoreCertificateErrors *bool) {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
 		panic(err)
@@ -29,6 +29,8 @@ func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayL
 		chromedp.Flag("disable-sync", true),
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),
+		chromedp.Flag("ignore-certificate-errors", *ignoreCertificateErrors),
+		chromedp.Flag("test-type", *ignoreCertificateErrors),
 		chromedp.UserDataDir(dir),
 	}
 

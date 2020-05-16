@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.0.2
+
+- Also compatible with Grafana v7
+- New flag to ignore SSL certificates for local login
+- Updated chromedp and build with go 1.14.2
+- New configuration file based startup
+
 ## 1.0.1
 
 - Automated build

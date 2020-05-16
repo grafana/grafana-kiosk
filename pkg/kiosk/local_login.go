@@ -12,7 +12,7 @@ import (
 )
 
 // GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account
-func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string, kioskMode int, autoFit *bool, isPlayList *bool) {
+func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string, kioskMode int, autoFit *bool, isPlayList *bool, ignoreCertificateErrors *bool) {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
 		panic(err)
@@ -30,6 +30,8 @@ func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string,
 		chromedp.Flag("disable-sync", true),
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),
+		chromedp.Flag("ignore-certificate-errors", *ignoreCertificateErrors),
+		chromedp.Flag("test-type", *ignoreCertificateErrors),
 		chromedp.UserDataDir(dir),
 	}
 

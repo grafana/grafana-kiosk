@@ -1,5 +1,5 @@
 general:
-  mode: full
+  kiosk-mode: full
   autofit: true
   lxde: true
   lxde-home: /home/pi
@@ -9,5 +9,5 @@ target:
   username: user
   password: changeme
   playlist: false
-  url: https://play.grafana.org
+  URL: https://play.grafana.org
   ignore-certificate-errors: false

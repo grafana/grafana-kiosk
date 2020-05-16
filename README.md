@@ -41,6 +41,7 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 
 ```BASH
 $ sudo cp -p grafana-kiosk.linux.armv7 /usr/bin/grafana-kiosk
+$ sudo chmod 755 /usr/bin/grafana-kiosk
 ```
 
 ## Usage
@@ -252,3 +253,5 @@ This will generate executables in "bin" that can be run on a variety of platform
 
 - [Michael Pasqualone](https://github.com/michaelp85) for the session-based startup ideas!
 - [Brendan Ball](https://github.com/BrendanBall) for contributing the desktop link startup example for LXDE!
+- [Alex Heylin](https://github.com/AlexHeylin) for the v7 login fix - and also works with v6!
+- [Xan Manning](https://github.com/xanmanning) for the ignore certificate option!

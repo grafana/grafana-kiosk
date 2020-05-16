@@ -15,15 +15,15 @@ import (
 
 // Args command-line parameters
 type Args struct {
-	ConfigPath              string
-	URL                     string
 	AutoFit                 bool
-	LXDEEnabled             bool
-	LXDEHome                string
-	Mode                    string
 	IgnoreCertificateErrors bool
 	IsPlayList              bool
+	LXDEEnabled             bool
+	LXDEHome                string
+	ConfigPath              string
+	Mode                    string
 	LoginMethod             string
+	URL                     string
 	Username                string
 	Password                string
 }

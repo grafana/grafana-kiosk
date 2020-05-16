@@ -12,7 +12,7 @@ import (
 )
 
 // GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account
-func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string, kioskMode int, autoFit *bool, isPlayList *bool, ignoreCertificateErrors *bool) {
+func GrafanaKioskLocal(cfg *Config) {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
 		panic(err)
@@ -30,8 +30,8 @@ func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string,
 		chromedp.Flag("disable-sync", true),
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),
-		chromedp.Flag("ignore-certificate-errors", *ignoreCertificateErrors),
-		chromedp.Flag("test-type", *ignoreCertificateErrors),
+		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
+		chromedp.Flag("test-type", cfg.Target.IgnoreCertificateErrors),
 		chromedp.UserDataDir(dir),
 	}
 
@@ -49,7 +49,7 @@ func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string,
 		panic(err)
 	}
 
-	var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
 	log.Println("Navigating to ", generatedURL)
 	/*
 		Launch chrome and login with local user account
@@ -63,8 +63,8 @@ func GrafanaKioskLocal(urlPtr *string, usernamePtr *string, passwordPtr *string,
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible("//input[@name=\"password\"]", chromedp.BySearch),
-		chromedp.SendKeys("//input[@name=\"user\"]", *usernamePtr, chromedp.BySearch),
-		chromedp.SendKeys("//input[@name=\"password\"]", *passwordPtr+kb.Enter, chromedp.BySearch),
+		chromedp.SendKeys("//input[@name=\"login\"]", cfg.Target.Username, chromedp.BySearch),
+		chromedp.SendKeys("//input[@name=\"password\"]", cfg.Target.Password+kb.Enter, chromedp.BySearch),
 		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
 	); err != nil {
 		panic(err)

@@ -40,8 +40,8 @@ The release file includes pre-built binaries. See table below for the types avai
 Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana-kiosk:
 
 ```BASH
-$ sudo cp -p grafana-kiosk.linux.armv7 /usr/bin/grafana-kiosk
-$ sudo chmod 755 /usr/bin/grafana-kiosk
+# sudo cp -p grafana-kiosk.linux.armv7 /usr/bin/grafana-kiosk
+# sudo chmod 755 /usr/bin/grafana-kiosk
 ```
 
 ## Usage
@@ -187,8 +187,8 @@ Exec=screen -d -m bash -c /usr/bin/grafana-kiosk --URL https://bkgann3.grafana.n
 ## Systemd startup
 
 ```BASH
-$ sudo touch /etc/systemd/system/grafana-kiosk.service
-$ sudo chmod 664 /etc/systemd/system/grafana-kiosk.service
+# sudo touch /etc/systemd/system/grafana-kiosk.service
+# sudo chmod 664 /etc/systemd/system/grafana-kiosk.service
 ```
 
 ```INI
@@ -211,15 +211,15 @@ WantedBy=graphical.target
 Reload systemd:
 
 ```BASH
-$ sudo systemctl daemon-reload
+# sudo systemctl daemon-reload
 ```
 
 Enable, Start, Get Status, and logs:
 
 ```BASH
-$ sudo systemctl enable grafana-kiosk
-$ sudo systemctl start grafana-kiosk
-$ sudo systemctl status grafana-kiosk
+# sudo systemctl enable grafana-kiosk
+# sudo systemctl start grafana-kiosk
+# sudo systemctl status grafana-kiosk
 ```
 
 Logs:

@@ -9,4 +9,5 @@ require (
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/smartystreets/goconvey v1.6.4
 	golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9 // indirect
+	github.com/ilyakaznacheev/cleanenv v1.2.3
 )

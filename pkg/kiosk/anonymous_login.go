@@ -11,7 +11,7 @@ import (
 )
 
 // GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account
-func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayList *bool, ignoreCertificateErrors *bool) {
+func GrafanaKioskAnonymous(cfg *Config) {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
 		panic(err)
@@ -29,8 +29,8 @@ func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayL
 		chromedp.Flag("disable-sync", true),
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),
-		chromedp.Flag("ignore-certificate-errors", *ignoreCertificateErrors),
-		chromedp.Flag("test-type", *ignoreCertificateErrors),
+		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
+		chromedp.Flag("test-type", cfg.Target.IgnoreCertificateErrors),
 		chromedp.UserDataDir(dir),
 	}
 
@@ -51,7 +51,7 @@ func GrafanaKioskAnonymous(urlPtr *string, kioskMode int, autoFit *bool, isPlayL
 	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
 	time.Sleep(2000 * time.Millisecond)
 
-	var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
 	log.Println("Navigating to ", generatedURL)
 	/*
 		Launch chrome and look for main-view element

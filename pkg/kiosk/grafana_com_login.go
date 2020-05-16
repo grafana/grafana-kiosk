@@ -12,7 +12,7 @@ import (
 )
 
 // GrafanaKioskGCOM creates a chrome-based kiosk using a grafana.com authenticated account
-func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, kioskMode int, autoFit *bool, isPlayList *bool) {
+func GrafanaKioskGCOM(cfg *Config) {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
 		panic(err)
@@ -47,7 +47,7 @@ func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, 
 		panic(err)
 	}
 
-	var generatedURL = GenerateURL(*urlPtr, kioskMode, autoFit, isPlayList)
+	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
 	log.Println("Navigating to ", generatedURL)
 
 	/*
@@ -68,8 +68,8 @@ func GrafanaKioskGCOM(urlPtr *string, usernamePtr *string, passwordPtr *string, 
 	// Fill out grafana_com login page
 	if err := chromedp.Run(taskCtx,
 		chromedp.WaitVisible("//input[@name=\"login\"]", chromedp.BySearch),
-		chromedp.SendKeys("//input[@name=\"login\"]", *usernamePtr, chromedp.BySearch),
-		chromedp.SendKeys("//input[@name=\"password\"]", *passwordPtr+kb.Enter, chromedp.BySearch),
+		chromedp.SendKeys("//input[@name=\"login\"]", cfg.Target.Username, chromedp.BySearch),
+		chromedp.SendKeys("//input[@name=\"password\"]", cfg.Target.Password+kb.Enter, chromedp.BySearch),
 		chromedp.WaitVisible("notinputPassword", chromedp.ByID),
 	); err != nil {
 		panic(err)

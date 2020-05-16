@@ -58,8 +58,8 @@ func GrafanaKioskGCOM(cfg *Config) {
 	// Click the grafana_com login button
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
-		chromedp.WaitVisible("//*[@href=\"login/grafana_com\"]/i", chromedp.BySearch),
-		chromedp.Click("//*[@href=\"login/grafana_com\"]/..", chromedp.BySearch),
+		chromedp.WaitVisible(`//*[@href="login/grafana_com"]/i`, chromedp.BySearch),
+		chromedp.Click(`//*[@href="login/grafana_com"]/..`, chromedp.BySearch),
 	); err != nil {
 		panic(err)
 	}
@@ -67,10 +67,10 @@ func GrafanaKioskGCOM(cfg *Config) {
 	time.Sleep(2000 * time.Millisecond)
 	// Fill out grafana_com login page
 	if err := chromedp.Run(taskCtx,
-		chromedp.WaitVisible("//input[@name=\"login\"]", chromedp.BySearch),
-		chromedp.SendKeys("//input[@name=\"login\"]", cfg.Target.Username, chromedp.BySearch),
-		chromedp.SendKeys("//input[@name=\"password\"]", cfg.Target.Password+kb.Enter, chromedp.BySearch),
-		chromedp.WaitVisible("notinputPassword", chromedp.ByID),
+		chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
+		chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
+		chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
 	); err != nil {
 		panic(err)
 	}

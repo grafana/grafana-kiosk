@@ -58,9 +58,9 @@ func GrafanaKioskAnonymous(cfg *Config) {
 	*/
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
-		chromedp.WaitVisible("//div[@class=\"main-view\"]", chromedp.BySearch),
+		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
 		// wait forever (for now)
-		chromedp.WaitVisible("notnputPassword", chromedp.ByID),
+		chromedp.WaitVisible("notinputPassword", chromedp.ByID),
 	); err != nil {
 		panic(err)
 	}

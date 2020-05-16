@@ -54,7 +54,7 @@ func GrafanaKioskLocal(cfg *Config) {
 	/*
 		Launch chrome and login with local user account
 
-		name=username, type=text
+		name=user, type=text
 		id=inputPassword, type=password, name=password
 	*/
 	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
@@ -62,9 +62,9 @@ func GrafanaKioskLocal(cfg *Config) {
 
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
-		chromedp.WaitVisible("//input[@name=\"password\"]", chromedp.BySearch),
-		chromedp.SendKeys("//input[@name=\"login\"]", cfg.Target.Username, chromedp.BySearch),
-		chromedp.SendKeys("//input[@name=\"password\"]", cfg.Target.Password+kb.Enter, chromedp.BySearch),
+		chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
+		chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
+		chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
 		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
 	); err != nil {
 		panic(err)

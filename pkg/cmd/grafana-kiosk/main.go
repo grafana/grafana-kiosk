@@ -37,8 +37,8 @@ func ProcessArgs(cfg interface{}) Args {
 	f.BoolVar(&a.AutoFit, "autofit", true, "Fit panels to screen")
 	f.BoolVar(&a.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
 	f.StringVar(&a.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
-	f.StringVar(&a.Mode, "mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
-	f.StringVar(&a.URL, "url", "https://play.grafana.org", "URL to Grafana server")
+	f.StringVar(&a.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
+	f.StringVar(&a.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
 	f.BoolVar(&a.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
 	f.BoolVar(&a.IsPlayList, "playlists", false, "URL is a playlist")
 	f.StringVar(&a.LoginMethod, "login-method", "anon", "[anon|local|gcom]")
@@ -85,15 +85,39 @@ func setEnvironment() {
 	log.Println("XAUTHORITY=", xAuthorityEnv)
 }
 
+func summary(cfg *kiosk.Config) {
+	// general
+	log.Println("AutoFit:", cfg.General.AutoFit)
+	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
+	log.Println("LXDEHome:", cfg.General.LXDEHome)
+	log.Println("Mode:", cfg.General.Mode)
+	// target
+	log.Println("URL:", cfg.Target.URL)
+	log.Println("LoginMethod:", cfg.Target.LoginMethod)
+	log.Println("Username:", cfg.Target.Username)
+	log.Println("Password:", "*redacted*")
+	log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
+	log.Println("IsPlayList:", cfg.Target.IsPlayList)
+}
 func main() {
 	var cfg kiosk.Config
 	// override
 	args := ProcessArgs(&cfg)
-	cfg.Target.URL = args.URL
 	// read configuration from the file and environment variables
 	if err := cleanenv.ReadConfig(args.ConfigPath, &cfg); err != nil {
 		log.Printf("No config file specified, continuing")
 	}
+	cfg.Target.URL = args.URL
+	cfg.Target.LoginMethod = args.LoginMethod
+	cfg.Target.Username = args.Username
+	cfg.Target.Password = args.Password
+	cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors
+	cfg.Target.IsPlayList = args.IsPlayList
+	//
+	cfg.General.AutoFit = args.AutoFit
+	cfg.General.LXDEEnabled = args.LXDEEnabled
+	cfg.General.LXDEHome = args.LXDEHome
+	cfg.General.Mode = args.Mode
 	// make sure the url has content
 	if cfg.Target.URL == "" {
 		os.Exit(1)
@@ -103,6 +127,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	summary(&cfg)
 
 	if cfg.General.LXDEEnabled {
 		initialize.LXDE(cfg.General.LXDEHome)
@@ -110,6 +135,7 @@ func main() {
 
 	// for linux/X display must be set
 	setEnvironment()
+	log.Println("method ", cfg.Target.LoginMethod)
 
 	switch cfg.Target.LoginMethod {
 	case "local":

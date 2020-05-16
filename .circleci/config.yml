@@ -6,10 +6,34 @@ aliases:
     branches:
       only: master
 
+workflows:
+  version: 2
+  build_workflow:
+    jobs:
+      - cmd_lint
+      - cmd_test
+      - build:
+          requires:
+          - cmd_lint
+          - cmd_test
+      - approve_release:
+          type: approval
+          requires:
+          - build
+          filters: *filter-only-master
+      - publish_github_release:
+          requires:
+          - approve_release
+          filters: *filter-only-master
+
+executors:
+  go_exec:
+    docker:
+      - image: circleci/golang:1.14.2
+
 jobs:
   build:
-    docker:
-      - image: circleci/golang:1.13.5
+    executor: go_exec
     working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
@@ -22,8 +46,7 @@ jobs:
           - bin
 
   cmd_lint:
-    docker:
-      - image: circleci/golang:1.13.5
+    executor: go_exec
     working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
@@ -32,8 +55,7 @@ jobs:
           command: build/circle-cmd-lint.sh
 
   cmd_test:
-    docker:
-      - image: circleci/golang:1.13.5
+    executor: go_exec
     working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
@@ -131,23 +153,3 @@ jobs:
           path: artifacts
       - store_artifacts:
           path: coverage
-
-workflows:
-  version: 2
-  build_workflow:
-    jobs:
-      - cmd_lint
-      - cmd_test
-      - build:
-          requires:
-          - cmd_lint
-          - cmd_test
-      - approve_release:
-          type: approval
-          requires:
-          - build
-          filters: *filter-only-master
-      - publish_github_release:
-          requires:
-          - approve_release
-          filters: *filter-only-master

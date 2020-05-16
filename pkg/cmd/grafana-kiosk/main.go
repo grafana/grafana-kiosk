@@ -13,9 +13,6 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 )
 
-// LoginMethod specifies the type of login to be used by the kiosk
-type LoginMethod int
-
 // Args command-line parameters
 type Args struct {
 	ConfigPath              string
@@ -30,23 +27,6 @@ type Args struct {
 	Username                string
 	Password                string
 }
-
-// Login Methods
-const (
-	ANONYMOUS LoginMethod = 0
-	LOCAL     LoginMethod = 1
-	GCOM      LoginMethod = 2
-)
-
-// Kiosk Modes
-const (
-	// TV will hide the sidebar but allow usage of menu
-	TV int = 0
-	// NORMAL will disable sidebar and top navigation bar
-	NORMAL int = 1
-	// DISABLED will omit kiosk option
-	DISABLED int = 2
-)
 
 // ProcessArgs processes and handles CLI arguments
 func ProcessArgs(cfg interface{}) Args {
@@ -76,7 +56,11 @@ func ProcessArgs(cfg interface{}) Args {
 		fmt.Fprintln(f.Output(), envHelp)
 	}
 
-	f.Parse(os.Args[1:])
+	err := f.Parse(os.Args[1:])
+	if err != nil {
+		f.Usage()
+		os.Exit(-1)
+	}
 	return a
 }
 

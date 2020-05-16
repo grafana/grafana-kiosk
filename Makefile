@@ -17,7 +17,7 @@ grafana-kiosk: dev
 	GO111MODULE=on GOOS=linux GOARCH=arm GOARM=6 go build -o bin/grafana-kiosk.linux.armv6 pkg/cmd/grafana-kiosk/main.go
 	GO111MODULE=on GOOS=linux GOARCH=arm GOARM=7 go build -o bin/grafana-kiosk.linux.armv7 pkg/cmd/grafana-kiosk/main.go
 	GO111MODULE=on GOOS=linux GOARCH=arm64 go build -o bin/grafana-kiosk.linux.arm64 pkg/cmd/grafana-kiosk/main.go
-	GO111MODULE=on GOOS=darwin GOARCH=amd64 go build -o bin/grafana-kiosk.darwin.amd64 -a -tags netgo -ldflags '-w' pkg/cmd/grafana-kiosk/main.go
+	GO111MODULE=on GOOS=darwin GOARCH=amd64 go build -trimpath -o bin/grafana-kiosk.darwin.amd64 -a -tags netgo -ldflags '-s -w' pkg/cmd/grafana-kiosk/main.go
 	GO111MODULE=on GOOS=windows GOARCH=amd64 go build -o bin/grafana-kiosk.windows.amd64.exe -a -tags netgo -ldflags '-w' pkg/cmd/grafana-kiosk/main.go
 
 circleci-lint:

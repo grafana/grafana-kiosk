@@ -1,5 +1,10 @@
 version: 2.1
 
+parameters:
+  ssh-fingerprint:
+    type: string
+    default: ${GITHUB_SSH_FINGERPRINT}
+
 aliases:
   # Workflow filters
   - &filter-only-master
@@ -81,7 +86,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "52:8e:b7:7c:df:cc:06:98:e4:65:45:a8:4a:fa:15:3b"
+          - << pipeline.parameters.ssh-fingerprint >>
       - checkout
       - attach_workspace:
           at: .

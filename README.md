@@ -81,6 +81,52 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 
 `--lxde-home` specifies home directory of LXDE user (default $HOME)
 
+### Using a configuration file
+
+The kiosk can also be started using a configuration file, along with environment variables.
+
+```YAML
+general:
+  kiosk-mode: full
+  autofit: true
+  lxde: true
+  lxde-home: /home/pi
+
+target:
+  login-method: anon
+  username: user
+  password: changeme
+  playlist: false
+  URL: https://play.grafana.org
+  ignore-certificate-errors: false
+```
+
+Environment variables can be set and will override the configuration file.
+They can also be used instead of a configuration file.
+
+```TEXT
+  KIOSK_AUTOFIT bool
+      fit panels to screen (default "true")
+  KIOSK_LXDE_ENABLED bool
+      initialize LXDE for kiosk mode (default "false")
+  KIOSK_MODE string
+      path to home directory of LXDE user running X Server (default "/home/pi")
+  KIOSK_MODE string
+      [full|tv|disabled] (default "full")
+  KIOSK_IGNORE_CERTIFICATE_ERRORS bool
+      ignore SSL/TLS certificate errors (default "false")
+  KIOSK_IS_PLAYLIST bool
+      URL is a playlist (default "false")
+  KIOSK_LOGIN_METHOD string
+      [anon|local|gcom] (default "anon")
+  KIOSK_LOGIN_PASSWORD string
+      password (default "guest")
+  KIOSK_URL string
+      URL to Grafana server (default "https://play.grafana.org")
+  KIOSK_LOGIN_USER string
+      username (default "guest")
+```
+
 ### Hosted Grafana using grafana.com authentication
 
 This will login to a Hosted Grafana instance and take the browser to the default dashboard in fullscreen kiosk mode:

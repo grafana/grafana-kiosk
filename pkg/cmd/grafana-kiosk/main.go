@@ -33,7 +33,7 @@ func ProcessArgs(cfg interface{}) Args {
 	var a Args
 
 	f := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
-	f.StringVar(&a.ConfigPath, "c", "config.yml", "Path to configuration file")
+	f.StringVar(&a.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
 	f.StringVar(&a.LoginMethod, "login-method", "anon", "[anon|local|gcom]")
 	f.StringVar(&a.Username, "username", "guest", "username")
 	f.StringVar(&a.Password, "password", "guest", "password")
@@ -98,25 +98,37 @@ func summary(cfg *kiosk.Config) {
 	log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
 	log.Println("IsPlayList:", cfg.Target.IsPlayList)
 }
+
 func main() {
 	var cfg kiosk.Config
 	// override
 	args := ProcessArgs(&cfg)
-	// read configuration from the file and environment variables
-	if err := cleanenv.ReadConfig(args.ConfigPath, &cfg); err != nil {
-		log.Printf("No config file specified, continuing")
+	// check if config specified
+	if args.ConfigPath != "" {
+		// read configuration from the file and then override with environment variables
+		if err := cleanenv.ReadConfig(args.ConfigPath, &cfg); err != nil {
+			log.Println("Error reading config file:", err)
+			os.Exit(-1)
+		} else {
+			log.Println("Using config from", args.ConfigPath)
+		}
+	} else {
+		log.Println("No config specified, using environment and args")
+		// no config, use environment and args
+		cleanenv.ReadEnv(&cfg)
+		cfg.Target.URL = args.URL
+		cfg.Target.LoginMethod = args.LoginMethod
+		cfg.Target.Username = args.Username
+		cfg.Target.Password = args.Password
+		cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors
+		cfg.Target.IsPlayList = args.IsPlayList
+		//
+		cfg.General.AutoFit = args.AutoFit
+		cfg.General.LXDEEnabled = args.LXDEEnabled
+		cfg.General.LXDEHome = args.LXDEHome
+		cfg.General.Mode = args.Mode
 	}
-	cfg.Target.URL = args.URL
-	cfg.Target.LoginMethod = args.LoginMethod
-	cfg.Target.Username = args.Username
-	cfg.Target.Password = args.Password
-	cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors
-	cfg.Target.IsPlayList = args.IsPlayList
-	//
-	cfg.General.AutoFit = args.AutoFit
-	cfg.General.LXDEEnabled = args.LXDEEnabled
-	cfg.General.LXDEHome = args.LXDEHome
-	cfg.General.Mode = args.Mode
+	summary(&cfg)
 	// make sure the url has content
 	if cfg.Target.URL == "" {
 		os.Exit(1)

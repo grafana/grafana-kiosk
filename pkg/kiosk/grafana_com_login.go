@@ -67,8 +67,8 @@ func GrafanaKioskGCOM(cfg *Config) {
 	time.Sleep(2000 * time.Millisecond)
 	// Fill out grafana_com login page
 	if err := chromedp.Run(taskCtx,
-		chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
-		chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
+		chromedp.WaitVisible(`//input[@name="login"]`, chromedp.BySearch),
+		chromedp.SendKeys(`//input[@name="login"]`, cfg.Target.Username, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
 		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
 	); err != nil {

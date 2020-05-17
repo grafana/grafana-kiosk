@@ -45,9 +45,6 @@ func ProcessArgs(cfg interface{}) Args {
 	f.StringVar(&a.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
 	f.BoolVar(&a.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
 
-	// get config usage with wrapped flag usage
-	//f.Usage = cleanenv.FUsage(f.Output(), &cfg, nil, f.Usage)
-
 	fu := f.Usage
 	f.Usage = func() {
 		fu()

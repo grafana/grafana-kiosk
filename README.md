@@ -84,6 +84,7 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 ### Using a configuration file
 
 The kiosk can also be started using a configuration file, along with environment variables.
+When using this option, all other arguments passed are ignored.
 
 ```YAML
 general:
@@ -99,6 +100,10 @@ target:
   playlist: false
   URL: https://play.grafana.org
   ignore-certificate-errors: false
+```
+
+```BASH
+grafana-kiosk -c config.yaml
 ```
 
 Environment variables can be set and will override the configuration file.

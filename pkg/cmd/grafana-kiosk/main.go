@@ -34,16 +34,16 @@ func ProcessArgs(cfg interface{}) Args {
 
 	f := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
 	f.StringVar(&a.ConfigPath, "c", "config.yml", "Path to configuration file")
-	f.BoolVar(&a.AutoFit, "autofit", true, "Fit panels to screen")
-	f.BoolVar(&a.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
-	f.StringVar(&a.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
-	f.StringVar(&a.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
-	f.StringVar(&a.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
-	f.BoolVar(&a.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
-	f.BoolVar(&a.IsPlayList, "playlists", false, "URL is a playlist")
 	f.StringVar(&a.LoginMethod, "login-method", "anon", "[anon|local|gcom]")
 	f.StringVar(&a.Username, "username", "guest", "username")
 	f.StringVar(&a.Password, "password", "guest", "password")
+	f.StringVar(&a.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
+	f.StringVar(&a.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
+	f.BoolVar(&a.IsPlayList, "playlists", false, "URL is a playlist")
+	f.BoolVar(&a.AutoFit, "autofit", true, "Fit panels to screen")
+	f.BoolVar(&a.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
+	f.StringVar(&a.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
+	f.BoolVar(&a.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
 
 	// get config usage with wrapped flag usage
 	//f.Usage = cleanenv.FUsage(f.Output(), &cfg, nil, f.Usage)
@@ -58,7 +58,6 @@ func ProcessArgs(cfg interface{}) Args {
 
 	err := f.Parse(os.Args[1:])
 	if err != nil {
-		f.Usage()
 		os.Exit(-1)
 	}
 	return a

@@ -40,7 +40,8 @@ The release file includes pre-built binaries. See table below for the types avai
 Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana-kiosk:
 
 ```BASH
-$ sudo cp -p grafana-kiosk.linux.armv7 /usr/bin/grafana-kiosk
+# sudo cp -p grafana-kiosk.linux.armv7 /usr/bin/grafana-kiosk
+# sudo chmod 755 /usr/bin/grafana-kiosk
 ```
 
 ## Usage
@@ -79,6 +80,57 @@ $ sudo cp -p grafana-kiosk.linux.armv7 /usr/bin/grafana-kiosk
 `--lxde` enables initialization of LXDE
 
 `--lxde-home` specifies home directory of LXDE user (default $HOME)
+
+### Using a configuration file
+
+The kiosk can also be started using a configuration file, along with environment variables.
+When using this option, all other arguments passed are ignored.
+
+```YAML
+general:
+  kiosk-mode: full
+  autofit: true
+  lxde: true
+  lxde-home: /home/pi
+
+target:
+  login-method: anon
+  username: user
+  password: changeme
+  playlist: false
+  URL: https://play.grafana.org
+  ignore-certificate-errors: false
+```
+
+```BASH
+grafana-kiosk -c config.yaml
+```
+
+Environment variables can be set and will override the configuration file.
+They can also be used instead of a configuration file.
+
+```TEXT
+  KIOSK_AUTOFIT bool
+      fit panels to screen (default "true")
+  KIOSK_LXDE_ENABLED bool
+      initialize LXDE for kiosk mode (default "false")
+  KIOSK_MODE string
+      path to home directory of LXDE user running X Server (default "/home/pi")
+  KIOSK_MODE string
+      [full|tv|disabled] (default "full")
+  KIOSK_IGNORE_CERTIFICATE_ERRORS bool
+      ignore SSL/TLS certificate errors (default "false")
+  KIOSK_IS_PLAYLIST bool
+      URL is a playlist (default "false")
+  KIOSK_LOGIN_METHOD string
+      [anon|local|gcom] (default "anon")
+  KIOSK_LOGIN_PASSWORD string
+      password (default "guest")
+  KIOSK_URL string
+      URL to Grafana server (default "https://play.grafana.org")
+  KIOSK_LOGIN_USER string
+      username (default "guest")
+```
 
 ### Hosted Grafana using grafana.com authentication
 
@@ -186,8 +238,8 @@ Exec=screen -d -m bash -c /usr/bin/grafana-kiosk --URL https://bkgann3.grafana.n
 ## Systemd startup
 
 ```BASH
-$ sudo touch /etc/systemd/system/grafana-kiosk.service
-$ sudo chmod 664 /etc/systemd/system/grafana-kiosk.service
+# sudo touch /etc/systemd/system/grafana-kiosk.service
+# sudo chmod 664 /etc/systemd/system/grafana-kiosk.service
 ```
 
 ```INI
@@ -210,15 +262,15 @@ WantedBy=graphical.target
 Reload systemd:
 
 ```BASH
-$ sudo systemctl daemon-reload
+# sudo systemctl daemon-reload
 ```
 
 Enable, Start, Get Status, and logs:
 
 ```BASH
-$ sudo systemctl enable grafana-kiosk
-$ sudo systemctl start grafana-kiosk
-$ sudo systemctl status grafana-kiosk
+# sudo systemctl enable grafana-kiosk
+# sudo systemctl start grafana-kiosk
+# sudo systemctl status grafana-kiosk
 ```
 
 Logs:
@@ -252,3 +304,5 @@ This will generate executables in "bin" that can be run on a variety of platform
 
 - [Michael Pasqualone](https://github.com/michaelp85) for the session-based startup ideas!
 - [Brendan Ball](https://github.com/BrendanBall) for contributing the desktop link startup example for LXDE!
+- [Alex Heylin](https://github.com/AlexHeylin) for the v7 login fix - and also works with v6!
+- [Xan Manning](https://github.com/xanmanning) for the ignore certificate option!

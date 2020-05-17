@@ -11,10 +11,12 @@ function exit_if_fail {
   fi
 }
 
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.27.0
+
 go get -u github.com/jgautheron/goconst/cmd/goconst
 go get -u honnef.co/go/tools/cmd/staticcheck
 go get -u github.com/mgechev/revive
-go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+#go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 
 # use golangci-when possible
 # exit_if_fail golangci-lint run --deadline 10m --disable-all \

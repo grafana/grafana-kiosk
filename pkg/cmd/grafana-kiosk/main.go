@@ -7,34 +7,58 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/ilyakaznacheev/cleanenv"
+
 	"github.com/grafana/grafana-kiosk/pkg/initialize"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 )
 
-// LoginMethod specifies the type of login to be used by the kiosk
-type LoginMethod int
+// Args command-line parameters
+type Args struct {
+	AutoFit                 bool
+	IgnoreCertificateErrors bool
+	IsPlayList              bool
+	LXDEEnabled             bool
+	LXDEHome                string
+	ConfigPath              string
+	Mode                    string
+	LoginMethod             string
+	URL                     string
+	Username                string
+	Password                string
+}
 
-// Login Methods
-const (
-	ANONYMOUS LoginMethod = 0
-	LOCAL     LoginMethod = 1
-	GCOM      LoginMethod = 2
-)
+// ProcessArgs processes and handles CLI arguments
+func ProcessArgs(cfg interface{}) Args {
+	var a Args
 
-// Kiosk Modes
-const (
-	// TV will hide the sidebar but allow usage of menu
-	TV int = 0
-	// NORMAL will disable sidebar and top navigation bar
-	NORMAL int = 1
-	// DISABLED will omit kiosk option
-	DISABLED int = 2
-)
+	f := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
+	f.StringVar(&a.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
+	f.StringVar(&a.LoginMethod, "login-method", "anon", "[anon|local|gcom]")
+	f.StringVar(&a.Username, "username", "guest", "username")
+	f.StringVar(&a.Password, "password", "guest", "password")
+	f.StringVar(&a.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
+	f.StringVar(&a.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
+	f.BoolVar(&a.IsPlayList, "playlists", false, "URL is a playlist")
+	f.BoolVar(&a.AutoFit, "autofit", true, "Fit panels to screen")
+	f.BoolVar(&a.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
+	f.StringVar(&a.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
+	f.BoolVar(&a.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
 
-var (
-	loginMethod = LOCAL
-	kioskMode   = NORMAL
-)
+	fu := f.Usage
+	f.Usage = func() {
+		fu()
+		envHelp, _ := cleanenv.GetDescription(cfg, nil)
+		fmt.Fprintln(f.Output())
+		fmt.Fprintln(f.Output(), envHelp)
+	}
+
+	err := f.Parse(os.Args[1:])
+	if err != nil {
+		os.Exit(-1)
+	}
+	return a
+}
 
 func setEnvironment() {
 	// for linux/X display must be set
@@ -57,79 +81,81 @@ func setEnvironment() {
 	log.Println("XAUTHORITY=", xAuthorityEnv)
 }
 
-func main() {
-	var Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %v\n", os.Args[0])
-		flag.PrintDefaults()
-	}
-	urlPtr := flag.String("URL", "https://play.grafana.org", "URL to Grafana server (Required)")
-	methodPtr := flag.String("login-method", "anon", "login method: [anon|local|gcom]")
-	usernamePtr := flag.String("username", "guest", "username (Required)")
-	passwordPtr := flag.String("password", "guest", "password (Required)")
-	ignoreCertificateErrors := flag.Bool("ignore-certificate-errors", false, "ignore SSL/TLS certificate errors")
-	// kiosk=tv includes sidebar menu
-	// kiosk no sidebar ever
-	kioskModePtr := flag.String("kiosk-mode", "full", "kiosk mode [full|tv|disabled]")
-	autoFit := flag.Bool("autofit", true, "autofit panels in kiosk mode")
-	// when the URL is a playlist, append "inactive" to the URL
-	isPlayList := flag.Bool("playlist", false, "URL is a playlist: [true|false]")
-	LXDEEnabled := flag.Bool("lxde", false, "initialize LXDE for kiosk mode")
-	LXDEHomePtr := flag.String("lxde-home", "/home/pi", "path to home directory of LXDE user running X Server")
-	flag.Parse()
+func summary(cfg *kiosk.Config) {
+	// general
+	log.Println("AutoFit:", cfg.General.AutoFit)
+	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
+	log.Println("LXDEHome:", cfg.General.LXDEHome)
+	log.Println("Mode:", cfg.General.Mode)
+	// target
+	log.Println("URL:", cfg.Target.URL)
+	log.Println("LoginMethod:", cfg.Target.LoginMethod)
+	log.Println("Username:", cfg.Target.Username)
+	log.Println("Password:", "*redacted*")
+	log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
+	log.Println("IsPlayList:", cfg.Target.IsPlayList)
+}
 
+func main() {
+	var cfg kiosk.Config
+	// override
+	args := ProcessArgs(&cfg)
+	// check if config specified
+	if args.ConfigPath != "" {
+		// read configuration from the file and then override with environment variables
+		if err := cleanenv.ReadConfig(args.ConfigPath, &cfg); err != nil {
+			log.Println("Error reading config file", err)
+			os.Exit(-1)
+		} else {
+			log.Println("Using config from", args.ConfigPath)
+		}
+	} else {
+		log.Println("No config specified, using environment and args")
+		// no config, use environment and args
+		if err := cleanenv.ReadEnv(&cfg); err != nil {
+			log.Println("Error reading config from environment", err)
+		}
+		cfg.Target.URL = args.URL
+		cfg.Target.LoginMethod = args.LoginMethod
+		cfg.Target.Username = args.Username
+		cfg.Target.Password = args.Password
+		cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors
+		cfg.Target.IsPlayList = args.IsPlayList
+		//
+		cfg.General.AutoFit = args.AutoFit
+		cfg.General.LXDEEnabled = args.LXDEEnabled
+		cfg.General.LXDEHome = args.LXDEHome
+		cfg.General.Mode = args.Mode
+	}
+	summary(&cfg)
 	// make sure the url has content
-	if *urlPtr == "" {
-		Usage()
+	if cfg.Target.URL == "" {
 		os.Exit(1)
 	}
 	// validate url
-	_, err := url.ParseRequestURI(*urlPtr)
+	_, err := url.ParseRequestURI(cfg.Target.URL)
 	if err != nil {
-		Usage()
 		panic(err)
 	}
+	summary(&cfg)
 
-	if *isPlayList {
-		log.Printf("playlist")
-	}
-
-	if *LXDEEnabled {
-		initialize.LXDE(*LXDEHomePtr)
-	}
-	switch *kioskModePtr {
-	case "tv": // NO SIDEBAR ACCESS
-		kioskMode = TV
-	case "full": // NO TOPNAV or SIDEBAR
-		kioskMode = NORMAL
-	case "disabled": // NO TOPNAV or SIDEBAR
-		kioskMode = DISABLED
-	default:
-		kioskMode = NORMAL
-	}
-
-	switch *methodPtr {
-	case "anon":
-		loginMethod = ANONYMOUS
-	case "local":
-		loginMethod = LOCAL
-	case "gcom":
-		loginMethod = GCOM
-	default:
-		loginMethod = ANONYMOUS
+	if cfg.General.LXDEEnabled {
+		initialize.LXDE(cfg.General.LXDEHome)
 	}
 
 	// for linux/X display must be set
 	setEnvironment()
+	log.Println("method ", cfg.Target.LoginMethod)
 
-	switch loginMethod {
-	case LOCAL:
+	switch cfg.Target.LoginMethod {
+	case "local":
 		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(urlPtr, usernamePtr, passwordPtr, kioskMode, autoFit, isPlayList, ignoreCertificateErrors)
-	case GCOM:
+		kiosk.GrafanaKioskLocal(&cfg)
+	case "gcom":
 		log.Printf("Launching GCOM login kiosk")
-		kiosk.GrafanaKioskGCOM(urlPtr, usernamePtr, passwordPtr, kioskMode, autoFit, isPlayList)
-	case ANONYMOUS:
+		kiosk.GrafanaKioskGCOM(&cfg)
+	default:
 		log.Printf("Launching ANON login kiosk")
-		kiosk.GrafanaKioskAnonymous(urlPtr, kioskMode, autoFit, isPlayList, ignoreCertificateErrors)
+		kiosk.GrafanaKioskAnonymous(&cfg)
 	}
 }

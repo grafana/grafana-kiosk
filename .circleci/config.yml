@@ -93,6 +93,8 @@ jobs:
       - run:
           name: "Publish Release on GitHub"
           command: |
+            apk add --update --no-cache git-lfs
+            git lfs install
             PROJECT_NAME=grafana-kiosk
             RELEASE_NOTES=`awk 'BEGIN {FS="##"; RS=""} FNR==3 {print; exit}' CHANGELOG.md`
             VERSION=`awk 'BEGIN {FS="##"; RS=""} FNR==2 {print; exit}' CHANGELOG.md | cut -f2 -d' '`
@@ -137,6 +139,7 @@ jobs:
             git config user.email "eng@grafana.com"
             git config user.name "CircleCI Automation"
             git checkout -b release-${VERSION}
+            cp -p bin/* artifacts/
             git add --force artifacts
             git add --force bin
             git add --force coverage

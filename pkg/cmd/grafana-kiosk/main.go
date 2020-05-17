@@ -104,7 +104,7 @@ func main() {
 	if args.ConfigPath != "" {
 		// read configuration from the file and then override with environment variables
 		if err := cleanenv.ReadConfig(args.ConfigPath, &cfg); err != nil {
-			log.Println("Error reading config file:", err)
+			log.Println("Error reading config file", err)
 			os.Exit(-1)
 		} else {
 			log.Println("Using config from", args.ConfigPath)
@@ -112,7 +112,9 @@ func main() {
 	} else {
 		log.Println("No config specified, using environment and args")
 		// no config, use environment and args
-		cleanenv.ReadEnv(&cfg)
+		if err := cleanenv.ReadEnv(&cfg); err != nil {
+			log.Println("Error reading config from environment", err)
+		}
 		cfg.Target.URL = args.URL
 		cfg.Target.LoginMethod = args.LoginMethod
 		cfg.Target.Username = args.Username

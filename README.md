@@ -130,6 +130,12 @@ They can also be used instead of a configuration file.
       URL to Grafana server (default "https://play.grafana.org")
   KIOSK_LOGIN_USER string
       username (default "guest")
+  KIOSK_GOAUTH_AUTO_LOGIN bool
+      IF oauth_auto_login setting is set to true or false in grafana config (default "false")
+  KIOSK_GOAUTH_FIELD_USER string
+      HTML input fieldname value for username of your generic oauth provider (default "test")
+  KIOSK_GOAUTH_FIELD_PASSWORD string
+      HTML input fieldname value for the password of your generic oauth provider (default "test")
 ```
 
 ### Hosted Grafana using grafana.com authentication
@@ -178,6 +184,26 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 
 ```bash
 ./bin/grafana-kiosk --URL https://play.grafana.org/playlists/play/1 --login-method anon --kiosk-mode tv
+```
+
+### Grafana Server with Generic Oauth
+
+This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used.
+
+```bash
+go run pkg/cmd/grafana-kiosk/main.go --URL https://my.grafana.oauth/playlists/play/1  --login-method goauth --username test --password test
+```
+
+This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used and also the login and password html input name is set.
+
+```bash
+go run pkg/cmd/grafana-kiosk/main.go --URL https://my.grafana.oauth/playlists/play/1 --login-method goauth --username test --password test --field-username username --field-password password
+```
+
+This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is enabled. As Oauth provider is Keycloak used and also the login and password html input name is set.
+
+```bash
+go run pkg/cmd/grafana-kiosk/main.go --URL https://my.grafana.oauth/playlists/play/1 --login-method goauth --username test --password test --field-username username --field-password password --auto-login true
 ```
 
 ## LXDE Options

@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.3
+
+- OAuth merged
+- Fix Grafana Cloud login
+- Updated modules
+
 ## 1.0.2
 
 - Also compatible with Grafana v7

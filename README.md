@@ -48,6 +48,8 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 
 ## Usage
 
+NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://play.grafana.org) when also used with any boolean flags.
+
 ```TEXT
   -URL string
         URL to Grafana server (default "https://play.grafana.org")
@@ -149,19 +151,19 @@ They can also be used instead of a configuration file.
 This will login to a Hosted Grafana instance and take the browser to the default dashboard in fullscreen kiosk mode:
 
 ```bash
-./bin/grafana-kiosk --URL https://bkgann3.grafana.net --login-method gcom --username bkgann --password abc123 --kiosk-mode full
+./bin/grafana-kiosk -URL=https://bkgann3.grafana.net -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full
 ```
 
 This will login to a Hosted Grafana instance and take the browser to a specific dashboard in tv kiosk mode:
 
 ```bash
-./bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode tv
+./bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode tv
 ```
 
 This will login to a Hosted Grafana instance and take the browser to a playlist in fullscreen kiosk mode, and autofit the panels to fill the display.
 
 ```bash
-./bin/grafana-kiosk --URL https://bkgann3.grafana.net/playlists/play/1 --login-method gcom --username bkgann --password abc123 --kiosk-mode full --playlists --autofit
+./bin/grafana-kiosk -URL=https://bkgann3.grafana.net/playlists/play/1 -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -playlists -autofit=true
 ```
 
 ### Grafana Server with Local Accounts
@@ -169,13 +171,13 @@ This will login to a Hosted Grafana instance and take the browser to a playlist 
 This will login to a grafana server that uses local accounts:
 
 ```bash
-./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --username admin --password admin --kiosk-mode tv
+./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -kiosk-mode=tv
 ```
 
-If you are using a self-signed certificate, you can remove the certificate error with `--ignore-certificate-errors`
+If you are using a self-signed certificate, you can remove the certificate error with `-ignore-certificate-errors`
 
 ```bash
-./bin/grafana-kiosk --URL https://localhost:3000 --login-method local --username admin --password admin --kiosk-mode tv --ignore-certificate-errors
+./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -kiosk-mode=tv -ignore-certificate-errors
 ```
 
 ### Grafana Server with Anonymous access enabled
@@ -183,13 +185,13 @@ If you are using a self-signed certificate, you can remove the certificate error
 This will take the browser to the default dashboard on play.grafana.org in fullscreen kiosk mode (no login needed):
 
 ```bash
-./bin/grafana-kiosk --URL https://play.grafana.org --login-method anon --kiosk-mode tv
+./bin/grafana-kiosk -URL=https://play.grafana.org -login-method=anon -kiosk-mode=tv
 ```
 
 This will take the browser to a playlist on play.grafana.org in fullscreen kiosk mode (no login needed):
 
 ```bash
-./bin/grafana-kiosk --URL https://play.grafana.org/playlists/play/1 --login-method anon --kiosk-mode tv
+./bin/grafana-kiosk -URL=https://play.grafana.org/playlists/play/1 -login-method=anon -kiosk-mode=tv
 ```
 
 ### Grafana Server with Generic Oauth
@@ -197,24 +199,24 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used.
 
 ```bash
-go run pkg/cmd/grafana-kiosk/main.go --URL https://my.grafana.oauth/playlists/play/1  --login-method goauth --username test --password test
+go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1  -login-method=goauth -username=test -password=test
 ```
 
 This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used and also the login and password html input name is set.
 
 ```bash
-go run pkg/cmd/grafana-kiosk/main.go --URL https://my.grafana.oauth/playlists/play/1 --login-method goauth --username test --password test --field-username username --field-password password
+go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1 -login-method=goauth -username=test -password=test -field-username=username -field-password=password
 ```
 
 This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is enabled. As Oauth provider is Keycloak used and also the login and password html input name is set.
 
 ```bash
-go run pkg/cmd/grafana-kiosk/main.go --URL https://my.grafana.oauth/playlists/play/1 --login-method goauth --username test --password test --field-username username --field-password password --auto-login true
+go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1 -login-method=goauth -username=test -password=test -field-username=username -field-password=password -auto-login=true
 ```
 
 ## LXDE Options
 
-The `--lxde` option initializes settings for the desktop.
+The `-lxde` option initializes settings for the desktop.
 
 Actions Performed:
 
@@ -225,7 +227,7 @@ Actions Performed:
 - runs `xset s noblank` disables blank mode for screensaver (maybe not needed)
 - runs `unclutter` to hide the mouse
 
-The `--lxde-home` option allows you to specify a different $HOME directory where the lxde configuration files can be found.
+The `-lxde-home` option allows you to specify a different $HOME directory where the lxde configuration files can be found.
 
 ## Automatic Startup
 
@@ -236,7 +238,7 @@ LXDE can start the kiosk automatically by creating this file:
 Create/edit the file: `/home/pi/.config/lxsession/LXDE-pi/autostart`
 
 ```BASH
-/usr/bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode full --lxde
+/usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -lxde
 ```
 
 #### Session with disconnected "screen"
@@ -246,7 +248,7 @@ Alternatively you can run grafana-kiosk under screen, which can very useful for 
 Create/edit the file: `/home/pi/.config/lxsession/LXDE-pi/autostart`
 
 ```BASH
-screen -d -m bash -c "/usr/bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode full --lxde"
+screen -d -m bash -c "/usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -lxde"
 ```
 
 ### Desktop Link
@@ -256,7 +258,7 @@ Create/edit the file: `/home/pi/.config/autostart/grafana-kiosk.desktop`
 ```INI
 [Desktop Entry]
 Type=Application
-Exec=/usr/bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode full --lxde
+Exec=/usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -lxde
 ```
 
 #### Desktop Link with disconnected "screen"
@@ -264,7 +266,7 @@ Exec=/usr/bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu
 ```INI
 [Desktop Entry]
 Type=Application
-Exec=screen -d -m bash -c /usr/bin/grafana-kiosk --URL https://bkgann3.grafana.net/dashboard/db/sensu-summary --login-method gcom --username bkgann --password abc123 --kiosk-mode full --lxde
+Exec=screen -d -m bash -c /usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -lxde
 ```
 
 ## Systemd startup
@@ -285,7 +287,7 @@ After=network.target
 User=pi
 Environment="DISPLAY=:0"
 Environment="XAUTHORITY=/home/pi/.Xauthority"
-ExecStart=/usr/bin/grafana-kiosk --URL <url>  -login-method local -username <username> -password <password> -playlists true
+ExecStart=/usr/bin/grafana-kiosk -URL=<url> -login-method=local -username=<username> -password=<password> -playlists=true
 
 [Install]
 WantedBy=graphical.target

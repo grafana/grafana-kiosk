@@ -7,9 +7,9 @@ parameters:
 
 aliases:
   # Workflow filters
-  - &filter-only-master
+  - &filter-only-main
     branches:
-      only: master
+      only: main
 
 workflows:
   version: 2
@@ -25,16 +25,16 @@ workflows:
           type: approval
           requires:
           - build
-          filters: *filter-only-master
+          filters: *filter-only-main
       - publish_github_release:
           requires:
           - approve_release
-          filters: *filter-only-master
+          filters: *filter-only-main
 
 executors:
   go_exec:
     docker:
-      - image: circleci/golang:1.14.2
+      - image: circleci/golang:1.16
 
 jobs:
   build:

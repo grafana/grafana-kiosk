@@ -29,6 +29,7 @@ type Args struct {
 	Password                string
 	UsernameField           string
 	PasswordField           string
+	WindowPosition          string
 }
 
 // ProcessArgs processes and handles CLI arguments
@@ -42,12 +43,13 @@ func ProcessArgs(cfg interface{}) Args {
 	f.StringVar(&a.Password, "password", "guest", "password")
 	f.StringVar(&a.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
 	f.StringVar(&a.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
+	f.StringVar(&a.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
 	f.BoolVar(&a.IsPlayList, "playlists", false, "URL is a playlist")
 	f.BoolVar(&a.AutoFit, "autofit", true, "Fit panels to screen")
 	f.BoolVar(&a.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
 	f.StringVar(&a.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
 	f.BoolVar(&a.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
-	f.BoolVar(&a.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabeld in grafana config")
+	f.BoolVar(&a.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
 	f.StringVar(&a.UsernameField, "field-username", "username", "Fieldname for the username")
 	f.StringVar(&a.PasswordField, "field-password", "password", "Fieldname for the password")
 
@@ -93,6 +95,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
 	log.Println("LXDEHome:", cfg.General.LXDEHome)
 	log.Println("Mode:", cfg.General.Mode)
+	log.Println("WindowPosition:", cfg.General.WindowPosition)
 	// target
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
@@ -136,6 +139,7 @@ func main() {
 		cfg.General.LXDEEnabled = args.LXDEEnabled
 		cfg.General.LXDEHome = args.LXDEHome
 		cfg.General.Mode = args.Mode
+		cfg.General.WindowPosition = args.WindowPosition
 		//
 		cfg.GOAUTH.AutoLogin = args.OauthAutoLogin
 		cfg.GOAUTH.UsernameField = args.UsernameField

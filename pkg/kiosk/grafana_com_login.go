@@ -30,6 +30,7 @@ func GrafanaKioskGCOM(cfg *Config) {
 		chromedp.Flag("disable-sync", true),
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),
+		chromedp.Flag("window-position", cfg.General.WindowPosition),
 		chromedp.UserDataDir(dir),
 	}
 

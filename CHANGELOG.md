@@ -5,6 +5,7 @@
 - OAuth merged
 - Fix Grafana Cloud login
 - Updated modules
+- Add "window-position" option
 
 ## 1.0.2
 

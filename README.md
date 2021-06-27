@@ -9,15 +9,16 @@ This provides a utility to quickly standup a kiosk on devices like a Raspberry P
 
 The utitilty provides these options:
 
-- login
+- Login
   - to a Grafana server (local account)
   - to a Grafana server with anonymous-mode enabled (same method used on [play.grafana.org](https://play.grafana.org))
   - to a Grafana Cloud instance
   - to a Grafana server with OAuth enabled
-- switch to kiosk or kiosk-tv mode
-- display the default home page set for the user
-- display a specified dashboard
-- start a playlist immediately (inactive mode enable)
+- Switch to kiosk or kiosk-tv mode
+- Display the default home page set for the user
+- Display a specified dashboard
+- Start a playlist immediately (inactive mode enable)
+- Can specify where to start kiosk for multiple displays
 
 Additionally, an initialize option is provided to configure LXDE for Raspberry Pi Desktop.
 
@@ -47,41 +48,42 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 
 ## Usage
 
-`--URL`
-
-- URL to a Grafana server
-
-`--playlist`
-
-- designates the URL as a playlist, allowing instant "inactive" user vs waiting for the timeout
-
-`--login-method` (default anon)
-
-- anon (anonymous)
-- local (local user)
-- gcom (Hosted Grafana)
-- goauth (Open Auth)
-
-`--username` used with local and gcom login methods
-
-`--password` used with local and gcom login methods
-
-`--ignore-certificate-errors` used with local and anonymous login methods
-
-`--kiosk-mode`
-
-- full  (no sidebar, top navigation disabled)
-- tv (no sidebar, top navigation enabled)
-- disabled (sidebar and top navigation enabled)
-
-`--autofit` scales panels to fit the display (default is true)
-
-- true
-- false
-
-`--lxde` enables initialization of LXDE
-
-`--lxde-home` specifies home directory of LXDE user (default $HOME)
+```TEXT
+  -URL string
+        URL to Grafana server (default "https://play.grafana.org")
+  -auto-login
+        oauth_auto_login is enabled in grafana config
+  -autofit
+        Fit panels to screen (default true)
+  -c string
+        Path to configuration file (config.yaml)
+  -field-password string
+        Fieldname for the password (default "password")
+  -field-username string
+        Fieldname for the username (default "username")
+  -ignore-certificate-errors
+        Ignore SSL/TLS certificate error
+  -kiosk-mode string
+        Kiosk Display Mode [full|tv|disabled]
+        full = No TOPNAV and No SIDEBAR
+        tv = No SIDEBAR
+        disabled = omit option
+         (default "full")
+  -login-method string
+        [anon|local|gcom|goauth] (default "anon")
+  -lxde
+        Initialize LXDE for kiosk mode
+  -lxde-home string
+        Path to home directory of LXDE user running X Server (default "/home/pi")
+  -password string
+        password (default "guest")
+  -playlists
+        URL is a playlist
+  -username string
+        username (default "guest")
+  -window-position string
+        Top Left Position of Kiosk (default "0,0")
+```
 
 ### Using a configuration file
 
@@ -99,7 +101,7 @@ target:
   login-method: anon
   username: user
   password: changeme
-  playlist: false
+  playlists: false
   URL: https://play.grafana.org
   ignore-certificate-errors: false
 ```
@@ -113,31 +115,33 @@ They can also be used instead of a configuration file.
 
 ```TEXT
   KIOSK_AUTOFIT bool
-      fit panels to screen (default "true")
+        fit panels to screen (default "true")
   KIOSK_LXDE_ENABLED bool
-      initialize LXDE for kiosk mode (default "false")
+        initialize LXDE for kiosk mode (default "false")
+  KIOSK_LXDE_HOME string
+        path to home directory of LXDE user running X Server (default "/home/pi")
   KIOSK_MODE string
-      path to home directory of LXDE user running X Server (default "/home/pi")
-  KIOSK_MODE string
-      [full|tv|disabled] (default "full")
+        [full|tv|disabled] (default "full")
+  KIOSK_WINDOW_POSITION string
+        Top Left Position of Kiosk (default "0,0")
   KIOSK_IGNORE_CERTIFICATE_ERRORS bool
-      ignore SSL/TLS certificate errors (default "false")
+        ignore SSL/TLS certificate errors (default "false")
   KIOSK_IS_PLAYLIST bool
-      URL is a playlist (default "false")
+        URL is a playlist (default "false")
   KIOSK_LOGIN_METHOD string
-      [anon|local|gcom] (default "anon")
+        [anon|local|gcom|goauth] (default "anon")
   KIOSK_LOGIN_PASSWORD string
-      password (default "guest")
+        password (default "guest")
   KIOSK_URL string
-      URL to Grafana server (default "https://play.grafana.org")
+        URL to Grafana server (default "https://play.grafana.org")
   KIOSK_LOGIN_USER string
-      username (default "guest")
+        username (default "guest")
   KIOSK_GOAUTH_AUTO_LOGIN bool
-      IF oauth_auto_login setting is set to true or false in grafana config (default "false")
+        [false|true]
   KIOSK_GOAUTH_FIELD_USER string
-      HTML input fieldname value for username of your generic oauth provider (default "test")
+        Username html input name value
   KIOSK_GOAUTH_FIELD_PASSWORD string
-      HTML input fieldname value for the password of your generic oauth provider (default "test")
+        Password html input name value
 ```
 
 ### Hosted Grafana using grafana.com authentication
@@ -157,7 +161,7 @@ This will login to a Hosted Grafana instance and take the browser to a specific 
 This will login to a Hosted Grafana instance and take the browser to a playlist in fullscreen kiosk mode, and autofit the panels to fill the display.
 
 ```bash
-./bin/grafana-kiosk --URL https://bkgann3.grafana.net/playlists/play/1 --login-method gcom --username bkgann --password abc123 --kiosk-mode full --playlist --autofit
+./bin/grafana-kiosk --URL https://bkgann3.grafana.net/playlists/play/1 --login-method gcom --username bkgann --password abc123 --kiosk-mode full --playlists --autofit
 ```
 
 ### Grafana Server with Local Accounts
@@ -281,7 +285,7 @@ After=network.target
 User=pi
 Environment="DISPLAY=:0"
 Environment="XAUTHORITY=/home/pi/.Xauthority"
-ExecStart=/usr/bin/grafana-kiosk --URL <url>  -login-method local -username <username> -password <password> -playlist true
+ExecStart=/usr/bin/grafana-kiosk --URL <url>  -login-method local -username <username> -password <password> -playlists true
 
 [Install]
 WantedBy=graphical.target

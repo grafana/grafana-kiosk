@@ -31,6 +31,7 @@ func GrafanaKioskAnonymous(cfg *Config) {
 		chromedp.Flag("disable-overlay-scrollbar", true),
 		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
 		chromedp.Flag("test-type", cfg.Target.IgnoreCertificateErrors),
+		chromedp.Flag("window-position", cfg.General.WindowPosition),
 		chromedp.UserDataDir(dir),
 	}
 

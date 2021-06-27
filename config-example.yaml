@@ -11,3 +11,8 @@ target:
   playlist: false
   URL: https://play.grafana.org
   ignore-certificate-errors: false
+
+goauth:
+  auto-login: false
+  fieldname-username: username
+  fieldname-password: password

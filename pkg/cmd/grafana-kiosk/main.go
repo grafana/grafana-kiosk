@@ -26,6 +26,9 @@ type Args struct {
 	URL                     string
 	Username                string
 	Password                string
+	OauthAutoLogin          bool
+	UsernameField           string
+	PasswordField           string
 }
 
 // ProcessArgs processes and handles CLI arguments
@@ -34,7 +37,7 @@ func ProcessArgs(cfg interface{}) Args {
 
 	f := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
 	f.StringVar(&a.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
-	f.StringVar(&a.LoginMethod, "login-method", "anon", "[anon|local|gcom]")
+	f.StringVar(&a.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth]")
 	f.StringVar(&a.Username, "username", "guest", "username")
 	f.StringVar(&a.Password, "password", "guest", "password")
 	f.StringVar(&a.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
@@ -44,6 +47,9 @@ func ProcessArgs(cfg interface{}) Args {
 	f.BoolVar(&a.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
 	f.StringVar(&a.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
 	f.BoolVar(&a.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
+	f.BoolVar(&a.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabeld in grafana config")
+	f.StringVar(&a.UsernameField, "field-username", "username", "Fieldname for the username")
+	f.StringVar(&a.PasswordField, "field-password", "password", "Fieldname for the password")
 
 	fu := f.Usage
 	f.Usage = func() {
@@ -94,6 +100,10 @@ func summary(cfg *kiosk.Config) {
 	log.Println("Password:", "*redacted*")
 	log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
 	log.Println("IsPlayList:", cfg.Target.IsPlayList)
+	// goauth
+	log.Println("Fieldname Username:", cfg.GOAUTH.AutoLogin)
+	log.Println("Fieldname Username:", cfg.GOAUTH.UsernameField)
+	log.Println("Fieldname Password:", cfg.GOAUTH.PasswordField)
 }
 
 func main() {
@@ -126,6 +136,10 @@ func main() {
 		cfg.General.LXDEEnabled = args.LXDEEnabled
 		cfg.General.LXDEHome = args.LXDEHome
 		cfg.General.Mode = args.Mode
+		//
+		cfg.GOAUTH.AutoLogin = args.OauthAutoLogin
+		cfg.GOAUTH.UsernameField = args.UsernameField
+		cfg.GOAUTH.PasswordField = args.PasswordField
 	}
 	summary(&cfg)
 	// make sure the url has content
@@ -154,6 +168,9 @@ func main() {
 	case "gcom":
 		log.Printf("Launching GCOM login kiosk")
 		kiosk.GrafanaKioskGCOM(&cfg)
+	case "goauth":
+		log.Printf("Launching Generic Oauth login kiosk")
+		kiosk.GrafanaKioskGenericOauth(&cfg)
 	default:
 		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(&cfg)

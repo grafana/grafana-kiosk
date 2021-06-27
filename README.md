@@ -11,8 +11,9 @@ The utitilty provides these options:
 
 - login
   - to a Grafana server (local account)
-  - to a grafana server with anonymous-mode enabled (same method used on [play.grafana.org](https://play.grafana.org))
-  - to a hosted grafana instance
+  - to a Grafana server with anonymous-mode enabled (same method used on [play.grafana.org](https://play.grafana.org))
+  - to a Grafana Cloud instance
+  - to a Grafana server with OAuth enabled
 - switch to kiosk or kiosk-tv mode
 - display the default home page set for the user
 - display a specified dashboard
@@ -59,6 +60,7 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 - anon (anonymous)
 - local (local user)
 - gcom (Hosted Grafana)
+- goauth (Open Auth)
 
 `--username` used with local and gcom login methods
 
@@ -332,3 +334,4 @@ This will generate executables in "bin" that can be run on a variety of platform
 - [Brendan Ball](https://github.com/BrendanBall) for contributing the desktop link startup example for LXDE!
 - [Alex Heylin](https://github.com/AlexHeylin) for the v7 login fix - and also works with v6!
 - [Xan Manning](https://github.com/xanmanning) for the ignore certificate option!
+- [David Stäheli](https://github.com/mistadave) for the OAuth implementation!

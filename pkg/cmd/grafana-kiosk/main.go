@@ -18,6 +18,7 @@ type Args struct {
 	AutoFit                 bool
 	IgnoreCertificateErrors bool
 	IsPlayList              bool
+	OauthAutoLogin          bool
 	LXDEEnabled             bool
 	LXDEHome                string
 	ConfigPath              string
@@ -26,7 +27,6 @@ type Args struct {
 	URL                     string
 	Username                string
 	Password                string
-	OauthAutoLogin          bool
 	UsernameField           string
 	PasswordField           string
 }

@@ -55,12 +55,27 @@ func GrafanaKioskGCOM(cfg *Config) {
 		Launch chrome, click the grafana.com button, fill out login form and submit
 	*/
 	// XPATH of grafana.com login button = //*[@href="login/grafana_com"]/i
+	// XPATH for grafana.com login (new) = //a[contains(@href,'login/grafana_com')]
+
+	//chromedp.WaitVisible(`//*[@href="login/grafana_com"]/i`, chromedp.BySearch),
 
 	// Click the grafana_com login button
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
-		chromedp.WaitVisible(`//*[@href="login/grafana_com"]/i`, chromedp.BySearch),
-		chromedp.Click(`//*[@href="login/grafana_com"]/..`, chromedp.BySearch),
+		chromedp.ActionFunc(func(context.Context) error {
+			log.Println("waiting for login dialog")
+			return nil
+		}),
+		chromedp.WaitVisible(`//a[contains(@href,'login/grafana_com')]`, chromedp.BySearch),
+		chromedp.ActionFunc(func(context.Context) error {
+			log.Println("gcom login dialog detected")
+			return nil
+		}),
+		chromedp.Click(`//a[contains(@href,'login/grafana_com')]/..`, chromedp.BySearch),
+		chromedp.ActionFunc(func(context.Context) error {
+			log.Println("gcom button clicked")
+			return nil
+		}),
 	); err != nil {
 		panic(err)
 	}

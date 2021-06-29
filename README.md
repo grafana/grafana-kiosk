@@ -1,8 +1,7 @@
 # Grafana Kiosk
 
 [![CircleCI](https://circleci.com/gh/grafana/grafana-kiosk.svg?style=svg)](https://circleci.com/gh/grafana/grafana-kiosk)
-[![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana-kiosk)](https://goreportcard.com/report/github.com/grafana/grafana-kiosk) [![codecov](https://codecov.io/gh/grafana/grafana-kiosk/branch/master/graph/badge.svg)](https://codecov.io/gh/grafana/grafana-kiosk)
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana-kiosk)](https://goreportcard.com/report/github.com/grafana/grafana-kiosk)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/maintainability)](https://codeclimate.com/github/grafana/grafana-kiosk/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/test_coverage)](https://codeclimate.com/github/grafana/grafana-kiosk/test_coverage)
 

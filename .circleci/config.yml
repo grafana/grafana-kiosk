@@ -41,6 +41,9 @@ workflows:
           filters: *filter-only-main
 
 executors:
+  default_exec:
+    docker:
+      - image: grafana/grafana-plugin-ci:1.1.2-alpine
   go_exec:
     docker:
       - image: circleci/golang:1.16
@@ -90,7 +93,7 @@ jobs:
           path: coverage
 
   code_coverage:
-    executor: go_exec
+    executor: default_exec
     steps:
       - checkout
       - attach_workspace:
@@ -112,7 +115,7 @@ jobs:
           path: out
 
   upload_coverage:
-    executor: go_exec
+    executor: default_exec
     steps:
       - attach_workspace:
           at: .

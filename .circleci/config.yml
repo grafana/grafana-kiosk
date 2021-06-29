@@ -26,7 +26,7 @@ workflows:
           - cmd_test
       - code_coverage:
           requires:
-            - cmd_test
+            - build
       - upload_coverage:
           requires:
             - code_coverage

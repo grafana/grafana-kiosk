@@ -4,6 +4,9 @@ parameters:
   ssh-fingerprint:
     type: string
     default: ${GITHUB_SSH_FINGERPRINT}
+  codeclimate-reporter-id:
+    type: string
+    default: ${CC_TEST_REPORTER_ID}
 
 aliases:
   # Workflow filters
@@ -15,23 +18,33 @@ workflows:
   version: 2
   build_workflow:
     jobs:
-      - cmd_lint
-      - cmd_test
-      - build:
-          requires:
-          - cmd_lint
-          - cmd_test
-      - approve_release:
-          type: approval
-          requires:
-          - build
-          filters: *filter-only-main
-      - publish_github_release:
-          requires:
-          - approve_release
-          filters: *filter-only-main
+    - cmd_lint
+    - cmd_test
+    - build:
+        requires:
+        - cmd_lint
+        - cmd_test
+    - code_coverage:
+        requires:
+        - cmd_lint
+        - cmd_test
+    - upload_coverage:
+        requires:
+        - code_coverage
+    - approve_release:
+        type: approval
+        requires:
+        - upload_coverage
+        filters: *filter-only-main
+    - publish_github_release:
+        requires:
+        - approve_release
+        filters: *filter-only-main
 
 executors:
+  default_exec:
+    docker:
+      - image: grafana/grafana-plugin-ci:1.1.2-alpine
   go_exec:
     docker:
       - image: circleci/golang:1.16
@@ -68,16 +81,50 @@ jobs:
           name: Test and Coverage
           command: |
             mkdir -p coverage
-            #go test -covermode=count -coverprofile=coverage/count.out ./...
             go test -v -coverpkg=./... --coverprofile=coverage/coverage.out ./...
-            go test ./... -coverprofile coverage/cover.out; go tool cover -func coverage/cover.out
-            go tool cover -html=coverage/coverage.out  -o coverage/coverage.html
+            go tool cover -func coverage/coverage.out
+            go tool cover -html=coverage/coverage.out -o coverage/coverage.html
       - persist_to_workspace:
           root: .
           paths:
           - coverage
       - store_artifacts:
           path: coverage
+
+  code_coverage:
+    executor: go_exec
+    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run coverage report
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter format-coverage -t gocov --debug -o ci/jobs/code_coverage/codeclimate.json coverage/coverage.out || true
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ci/jobs/code_coverage
+      - store_artifacts:
+          path: ci/jobs/code_coverage
+
+  upload_coverage:
+    executor: go_exec
+    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Upload coverage results to Code Climate
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter upload-coverage -i ci/jobs/code_coverage/codeclimate.json
+      - store_artifacts:
+          path: ci/jobs/upload_coverage
 
   publish_github_release:
     working_directory: /go/src/github.com/grafana/grafana-kiosk

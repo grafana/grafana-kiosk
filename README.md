@@ -1,7 +1,9 @@
 # Grafana Kiosk
 
 [![CircleCI](https://circleci.com/gh/grafana/grafana-kiosk.svg?style=svg)](https://circleci.com/gh/grafana/grafana-kiosk)
-[![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana-kiosk)](https://goreportcard.com/report/github.com/grafana/grafana-kiosk) [![codecov](https://codecov.io/gh/grafana/grafana-kiosk/branch/master/graph/badge.svg)](https://codecov.io/gh/grafana/grafana-kiosk)
+[![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana-kiosk)](https://goreportcard.com/report/github.com/grafana/grafana-kiosk)
+[![Maintainability](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/maintainability)](https://codeclimate.com/github/grafana/grafana-kiosk/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/test_coverage)](https://codeclimate.com/github/grafana/grafana-kiosk/test_coverage)
 
 A very useful feature of Grafana is the ability to display dashboards and playlists on a large TV.
 
@@ -313,6 +315,21 @@ Logs:
 journalctl -u grafana-kiosk
 ```
 
+## Troubleshooting
+
+### Timeout Launching
+
+```LOG
+2020/08/24 10:18:41 Launching local login kiosk
+panic: websocket url timeout reached
+```
+
+Often this is due to lack of entropy, for linux you would need to install `rng-tools` (or an equivalent).
+
+```BASH
+apt install rng-tools
+```
+
 ## Building
 
 A Makefile is provided for building the utility.
@@ -325,7 +342,6 @@ This will generate executables in "bin" that can be run on a variety of platform
 
 ## TODO
 
-- Support for OAuth2 logins
 - RHEL/CentOS auto-startup
 - Everything in issues!
 

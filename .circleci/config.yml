@@ -18,27 +18,28 @@ workflows:
   version: 2
   build_workflow:
     jobs:
-      - cmd_lint
-      - cmd_test
-      - build:
-          requires:
-          - cmd_lint
-          - cmd_test
-      - code_coverage:
-          requires:
-            - cmd_test
-      - upload_coverage:
-          requires:
-            - code_coverage
-      - approve_release:
-          type: approval
-          requires:
-          - upload_coverage
-          filters: *filter-only-main
-      - publish_github_release:
-          requires:
-          - approve_release
-          filters: *filter-only-main
+    - cmd_lint
+    - cmd_test
+    - build:
+        requires:
+        - cmd_lint
+        - cmd_test
+    - code_coverage:
+        requires:
+        - cmd_lint
+        - cmd_test
+    - upload_coverage:
+        requires:
+        - code_coverage
+    - approve_release:
+        type: approval
+        requires:
+        - upload_coverage
+        filters: *filter-only-main
+    - publish_github_release:
+        requires:
+        - approve_release
+        filters: *filter-only-main
 
 executors:
   default_exec:
@@ -102,6 +103,8 @@ jobs:
       - run:
           name: Run coverage report
           command: |
+            ls -al
+            ls -al coverage
             /usr/local/bin/cc-test-reporter format-coverage -t gocov --debug -o out/codeclimate.json coverage/cover.out || true
       - persist_to_workspace:
           root: .

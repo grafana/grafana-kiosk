@@ -90,20 +90,22 @@ jobs:
           path: coverage
 
   code_coverage:
-    executor: default_exec
+    executor: go_exec
     working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
       - run:
           name: Run coverage report
           command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
             pwd
             ls -al
             GO111MODULE=on go test -v -coverpkg=./... -coverprofile=c.out ./...
             ls -al
             GO111MODULE=on go tool cover -func c.out
             ls -al
-            /usr/local/bin/cc-test-reporter format-coverage -t gocov --debug -o ci/jobs/code_coverage/codeclimate.json gocov.info || true
+            ./cc-test-reporter format-coverage -t gocov --debug -o ci/jobs/code_coverage/codeclimate.json gocov.info || true
             ls -al
       - persist_to_workspace:
           root: .
@@ -115,7 +117,7 @@ jobs:
           path: out
 
   upload_coverage:
-    executor: default_exec
+    executor: go_exec
     working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - attach_workspace:
@@ -123,8 +125,10 @@ jobs:
       - run:
           name: Upload coverage results to Code Climate
           command: |
-            /usr/local/bin/cc-test-reporter sum-coverage ci/jobs/code_coverage/codeclimate.json -d -p 1 -o ci/jobs/upload_coverage/codeclimate.total.json
-            /usr/local/bin/cc-test-reporter upload-coverage -i ci/jobs/upload_coverage/codeclimate.total.json
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter sum-coverage ci/jobs/code_coverage/codeclimate.json -d -p 1 -o ci/jobs/upload_coverage/codeclimate.total.json
+            ./cc-test-reporter upload-coverage -i ci/jobs/upload_coverage/codeclimate.total.json
       - store_artifacts:
           path: ci/jobs/upload_coverage
 

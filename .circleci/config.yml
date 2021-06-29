@@ -4,6 +4,9 @@ parameters:
   ssh-fingerprint:
     type: string
     default: ${GITHUB_SSH_FINGERPRINT}
+  codeclimate-reporter-id:
+    type: string
+    default: ${CC_TEST_REPORTER_ID}
 
 aliases:
   # Workflow filters
@@ -21,10 +24,16 @@ workflows:
           requires:
           - cmd_lint
           - cmd_test
+      - code_coverage:
+          requires:
+            - cmd_test
+      - upload_coverage:
+          requires:
+            - code_coverage
       - approve_release:
           type: approval
           requires:
-          - build
+          - upload_coverage
           filters: *filter-only-main
       - publish_github_release:
           requires:
@@ -70,7 +79,8 @@ jobs:
             mkdir -p coverage
             #go test -covermode=count -coverprofile=coverage/count.out ./...
             go test -v -coverpkg=./... --coverprofile=coverage/coverage.out ./...
-            go test ./... -coverprofile coverage/cover.out; go tool cover -func coverage/cover.out
+            go test ./... -coverprofile coverage/cover.out
+            go tool cover -func coverage/cover.out
             go tool cover -html=coverage/coverage.out  -o coverage/coverage.html
       - persist_to_workspace:
           root: .
@@ -78,6 +88,39 @@ jobs:
           - coverage
       - store_artifacts:
           path: coverage
+
+  code_coverage:
+    executor: go_exec
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run coverage report
+          command: |
+            /usr/local/bin/cc-test-reporter format-coverage -t gocov --debug -o out/codeclimate.json coverage/cover.out || true
+      - persist_to_workspace:
+          root: .
+          paths:
+            - out
+            - ci/jobs/code_coverage
+      - store_artifacts:
+          path: out
+      - store_artifacts:
+          path: ci/jobs/code_coverage
+      - store_test_results:
+          path: out
+
+  upload_coverage:
+    executor: go_exec
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Upload coverage results to Code Climate
+          command: |
+            /usr/local/bin/cc-test-reporter sum-coverage out/codeclimate.json -d -p 1 -o out/codeclimate.total.json
+            /usr/local/bin/cc-test-reporter upload-coverage -i out/codeclimate.total.json
 
   publish_github_release:
     working_directory: /go/src/github.com/grafana/grafana-kiosk

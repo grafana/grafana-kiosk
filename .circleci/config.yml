@@ -103,6 +103,7 @@ jobs:
       - run:
           name: Run coverage report
           command: |
+            pwd
             ls -al
             ls -al coverage
             /usr/local/bin/cc-test-reporter format-coverage -t gocov --debug -o out/codeclimate.json coverage/coverage.out || true

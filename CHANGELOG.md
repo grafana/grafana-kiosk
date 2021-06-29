@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.4
+
+- Fix startup issue with new flags
+
 ## 1.0.3
 
 - OAuth merged

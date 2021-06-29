@@ -22,7 +22,6 @@ func GrafanaKioskGCOM(cfg *Config) {
 	opts := []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
 		chromedp.NoDefaultBrowserCheck,
-		// chromedp.DisableGPU, // needed?
 		chromedp.Flag("noerrdialogs", true),
 		chromedp.Flag("kiosk", true),
 		chromedp.Flag("bwsi", true),
@@ -31,6 +30,7 @@ func GrafanaKioskGCOM(cfg *Config) {
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),
 		chromedp.Flag("window-position", cfg.General.WindowPosition),
+		chromedp.Flag("check-for-update-interval", 31536000),
 		chromedp.UserDataDir(dir),
 	}
 

@@ -103,8 +103,8 @@ jobs:
             ls -al
             GO111MODULE=on go tool cover -func c.out
             ls -al
-            /usr/local/bin/cc-test-reporter format-coverage -t gocov --debug -o ci/jobs/code_coverage/codeclimate.json ci/jobs/code_coverage/gocov.info || true
-            ls -al coverage
+            /usr/local/bin/cc-test-reporter format-coverage -t gocov --debug -o ci/jobs/code_coverage/codeclimate.json gocov.info || true
+            ls -al
       - persist_to_workspace:
           root: .
           paths:

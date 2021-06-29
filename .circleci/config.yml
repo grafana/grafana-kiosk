@@ -99,14 +99,9 @@ jobs:
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
-            pwd
-            ls -al
             GO111MODULE=on go test -v -coverpkg=./... -coverprofile=c.out ./...
-            ls -al
             GO111MODULE=on go tool cover -func c.out
-            ls -al
             ./cc-test-reporter format-coverage -t gocov --debug -o ci/jobs/code_coverage/codeclimate.json gocov.info || true
-            ls -al
       - persist_to_workspace:
           root: .
           paths:
@@ -127,8 +122,8 @@ jobs:
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
-            ./cc-test-reporter sum-coverage ci/jobs/code_coverage/codeclimate.json -d -p 1 -o ci/jobs/upload_coverage/codeclimate.total.json
-            ./cc-test-reporter upload-coverage -i ci/jobs/upload_coverage/codeclimate.total.json
+            #./cc-test-reporter sum-coverage ci/jobs/code_coverage/codeclimate.json -d -p 1 -o ci/jobs/upload_coverage/codeclimate.total.json
+            ./cc-test-reporter upload-coverage -i ci/jobs/code_coverage/codeclimate.json
       - store_artifacts:
           path: ci/jobs/upload_coverage
 

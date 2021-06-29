@@ -24,7 +24,10 @@ workflows:
         requires:
         - cmd_lint
         - cmd_test
-    - code_coverage
+    - code_coverage:
+        requires:
+        - cmd_lint
+        - cmd_test
     - upload_coverage:
         requires:
         - code_coverage
@@ -79,9 +82,9 @@ jobs:
           command: |
             mkdir -p coverage
             go test -v -coverpkg=./... --coverprofile=coverage/coverage.out ./...
-            go test ./... -coverprofile coverage/cover.out
-            go tool cover -func coverage/cover.out
-            go tool cover -html=coverage/coverage.out  -o coverage/coverage.html
+            #go test ./... -coverprofile coverage/cover.out
+            go tool cover -func coverage/coverage.out
+            go tool cover -html=coverage/coverage.out -o coverage/coverage.html
       - persist_to_workspace:
           root: .
           paths:
@@ -94,14 +97,17 @@ jobs:
     working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Run coverage report
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
-            GO111MODULE=on go test -v -coverpkg=./... -coverprofile=c.out ./...
-            GO111MODULE=on go tool cover -func c.out
-            ./cc-test-reporter format-coverage -t gocov --debug -o ci/jobs/code_coverage/codeclimate.json gocov.info || true
+            ls -l coverage
+            #GO111MODULE=on go test -v -coverpkg=./... -coverprofile=c.out ./...
+            #GO111MODULE=on go tool cover -func c.out
+            ./cc-test-reporter format-coverage -t gocov --debug -o ci/jobs/code_coverage/codeclimate.json coverage/coverage.out || true
       - persist_to_workspace:
           root: .
           paths:

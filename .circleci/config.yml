@@ -26,7 +26,7 @@ workflows:
           - cmd_test
       - code_coverage:
           requires:
-            - build
+            - cmd_test
       - upload_coverage:
           requires:
             - code_coverage
@@ -94,6 +94,7 @@ jobs:
 
   code_coverage:
     executor: default_exec
+    working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
       - attach_workspace:
@@ -116,6 +117,7 @@ jobs:
 
   upload_coverage:
     executor: default_exec
+    working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - attach_workspace:
           at: .

@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.0.3
+
+- OAuth merged
+- Fix Grafana Cloud login
+- Updated modules
+- Added "window-position" option, allows running kiosk on different displays
+- Added `--check-for-update-interval=31536000` to default flags sent to chromium to workaround update popup
+
 ## 1.0.2
 
 - Also compatible with Grafana v7

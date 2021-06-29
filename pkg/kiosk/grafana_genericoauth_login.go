@@ -22,7 +22,6 @@ func GrafanaKioskGenericOauth(cfg *Config) {
 	opts := []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
 		chromedp.NoDefaultBrowserCheck,
-		// chromedp.DisableGPU, // needed?
 		chromedp.Flag("noerrdialogs", true),
 		chromedp.Flag("kiosk", true),
 		chromedp.Flag("bwsi", true),
@@ -30,6 +29,8 @@ func GrafanaKioskGenericOauth(cfg *Config) {
 		chromedp.Flag("disable-sync", true),
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),
+		chromedp.Flag("window-position", cfg.General.WindowPosition),
+		chromedp.Flag("check-for-update-interval", 31536000),
 		chromedp.UserDataDir(dir),
 	}
 
@@ -56,7 +57,7 @@ func GrafanaKioskGenericOauth(cfg *Config) {
 	// XPATH of grafana.com for Generic OAUTH login button = //*[@href="login/grafana_com"]/i
 
 	// Click the OAUTH login button
-	log.Println("Oauth_Auto_Login enabeld: ", cfg.GOAUTH.AutoLogin)
+	log.Println("Oauth_Auto_Login enabled: ", cfg.GOAUTH.AutoLogin)
 	if cfg.GOAUTH.AutoLogin {
 		if err := chromedp.Run(taskCtx,
 			chromedp.Navigate(generatedURL),

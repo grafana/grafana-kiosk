@@ -24,10 +24,7 @@ workflows:
         requires:
         - cmd_lint
         - cmd_test
-    - code_coverage:
-        requires:
-        - cmd_lint
-        - cmd_test
+    - code_coverage
     - upload_coverage:
         requires:
         - code_coverage
@@ -81,7 +78,6 @@ jobs:
           name: Test and Coverage
           command: |
             mkdir -p coverage
-            #go test -covermode=count -coverprofile=coverage/count.out ./...
             go test -v -coverpkg=./... --coverprofile=coverage/coverage.out ./...
             go test ./... -coverprofile coverage/cover.out
             go tool cover -func coverage/cover.out
@@ -98,22 +94,21 @@ jobs:
     working_directory: /go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
-      - attach_workspace:
-          at: .
       - run:
           name: Run coverage report
           command: |
             pwd
             ls -al
+            GO111MODULE=on go test -v -coverpkg=./... -coverprofile=c.out ./...
+            ls -al
+            GO111MODULE=on go tool cover -func c.out
+            ls -al
+            /usr/local/bin/cc-test-reporter format-coverage -t gocov --debug -o ci/jobs/code_coverage/codeclimate.json ci/jobs/code_coverage/gocov.info || true
             ls -al coverage
-            /usr/local/bin/cc-test-reporter format-coverage -t gocov --debug -o out/codeclimate.json coverage/coverage.out || true
       - persist_to_workspace:
           root: .
           paths:
-            - out
             - ci/jobs/code_coverage
-      - store_artifacts:
-          path: out
       - store_artifacts:
           path: ci/jobs/code_coverage
       - store_test_results:
@@ -128,8 +123,10 @@ jobs:
       - run:
           name: Upload coverage results to Code Climate
           command: |
-            /usr/local/bin/cc-test-reporter sum-coverage out/codeclimate.json -d -p 1 -o out/codeclimate.total.json
-            /usr/local/bin/cc-test-reporter upload-coverage -i out/codeclimate.total.json
+            /usr/local/bin/cc-test-reporter sum-coverage ci/jobs/code_coverage/codeclimate.json -d -p 1 -o ci/jobs/upload_coverage/codeclimate.total.json
+            /usr/local/bin/cc-test-reporter upload-coverage -i ci/jobs/upload_coverage/codeclimate.total.json
+      - store_artifacts:
+          path: ci/jobs/upload_coverage
 
   publish_github_release:
     working_directory: /go/src/github.com/grafana/grafana-kiosk

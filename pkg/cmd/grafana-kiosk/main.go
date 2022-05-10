@@ -165,10 +165,12 @@ func main() {
 	setEnvironment()
 	log.Println("method ", cfg.Target.LoginMethod)
 
+	messages := make(chan string)
+
 	switch cfg.Target.LoginMethod {
 	case "local":
 		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(&cfg)
+		kiosk.GrafanaKioskLocal(&cfg, messages)
 	case "gcom":
 		log.Printf("Launching GCOM login kiosk")
 		kiosk.GrafanaKioskGCOM(&cfg)

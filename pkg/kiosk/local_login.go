@@ -12,7 +12,7 @@ import (
 )
 
 // GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account
-func GrafanaKioskLocal(cfg *Config) {
+func GrafanaKioskLocal(cfg *Config, messages chan string) {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
 		panic(err)
@@ -66,8 +66,17 @@ func GrafanaKioskLocal(cfg *Config) {
 		chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
 	); err != nil {
 		panic(err)
+	}
+
+	// blocking wait
+	for {
+		navigateTo := <-messages
+		if err := chromedp.Run(taskCtx,
+			chromedp.Navigate(navigateTo),
+		); err != nil {
+			panic(err)
+		}
 	}
 }

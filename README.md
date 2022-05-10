@@ -48,6 +48,14 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 # sudo chmod 755 /usr/bin/grafana-kiosk
 ```
 
+## Dependencies
+
+Raspian 10/Buster 32bit or 64bit, (Raspberry Pi OS with desktop, approx image size 1.18GB)
+unclutter (for hiding mouse/cursor)
+rng-tools (for entropy issues)
+
+lxpanel gives an error on pi4
+
 ## Usage
 
 NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://play.grafana.org) when also used with any boolean flags.

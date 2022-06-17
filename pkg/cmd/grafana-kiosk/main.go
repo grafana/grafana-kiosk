@@ -20,6 +20,8 @@ type Args struct {
 	IsPlayList              bool
 	OauthAutoLogin          bool
 	LXDEEnabled             bool
+	Audience                string
+	KeyFile                 string
 	LXDEHome                string
 	ConfigPath              string
 	Mode                    string
@@ -38,7 +40,7 @@ func ProcessArgs(cfg interface{}) Args {
 
 	f := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
 	f.StringVar(&a.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
-	f.StringVar(&a.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth]")
+	f.StringVar(&a.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken]")
 	f.StringVar(&a.Username, "username", "guest", "username")
 	f.StringVar(&a.Password, "password", "guest", "password")
 	f.StringVar(&a.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
@@ -52,6 +54,8 @@ func ProcessArgs(cfg interface{}) Args {
 	f.BoolVar(&a.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
 	f.StringVar(&a.UsernameField, "field-username", "username", "Fieldname for the username")
 	f.StringVar(&a.PasswordField, "field-password", "password", "Fieldname for the password")
+	f.StringVar(&a.KeyFile, "keyfile", "key.json", "idtoken json credentials")
+	f.StringVar(&a.Audience, "audience", "", "idtoken audience")
 
 	fu := f.Usage
 	f.Usage = func() {
@@ -144,6 +148,9 @@ func main() {
 		cfg.GOAUTH.AutoLogin = args.OauthAutoLogin
 		cfg.GOAUTH.UsernameField = args.UsernameField
 		cfg.GOAUTH.PasswordField = args.PasswordField
+
+		cfg.IDTOKEN.Audience = args.Audience
+		cfg.IDTOKEN.KeyFile = args.KeyFile
 	}
 	summary(&cfg)
 	// make sure the url has content
@@ -175,6 +182,9 @@ func main() {
 	case "goauth":
 		log.Printf("Launching Generic Oauth login kiosk")
 		kiosk.GrafanaKioskGenericOauth(&cfg)
+	case "idtoken":
+		log.Printf("Launching idtoken oauth kiosk")
+		kiosk.GrafanaKioskIdToken(&cfg)
 	default:
 		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(&cfg)

@@ -19,20 +19,7 @@ func GrafanaKioskGenericOauth(cfg *Config) {
 	}
 	defer os.RemoveAll(dir)
 
-	opts := []chromedp.ExecAllocatorOption{
-		chromedp.NoFirstRun,
-		chromedp.NoDefaultBrowserCheck,
-		chromedp.Flag("noerrdialogs", true),
-		chromedp.Flag("kiosk", true),
-		chromedp.Flag("bwsi", true),
-		chromedp.Flag("incognito", true),
-		chromedp.Flag("disable-sync", true),
-		chromedp.Flag("disable-notifications", true),
-		chromedp.Flag("disable-overlay-scrollbar", true),
-		chromedp.Flag("window-position", cfg.General.WindowPosition),
-		chromedp.Flag("check-for-update-interval", "31536000"),
-		chromedp.UserDataDir(dir),
-	}
+	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()

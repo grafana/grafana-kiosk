@@ -87,6 +87,8 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
         username (default "guest")
   -window-position string
         Top Left Position of Kiosk (default "0,0")
+  -window-size string
+        Size of Kiosk in pixels (default "1920,1080")
 ```
 
 ### Using a configuration file
@@ -128,6 +130,8 @@ They can also be used instead of a configuration file.
         [full|tv|disabled] (default "full")
   KIOSK_WINDOW_POSITION string
         Top Left Position of Kiosk (default "0,0")
+  KIOSK_WINDOW_SIZE string
+        Size of Kiosk in pixels (default "1920,1080")
   KIOSK_IGNORE_CERTIFICATE_ERRORS bool
         ignore SSL/TLS certificate errors (default "false")
   KIOSK_IS_PLAYLIST bool

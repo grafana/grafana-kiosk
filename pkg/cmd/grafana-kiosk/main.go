@@ -30,6 +30,7 @@ type Args struct {
 	UsernameField           string
 	PasswordField           string
 	WindowPosition          string
+	WindowSize              string
 }
 
 // ProcessArgs processes and handles CLI arguments
@@ -44,6 +45,7 @@ func ProcessArgs(cfg interface{}) Args {
 	f.StringVar(&a.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
 	f.StringVar(&a.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
 	f.StringVar(&a.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
+	f.StringVar(&a.WindowPosition, "window-size", "1920,1080", "Size of Kiosk in pixels")
 	f.BoolVar(&a.IsPlayList, "playlists", false, "URL is a playlist")
 	f.BoolVar(&a.AutoFit, "autofit", true, "Fit panels to screen")
 	f.BoolVar(&a.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
@@ -96,6 +98,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("LXDEHome:", cfg.General.LXDEHome)
 	log.Println("Mode:", cfg.General.Mode)
 	log.Println("WindowPosition:", cfg.General.WindowPosition)
+	log.Println("WindowSize:", cfg.General.WindowSize)
 	// target
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
@@ -140,6 +143,7 @@ func main() {
 		cfg.General.LXDEHome = args.LXDEHome
 		cfg.General.Mode = args.Mode
 		cfg.General.WindowPosition = args.WindowPosition
+		cfg.General.WindowSize = args.WindowSize
 		//
 		cfg.GOAUTH.AutoLogin = args.OauthAutoLogin
 		cfg.GOAUTH.UsernameField = args.UsernameField

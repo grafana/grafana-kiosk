@@ -34,6 +34,7 @@ func GrafanaKioskLocal(cfg *Config) {
 		chromedp.Flag("window-position", cfg.General.WindowPosition),
 		chromedp.Flag("window-size", cfg.General.WindowSize),
 		chromedp.Flag("check-for-update-interval", "31536000"),
+		chromedp.Flag("force-device-scale-factor", cfg.General.ScaleFactor),
 		chromedp.UserDataDir(dir),
 	}
 

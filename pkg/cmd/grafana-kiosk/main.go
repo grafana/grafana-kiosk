@@ -47,6 +47,7 @@ func ProcessArgs(cfg interface{}) Args {
 	f.StringVar(&a.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
 	f.StringVar(&a.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
 	f.StringVar(&a.WindowPosition, "window-size", "1920,1080", "Size of Kiosk in pixels")
+	f.StringVar(&a.ScaleFactor, "scale-factor", "1.0", "Scale factor, sort of zoom")
 	f.BoolVar(&a.IsPlayList, "playlists", false, "URL is a playlist")
 	f.BoolVar(&a.AutoFit, "autofit", true, "Fit panels to screen")
 	f.BoolVar(&a.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")

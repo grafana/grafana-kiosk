@@ -89,6 +89,8 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
         Top Left Position of Kiosk (default "0,0")
   -window-size string
         Size of Kiosk in pixels (default "1920,1080")
+  -scale-factor string
+        Scale factor of Kiosk. This is sort of like zoom. (default: "1")
 ```
 
 ### Using a configuration file
@@ -102,6 +104,8 @@ general:
   autofit: true
   lxde: true
   lxde-home: /home/pi
+  scale-factor: 1.0
+  window-size: 1920,1080
 
 target:
   login-method: anon
@@ -150,6 +154,10 @@ They can also be used instead of a configuration file.
         Username html input name value
   KIOSK_GOAUTH_FIELD_PASSWORD string
         Password html input name value
+  KIOSK_SCALE_FACTOR string
+        Scale factor, like zoom
+  KIOSK_WINDOW_SIZE string
+        Size of kiosk in pixels
 ```
 
 ### Hosted Grafana using grafana.com authentication

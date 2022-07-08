@@ -31,6 +31,7 @@ func GrafanaKioskGenericOauth(cfg *Config) {
 		chromedp.Flag("disable-overlay-scrollbar", true),
 		chromedp.Flag("window-position", cfg.General.WindowPosition),
 		chromedp.Flag("window-size", cfg.General.WindowSize),
+		chromedp.Flag("force-device-scale-factor", cfg.General.ScaleFactor),
 		chromedp.Flag("check-for-update-interval", "31536000"),
 		chromedp.UserDataDir(dir),
 	}

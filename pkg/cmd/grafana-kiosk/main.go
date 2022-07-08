@@ -31,6 +31,7 @@ type Args struct {
 	PasswordField           string
 	WindowPosition          string
 	WindowSize              string
+	ScaleFactor             string
 }
 
 // ProcessArgs processes and handles CLI arguments
@@ -99,6 +100,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("Mode:", cfg.General.Mode)
 	log.Println("WindowPosition:", cfg.General.WindowPosition)
 	log.Println("WindowSize:", cfg.General.WindowSize)
+	log.Println("ScaleFactor:", cfg.General.ScaleFactor)
 	// target
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
@@ -144,6 +146,7 @@ func main() {
 		cfg.General.Mode = args.Mode
 		cfg.General.WindowPosition = args.WindowPosition
 		cfg.General.WindowSize = args.WindowSize
+		cfg.General.ScaleFactor = args.ScaleFactor
 		//
 		cfg.GOAUTH.AutoLogin = args.OauthAutoLogin
 		cfg.GOAUTH.UsernameField = args.UsernameField

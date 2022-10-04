@@ -113,6 +113,15 @@ func main() {
 	var cfg kiosk.Config
 	// override
 	args := ProcessArgs(&cfg)
+
+	// validate auth methods
+	switch args.LoginMethod {
+	case "goauth", "anon", "local", "gcom":
+	default:
+		log.Println("Invalid auth method", args.LoginMethod)
+		os.Exit(-1)
+	}
+
 	// check if config specified
 	if args.ConfigPath != "" {
 		// read configuration from the file and then override with environment variables

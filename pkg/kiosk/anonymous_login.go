@@ -2,7 +2,6 @@ package kiosk
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -12,11 +11,12 @@ import (
 
 // GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account
 func GrafanaKioskAnonymous(cfg *Config) {
-	dir, err := ioutil.TempDir("", "chromedp-example")
+	tmpDir := os.TempDir()
+	dir, err := os.CreateTemp(tmpDir, "chromedp-example")
 	if err != nil {
 		panic(err)
 	}
-	defer os.RemoveAll(dir)
+	defer os.RemoveAll(dir.Name())
 
 	opts := []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
@@ -32,7 +32,7 @@ func GrafanaKioskAnonymous(cfg *Config) {
 		chromedp.Flag("test-type", cfg.Target.IgnoreCertificateErrors),
 		chromedp.Flag("window-position", cfg.General.WindowPosition),
 		chromedp.Flag("check-for-update-interval", "31536000"),
-		chromedp.UserDataDir(dir),
+		chromedp.UserDataDir(dir.Name()),
 	}
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)

@@ -44,7 +44,7 @@ func GrafanaKioskIdToken(cfg *Config) {
 	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
 	log.Println("Navigating to ", generatedURL)
 
-	log.Printf("Token is using audience %s and reading from %s\n",cfg.IDTOKEN.Audience, cfg.IDTOKEN.KeyFile)
+	log.Printf("Token is using audience %s and reading from %s\n", cfg.IDTOKEN.Audience, cfg.IDTOKEN.KeyFile)
 	ts, err := idtoken.NewTokenSource(context.Background(), cfg.IDTOKEN.Audience, idtoken.WithCredentialsFile(cfg.IDTOKEN.KeyFile))
 	if err != nil {
 		panic(err)
@@ -80,7 +80,6 @@ func GetExecutor(ctx context.Context) context.Context {
 	c := chromedp.FromContext(ctx)
 	return cdp.WithExecutor(ctx, c.Target)
 }
-
 
 func enableFetch(url string) chromedp.Tasks {
 	return chromedp.Tasks{

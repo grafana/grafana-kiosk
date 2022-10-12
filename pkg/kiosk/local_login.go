@@ -12,12 +12,12 @@ import (
 
 // GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account
 func GrafanaKioskLocal(cfg *Config) {
-	tmpDir := os.TempDir()
-	dir, err := os.CreateTemp(tmpDir, "chromedp-example")
+	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
 	}
-	defer os.RemoveAll(dir.Name())
+	log.Println("Using temp dir:", dir)
+	defer os.RemoveAll(dir)
 
 	opts := []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
@@ -33,7 +33,7 @@ func GrafanaKioskLocal(cfg *Config) {
 		chromedp.Flag("test-type", cfg.Target.IgnoreCertificateErrors),
 		chromedp.Flag("window-position", cfg.General.WindowPosition),
 		chromedp.Flag("check-for-update-interval", "31536000"),
-		chromedp.UserDataDir(dir.Name()),
+		chromedp.UserDataDir(dir),
 	}
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)

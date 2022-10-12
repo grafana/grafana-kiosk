@@ -1,0 +1,881 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>grafana-kiosk: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/grafana/grafana-kiosk/pkg/cmd/grafana-kiosk/main.go (0.0%)</option>
+				
+				<option value="file1">github.com/grafana/grafana-kiosk/pkg/initialize/lxde.go (0.0%)</option>
+				
+				<option value="file2">github.com/grafana/grafana-kiosk/pkg/kiosk/anonymous_login.go (0.0%)</option>
+				
+				<option value="file3">github.com/grafana/grafana-kiosk/pkg/kiosk/grafana_com_login.go (0.0%)</option>
+				
+				<option value="file4">github.com/grafana/grafana-kiosk/pkg/kiosk/grafana_genericoauth_login.go (0.0%)</option>
+				
+				<option value="file5">github.com/grafana/grafana-kiosk/pkg/kiosk/grafana_idtoken_login.go (0.0%)</option>
+				
+				<option value="file6">github.com/grafana/grafana-kiosk/pkg/kiosk/listen_chrome_events.go (0.0%)</option>
+				
+				<option value="file7">github.com/grafana/grafana-kiosk/pkg/kiosk/local_login.go (0.0%)</option>
+				
+				<option value="file8">github.com/grafana/grafana-kiosk/pkg/kiosk/utils.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "flag"
+        "fmt"
+        "log"
+        "net/url"
+        "os"
+
+        "github.com/ilyakaznacheev/cleanenv"
+
+        "github.com/grafana/grafana-kiosk/pkg/initialize"
+        "github.com/grafana/grafana-kiosk/pkg/kiosk"
+)
+
+// Args command-line parameters.
+type Args struct {
+        AutoFit                 bool
+        IgnoreCertificateErrors bool
+        IsPlayList              bool
+        OauthAutoLogin          bool
+        LXDEEnabled             bool
+        Audience                string
+        KeyFile                 string
+        LXDEHome                string
+        ConfigPath              string
+        Mode                    string
+        LoginMethod             string
+        URL                     string
+        Username                string
+        Password                string
+        UsernameField           string
+        PasswordField           string
+        WindowPosition          string
+}
+
+// ProcessArgs processes and handles CLI arguments.
+func ProcessArgs(cfg interface{}) Args <span class="cov0" title="0">{
+        var processedArgs Args
+
+        flagSettings := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
+        flagSettings.StringVar(&amp;processedArgs.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
+        flagSettings.StringVar(&amp;processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken]")
+        flagSettings.StringVar(&amp;processedArgs.Username, "username", "guest", "username")
+        flagSettings.StringVar(&amp;processedArgs.Password, "password", "guest", "password")
+        flagSettings.StringVar(&amp;processedArgs.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
+        flagSettings.StringVar(&amp;processedArgs.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
+        flagSettings.StringVar(&amp;processedArgs.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
+        flagSettings.BoolVar(&amp;processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
+        flagSettings.BoolVar(&amp;processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
+        flagSettings.BoolVar(&amp;processedArgs.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
+        flagSettings.StringVar(&amp;processedArgs.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
+        flagSettings.BoolVar(&amp;processedArgs.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
+        flagSettings.BoolVar(&amp;processedArgs.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
+        flagSettings.StringVar(&amp;processedArgs.UsernameField, "field-username", "username", "Fieldname for the username")
+        flagSettings.StringVar(&amp;processedArgs.PasswordField, "field-password", "password", "Fieldname for the password")
+        flagSettings.StringVar(&amp;processedArgs.Audience, "audience", "", "idtoken audience")
+        flagSettings.StringVar(&amp;processedArgs.KeyFile, "keyfile", "key.json", "idtoken json credentials")
+
+        fu := flagSettings.Usage
+        flagSettings.Usage = func() </span><span class="cov0" title="0">{
+                fu()
+
+                envHelp, _ := cleanenv.GetDescription(cfg, nil)
+
+                fmt.Fprintln(flagSettings.Output())
+                fmt.Fprintln(flagSettings.Output(), envHelp)
+        }</span>
+
+        <span class="cov0" title="0">err := flagSettings.Parse(os.Args[1:])
+        if err != nil </span><span class="cov0" title="0">{
+                os.Exit(-1)
+        }</span>
+
+        <span class="cov0" title="0">return processedArgs</span>
+}
+
+func setEnvironment() <span class="cov0" title="0">{
+        // for linux/X display must be set
+        var displayEnv = os.Getenv("DISPLAY")
+        if displayEnv == "" </span><span class="cov0" title="0">{
+                log.Println("DISPLAY not set, autosetting to :0.0")
+                os.Setenv("DISPLAY", ":0.0")
+                displayEnv = os.Getenv("DISPLAY")
+        }</span>
+
+        <span class="cov0" title="0">log.Println("DISPLAY=", displayEnv)
+
+        var xAuthorityEnv = os.Getenv("XAUTHORITY")
+        if xAuthorityEnv == "" </span><span class="cov0" title="0">{
+                log.Println("XAUTHORITY not set, autosetting")
+                // use HOME of current user
+                var homeEnv = os.Getenv("HOME")
+
+                os.Setenv("XAUTHORITY", homeEnv+"/.Xauthority")
+                xAuthorityEnv = os.Getenv("XAUTHORITY")
+        }</span>
+
+        <span class="cov0" title="0">log.Println("XAUTHORITY=", xAuthorityEnv)</span>
+}
+
+func summary(cfg *kiosk.Config) <span class="cov0" title="0">{
+        // general
+        log.Println("AutoFit:", cfg.General.AutoFit)
+        log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
+        log.Println("LXDEHome:", cfg.General.LXDEHome)
+        log.Println("Mode:", cfg.General.Mode)
+        log.Println("WindowPosition:", cfg.General.WindowPosition)
+        // target
+        log.Println("URL:", cfg.Target.URL)
+        log.Println("LoginMethod:", cfg.Target.LoginMethod)
+        log.Println("Username:", cfg.Target.Username)
+        log.Println("Password:", "*redacted*")
+        log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
+        log.Println("IsPlayList:", cfg.Target.IsPlayList)
+        // goauth
+        log.Println("Fieldname AutoLogin:", cfg.GOAUTH.AutoLogin)
+        log.Println("Fieldname Username:", cfg.GOAUTH.UsernameField)
+        log.Println("Fieldname Password:", cfg.GOAUTH.PasswordField)
+}</span>
+
+func main() <span class="cov0" title="0">{
+        var cfg kiosk.Config
+        // override
+        args := ProcessArgs(&amp;cfg)
+
+        // validate auth methods
+        switch args.LoginMethod </span>{
+        case "goauth", "anon", "local", "gcom", "idtoken":<span class="cov0" title="0"></span>
+        default:<span class="cov0" title="0">
+                log.Println("Invalid auth method", args.LoginMethod)
+                os.Exit(-1)</span>
+        }
+
+        // check if config specified
+        <span class="cov0" title="0">if args.ConfigPath != "" </span><span class="cov0" title="0">{
+                // read configuration from the file and then override with environment variables
+                if err := cleanenv.ReadConfig(args.ConfigPath, &amp;cfg); err != nil </span><span class="cov0" title="0">{
+                        log.Println("Error reading config file", err)
+                        os.Exit(-1)
+                }</span> else<span class="cov0" title="0"> {
+                        log.Println("Using config from", args.ConfigPath)
+                }</span>
+        } else<span class="cov0" title="0"> {
+                log.Println("No config specified, using environment and args")
+                // no config, use environment and args
+                if err := cleanenv.ReadEnv(&amp;cfg); err != nil </span><span class="cov0" title="0">{
+                        log.Println("Error reading config from environment", err)
+                }</span>
+                <span class="cov0" title="0">cfg.Target.URL = args.URL
+                cfg.Target.LoginMethod = args.LoginMethod
+                cfg.Target.Username = args.Username
+                cfg.Target.Password = args.Password
+                cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors
+                cfg.Target.IsPlayList = args.IsPlayList
+                //
+                cfg.General.AutoFit = args.AutoFit
+                cfg.General.LXDEEnabled = args.LXDEEnabled
+                cfg.General.LXDEHome = args.LXDEHome
+                cfg.General.Mode = args.Mode
+                cfg.General.WindowPosition = args.WindowPosition
+                //
+                cfg.GOAUTH.AutoLogin = args.OauthAutoLogin
+                cfg.GOAUTH.UsernameField = args.UsernameField
+                cfg.GOAUTH.PasswordField = args.PasswordField
+
+                cfg.IDTOKEN.Audience = args.Audience
+                cfg.IDTOKEN.KeyFile = args.KeyFile</span>
+        }
+
+        <span class="cov0" title="0">summary(&amp;cfg)
+        // make sure the url has content
+        if cfg.Target.URL == "" </span><span class="cov0" title="0">{
+                os.Exit(1)
+        }</span>
+        // validate url
+        <span class="cov0" title="0">_, err := url.ParseRequestURI(cfg.Target.URL)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">summary(&amp;cfg)
+
+        if cfg.General.LXDEEnabled </span><span class="cov0" title="0">{
+                initialize.LXDE(cfg.General.LXDEHome)
+        }</span>
+
+        // for linux/X display must be set
+        <span class="cov0" title="0">setEnvironment()
+        log.Println("method ", cfg.Target.LoginMethod)
+
+        switch cfg.Target.LoginMethod </span>{
+        case "local":<span class="cov0" title="0">
+                log.Printf("Launching local login kiosk")
+                kiosk.GrafanaKioskLocal(&amp;cfg)</span>
+        case "gcom":<span class="cov0" title="0">
+                log.Printf("Launching GCOM login kiosk")
+                kiosk.GrafanaKioskGCOM(&amp;cfg)</span>
+        case "goauth":<span class="cov0" title="0">
+                log.Printf("Launching Generic Oauth login kiosk")
+                kiosk.GrafanaKioskGenericOauth(&amp;cfg)</span>
+        case "idtoken":<span class="cov0" title="0">
+                log.Printf("Launching idtoken oauth kiosk")
+                kiosk.GrafanaKioskIDToken(&amp;cfg)</span>
+        default:<span class="cov0" title="0">
+                log.Printf("Launching ANON login kiosk")
+                kiosk.GrafanaKioskAnonymous(&amp;cfg)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package initialize
+
+import (
+        "log"
+        "os"
+        "os/exec"
+)
+
+// LXDE runs shell commands to setup LXDE for kiosk mode.
+func LXDE(path string) <span class="cov0" title="0">{
+        var command = "/usr/bin/lxpanel"
+
+        args := []string{"--profile", "LXDE"}
+        runCommand(path, command, args, true)
+        command = "/usr/bin/pcmanfm"
+        args = []string{"--desktop", "--profile", "LXDE"}
+        runCommand(path, command, args, true)
+        command = "/usr/bin/xset"
+        runCommand(path, command, args, true)
+        args = []string{"s", "off"}
+        runCommand(path, command, args, true)
+        args = []string{"-dpms"}
+        runCommand(path, command, args, true)
+        args = []string{"s", "noblank"}
+        runCommand(path, command, args, true)
+        command = "/usr/bin/unclutter"
+        displayEnv := os.Getenv("DISPLAY")
+        args = []string{"-display", displayEnv, "-idle", "5"}
+
+        go runCommand(path, command, args, true)
+}</span>
+
+func runCommand(path string, command string, args []string, waitForEnd bool) <span class="cov0" title="0">{
+        // check if command exists
+        log.Printf("path: %v", path)
+        log.Printf("command: %v", command)
+        log.Printf("arg0: %v", args[0])
+        cmd := exec.Command(command, args...)
+
+        cmd.Env = append(os.Environ(),
+                "DISPLAY=:0.0",
+                "XAUTHORITY="+path+"/.Xauthority",
+        )
+        err := cmd.Start()
+
+        if err != nil </span><span class="cov0" title="0">{
+                // log.Printf(err)
+                log.Printf("Error in output, ignoring...")
+        }</span>
+
+        <span class="cov0" title="0">if waitForEnd </span><span class="cov0" title="0">{
+                log.Printf("Waiting for command to finish...")
+
+                err = cmd.Wait()
+
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Printf("Command finished with error: %v", err)
+                }</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package kiosk
+
+import (
+        "context"
+        "log"
+        "os"
+        "time"
+
+        "github.com/chromedp/chromedp"
+)
+
+// GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account.
+func GrafanaKioskAnonymous(cfg *Config) <span class="cov0" title="0">{
+        dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">log.Println("Using temp dir:", dir)
+        defer os.RemoveAll(dir)
+
+        opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
+
+        allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+        defer cancel()
+
+        // also set up a custom logger
+        taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+        defer cancel()
+
+        listenChromeEvents(taskCtx, consoleAPICall|targetCrashed)
+
+        // ensure that the browser process is started
+        if err := chromedp.Run(taskCtx); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        // Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
+        <span class="cov0" title="0">time.Sleep(2000 * time.Millisecond)
+
+        var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+
+        log.Println("Navigating to ", generatedURL)
+        /*
+                Launch chrome and look for main-view element
+        */
+        if err := chromedp.Run(taskCtx,
+                chromedp.Navigate(generatedURL),
+                chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
+                // wait forever (for now)
+                chromedp.WaitVisible("notinputPassword", chromedp.ByID),
+        ); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">log.Println("Sleep before exit...")
+        // wait here for the process to exit
+        time.Sleep(2000 * time.Millisecond)
+        log.Println("Exit...")</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package kiosk
+
+import (
+        "context"
+        "log"
+        "os"
+        "time"
+
+        "github.com/chromedp/chromedp"
+        "github.com/chromedp/chromedp/kb"
+)
+
+// GrafanaKioskGCOM creates a chrome-based kiosk using a grafana.com authenticated account.
+func GrafanaKioskGCOM(cfg *Config) <span class="cov0" title="0">{
+        dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">log.Println("Using temp dir:", dir)
+        defer os.RemoveAll(dir)
+
+        opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
+
+        allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+        defer cancel()
+
+        // also set up a custom logger
+        taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+        defer cancel()
+
+        listenChromeEvents(taskCtx, targetCrashed)
+
+        // ensure that the browser process is started
+        if err := chromedp.Run(taskCtx); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+
+        log.Println("Navigating to ", generatedURL)
+        /*
+                Launch chrome, click the grafana.com button, fill out login form and submit
+        */
+        // XPATH of grafana.com login button = //*[@href="login/grafana_com"]/i
+        // XPATH for grafana.com login (new) = //a[contains(@href,'login/grafana_com')]
+
+        // chromedp.WaitVisible(`//*[@href="login/grafana_com"]/i`, chromedp.BySearch),
+
+        // Click the grafana_com login button
+        if err := chromedp.Run(taskCtx,
+                chromedp.Navigate(generatedURL),
+                chromedp.ActionFunc(func(context.Context) error </span><span class="cov0" title="0">{
+                        log.Println("waiting for login dialog")
+
+                        return nil
+                }</span>),
+                chromedp.WaitVisible(`//a[contains(@href,'login/grafana_com')]`, chromedp.BySearch),
+                chromedp.ActionFunc(func(context.Context) error <span class="cov0" title="0">{
+                        log.Println("gcom login dialog detected")
+
+                        return nil
+                }</span>),
+                chromedp.Click(`//a[contains(@href,'login/grafana_com')]/..`, chromedp.BySearch),
+                chromedp.ActionFunc(func(context.Context) error <span class="cov0" title="0">{
+                        log.Println("gcom button clicked")
+
+                        return nil
+                }</span>),
+        ); err != nil <span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        // Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
+        <span class="cov0" title="0">time.Sleep(2000 * time.Millisecond)
+        // Fill out grafana_com login page
+        if err := chromedp.Run(taskCtx,
+                chromedp.WaitVisible(`//input[@name="login"]`, chromedp.BySearch),
+                chromedp.SendKeys(`//input[@name="login"]`, cfg.Target.Username, chromedp.BySearch),
+                chromedp.Click(`#submit`, chromedp.ByID),
+                chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+                chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
+        ); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package kiosk
+
+import (
+        "context"
+        "log"
+        "os"
+        "time"
+
+        "github.com/chromedp/chromedp"
+        "github.com/chromedp/chromedp/kb"
+)
+
+// GrafanaKioskGenericOauth creates a chrome-based kiosk using a oauth2 authenticated account.
+func GrafanaKioskGenericOauth(cfg *Config) <span class="cov0" title="0">{
+        dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">log.Println("Using temp dir:", dir)
+        defer os.RemoveAll(dir)
+
+        opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
+
+        allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+        defer cancel()
+
+        // also set up a custom logger
+        taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+        defer cancel()
+
+        listenChromeEvents(taskCtx, targetCrashed)
+
+        // ensure that the browser process is started
+        if err := chromedp.Run(taskCtx); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+
+        log.Println("Navigating to ", generatedURL)
+
+        /*
+                Launch chrome, click the GENERIC OAUTH button, fill out login form and submit
+        */
+        // XPATH of grafana.com for Generic OAUTH login button = //*[@href="login/grafana_com"]/i
+
+        // Click the OAUTH login button
+        log.Println("Oauth_Auto_Login enabled: ", cfg.GOAUTH.AutoLogin)
+
+        if cfg.GOAUTH.AutoLogin </span><span class="cov0" title="0">{
+                if err := chromedp.Run(taskCtx,
+                        chromedp.Navigate(generatedURL),
+                ); err != nil </span><span class="cov0" title="0">{
+                        panic(err)</span>
+                }
+        } else<span class="cov0" title="0"> {
+                if err := chromedp.Run(taskCtx,
+                        chromedp.Navigate(generatedURL),
+                        chromedp.WaitVisible(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),
+                        chromedp.Click(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),
+                ); err != nil </span><span class="cov0" title="0">{
+                        panic(err)</span>
+                }
+        }
+
+        // Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
+        <span class="cov0" title="0">time.Sleep(2000 * time.Millisecond)
+        // Fill out OAUTH login page
+        if err := chromedp.Run(taskCtx,
+                chromedp.WaitVisible(`//input[@name="`+cfg.GOAUTH.UsernameField+`"]`, chromedp.BySearch),
+                chromedp.SendKeys(`//input[@name="`+cfg.GOAUTH.UsernameField+`"]`, cfg.Target.Username, chromedp.BySearch),
+                chromedp.SendKeys(`//input[@name="`+cfg.GOAUTH.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+                chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
+        ); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package kiosk
+
+import (
+        "context"
+        "time"
+
+        "fmt"
+        "log"
+        "os"
+
+        "github.com/chromedp/cdproto/cdp"
+        "github.com/chromedp/cdproto/fetch"
+
+        "github.com/chromedp/chromedp"
+
+        "google.golang.org/api/idtoken"
+)
+
+// GrafanaKioskIDToken creates a chrome-based kiosk using a oauth2 authenticated account.
+func GrafanaKioskIDToken(cfg *Config) <span class="cov0" title="0">{
+        dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">defer os.RemoveAll(dir)
+
+        opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
+
+        allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+        defer cancel()
+
+        // also set up a custom logger
+        taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+        defer cancel()
+
+        listenChromeEvents(taskCtx, targetCrashed)
+
+        // ensure that the browser process is started
+        if err := chromedp.Run(taskCtx); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+
+        log.Println("Navigating to ", generatedURL)
+
+        log.Printf("Token is using audience %s and reading from %s\n", cfg.IDTOKEN.Audience, cfg.IDTOKEN.KeyFile)
+        tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IDTOKEN.Audience, idtoken.WithCredentialsFile(cfg.IDTOKEN.KeyFile))
+
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">chromedp.ListenTarget(taskCtx, func(ev interface{}) </span><span class="cov0" title="0">{
+                //nolint:gocritic // future events can be handled here
+                switch ev := ev.(type) </span>{
+                case *fetch.EventRequestPaused:<span class="cov0" title="0">
+                        go func() </span><span class="cov0" title="0">{
+                                fetchReq := fetch.ContinueRequest(ev.RequestID)
+                                for k, v := range ev.Request.Headers </span><span class="cov0" title="0">{
+                                        fetchReq.Headers = append(fetchReq.Headers, &amp;fetch.HeaderEntry{Name: k, Value: fmt.Sprintf("%v", v)})
+                                }</span>
+                                <span class="cov0" title="0">token, err := tokenSource.Token()
+                                if err != nil </span><span class="cov0" title="0">{
+                                        panic(fmt.Errorf("idtoken.NewClient: %w", err))</span>
+                                }
+                                <span class="cov0" title="0">fetchReq.Headers = append(fetchReq.Headers, &amp;fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + token.AccessToken})
+                                err = fetchReq.Do(GetExecutor(taskCtx))
+                                if err != nil </span><span class="cov0" title="0">{
+                                        panic(fmt.Errorf("idtoken.NewClient fetchReq error: %w", err))</span>
+                                }
+                        }()
+                }
+        })
+
+        <span class="cov0" title="0">if err := chromedp.Run(taskCtx, enableFetch(generatedURL)); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">log.Println("Sleeping 2 seconds before exit.")
+        time.Sleep(2 * time.Second)
+        log.Println("Exit...")</span>
+}
+
+func GetExecutor(ctx context.Context) context.Context <span class="cov0" title="0">{
+        c := chromedp.FromContext(ctx)
+
+        return cdp.WithExecutor(ctx, c.Target)
+}</span>
+
+func enableFetch(url string) chromedp.Tasks <span class="cov0" title="0">{
+        return chromedp.Tasks{
+                fetch.Enable(),
+                chromedp.Navigate(url),
+                chromedp.WaitVisible("notinputPassword", chromedp.ByID),
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package kiosk
+
+import (
+        "context"
+        "log"
+
+        "github.com/chromedp/cdproto/inspector"
+        "github.com/chromedp/cdproto/runtime"
+        "github.com/chromedp/chromedp"
+)
+
+type chromeEvents int
+
+const (
+        consoleAPICall chromeEvents = 1 &lt;&lt; iota
+        targetCrashed
+)
+
+func listenChromeEvents(taskCtx context.Context, events chromeEvents) <span class="cov0" title="0">{
+        chromedp.ListenTarget(taskCtx, func(ev interface{}) </span><span class="cov0" title="0">{
+                switch ev := ev.(type) </span>{
+                case *runtime.EventConsoleAPICalled:<span class="cov0" title="0">
+                        if events&amp;consoleAPICall != 0 </span><span class="cov0" title="0">{
+                                log.Printf("console.%s call:\n", ev.Type)
+                                for _, arg := range ev.Args </span><span class="cov0" title="0">{
+                                        log.Printf("        %s - %s\n", arg.Type, arg.Value)
+                                }</span>
+                        }
+                case *inspector.EventTargetCrashed:<span class="cov0" title="0">
+                        if events&amp;targetCrashed != 0 </span><span class="cov0" title="0">{
+                                log.Printf("target crashed, reload...")
+                                go func() </span><span class="cov0" title="0">{
+                                        _ = chromedp.Run(taskCtx, chromedp.Reload())
+                                }</span>()
+                        }
+                }
+        })
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package kiosk
+
+import (
+        "context"
+        "log"
+        "os"
+        "time"
+
+        "github.com/chromedp/chromedp"
+        "github.com/chromedp/chromedp/kb"
+)
+
+// GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account.
+func GrafanaKioskLocal(cfg *Config) <span class="cov0" title="0">{
+        dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">log.Println("Using temp dir:", dir)
+        defer os.RemoveAll(dir)
+
+        opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
+
+        allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+        defer cancel()
+
+        // also set up a custom logger
+        taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+        defer cancel()
+
+        listenChromeEvents(taskCtx, targetCrashed)
+
+        // ensure that the browser process is started
+        if err := chromedp.Run(taskCtx); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+
+        log.Println("Navigating to ", generatedURL)
+        /*
+                Launch chrome and login with local user account
+
+                name=user, type=text
+                id=inputPassword, type=password, name=password
+        */
+        // Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
+        time.Sleep(2000 * time.Millisecond)
+
+        if err := chromedp.Run(taskCtx,
+                chromedp.Navigate(generatedURL),
+                chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
+                chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
+                chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+                chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
+        ); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package kiosk
+
+import (
+        "log"
+        "net/url"
+
+        "github.com/chromedp/chromedp"
+)
+
+// GenerateURL constructs URL with appropriate parameters for kiosk mode.
+func GenerateURL(anURL string, kioskMode string, autoFit bool, isPlayList bool) string <span class="cov0" title="0">{
+        parsedURI, _ := url.ParseRequestURI(anURL)
+        parsedQuery, _ := url.ParseQuery(parsedURI.RawQuery)
+
+        switch kioskMode </span>{
+        case "tv":<span class="cov0" title="0"> // TV
+                parsedQuery.Set("kiosk", "tv") // no sidebar, topnav without buttons
+                log.Printf("KioskMode: TV")</span>
+        case "full":<span class="cov0" title="0"> // FULLSCREEN
+                parsedQuery.Set("kiosk", "1") // sidebar and topnav always shown
+                log.Printf("KioskMode: Fullscreen")</span>
+        case "disabled":<span class="cov0" title="0"> // FULLSCREEN
+                log.Printf("KioskMode: Disabled")</span>
+        default:<span class="cov0" title="0"> // disabled
+                parsedQuery.Set("kiosk", "1") // sidebar and topnav always shown
+                log.Printf("KioskMode: Fullscreen")</span>
+        }
+        // a playlist should also go inactive immediately
+        <span class="cov0" title="0">if isPlayList </span><span class="cov0" title="0">{
+                parsedQuery.Set("inactive", "1")
+        }</span>
+
+        <span class="cov0" title="0">parsedURI.RawQuery = parsedQuery.Encode()
+        if autoFit </span><span class="cov0" title="0">{
+                parsedURI.RawQuery += "&amp;autofitpanels"
+        }</span>
+
+        <span class="cov0" title="0">return parsedURI.String()</span>
+}
+
+func generateExecutorOptions(dir string, windowPosition string, ignoreCertificateErrors bool) []chromedp.ExecAllocatorOption <span class="cov0" title="0">{
+        return []chromedp.ExecAllocatorOption{
+                chromedp.NoFirstRun,
+                chromedp.NoDefaultBrowserCheck,
+                chromedp.Flag("noerrdialogs", true),
+                chromedp.Flag("kiosk", true),
+                chromedp.Flag("bwsi", true),
+                chromedp.Flag("incognito", true),
+                chromedp.Flag("disable-sync", true),
+                chromedp.Flag("disable-notifications", true),
+                chromedp.Flag("disable-overlay-scrollbar", true),
+                chromedp.Flag("window-position", windowPosition),
+                chromedp.Flag("check-for-update-interval", "31536000"),
+                chromedp.Flag("ignore-certificate-errors", ignoreCertificateErrors),
+                chromedp.Flag("test-type", ignoreCertificateErrors),
+                chromedp.UserDataDir(dir),
+        }
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

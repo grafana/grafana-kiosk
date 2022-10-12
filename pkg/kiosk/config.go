@@ -1,6 +1,6 @@
 package kiosk
 
-// Config configuration for backend
+// Config configuration for backend.
 type Config struct {
 	General struct {
 		AutoFit        bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`

@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.5
+
+- Update go modules to fix continuous error messages
+- Updated linters and circleci config for go 1.19
+
 ## 1.0.4
 
 - Fix startup issue with new flags

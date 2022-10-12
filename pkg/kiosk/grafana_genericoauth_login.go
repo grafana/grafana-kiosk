@@ -2,7 +2,6 @@ package kiosk
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -11,12 +10,14 @@ import (
 	"github.com/chromedp/chromedp/kb"
 )
 
-// GrafanaKioskGenericOauth creates a chrome-based kiosk using a oauth2 authenticated account
+// GrafanaKioskGenericOauth creates a chrome-based kiosk using a oauth2 authenticated account.
 func GrafanaKioskGenericOauth(cfg *Config) {
-	dir, err := ioutil.TempDir("", "chromedp-example")
+	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
 	}
+
+	log.Println("Using temp dir:", dir)
 	defer os.RemoveAll(dir)
 
 	opts := []chromedp.ExecAllocatorOption{
@@ -49,6 +50,7 @@ func GrafanaKioskGenericOauth(cfg *Config) {
 	}
 
 	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+
 	log.Println("Navigating to ", generatedURL)
 
 	/*
@@ -58,6 +60,7 @@ func GrafanaKioskGenericOauth(cfg *Config) {
 
 	// Click the OAUTH login button
 	log.Println("Oauth_Auto_Login enabled: ", cfg.GOAUTH.AutoLogin)
+
 	if cfg.GOAUTH.AutoLogin {
 		if err := chromedp.Run(taskCtx,
 			chromedp.Navigate(generatedURL),

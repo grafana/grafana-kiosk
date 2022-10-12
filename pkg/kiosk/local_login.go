@@ -2,7 +2,6 @@ package kiosk
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -11,12 +10,14 @@ import (
 	"github.com/chromedp/chromedp/kb"
 )
 
-// GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account
+// GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account.
 func GrafanaKioskLocal(cfg *Config) {
-	dir, err := ioutil.TempDir("", "chromedp-example")
+	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
 	}
+
+	log.Println("Using temp dir:", dir)
 	defer os.RemoveAll(dir)
 
 	opts := []chromedp.ExecAllocatorOption{
@@ -51,6 +52,7 @@ func GrafanaKioskLocal(cfg *Config) {
 	}
 
 	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+
 	log.Println("Navigating to ", generatedURL)
 	/*
 		Launch chrome and login with local user account

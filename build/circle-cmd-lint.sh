@@ -13,9 +13,9 @@ function exit_if_fail {
 
 curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.50.0
 
-go get -u github.com/jgautheron/goconst/cmd/goconst
-go get -u honnef.co/go/tools/cmd/staticcheck
-go get -u github.com/mgechev/revive
+go install github.com/jgautheron/goconst/cmd/goconst
+go install honnef.co/go/tools/cmd/staticcheck
+go install github.com/mgechev/revive
 #go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 
 # use golangci-when possible

@@ -46,7 +46,7 @@ executors:
       - image: grafana/grafana-plugin-ci:1.1.2-alpine
   go_exec:
     docker:
-      - image: circleci/golang:1.16
+      - image: circleci/golang:1.19
 
 jobs:
   build:
@@ -151,8 +151,8 @@ jobs:
               -x grafana-kiosk/.circleci/**\* \
               -x grafana-kiosk/.git/**\* \
               -x grafana-kiosk/.gitignore \
-              -x grafana-kiosk/Gopkg.lock \
-              -x grafana-kiosk/Gopkg.toml \
+              -x grafana-kiosk/go.mod \
+              -x grafana-kiosk/go.sum \
               -x grafana-kiosk/Makefile \
               -x grafana-kiosk/build/**\* \
               -x grafana-kiosk/coverage/**\* \
@@ -166,8 +166,8 @@ jobs:
               --exclude .circleci \
               --exclude .git \
               --exclude .gitignore \
-              --exclude Gopkg.lock \
-              --exclude Gopkg.toml \
+              --exclude go.mod \
+              --exclude go.sum \
               --exclude Makefile \
               --exclude build \
               --exclude coverage \

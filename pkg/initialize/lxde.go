@@ -42,7 +42,7 @@ func runCommand(path string, command string, args []string, waitForEnd bool) {
 	)
 	err := cmd.Start()
 	if err != nil {
-		//log.Printf(err)
+		// log.Printf(err)
 		log.Printf("Error in output, ignoring...")
 	}
 	if waitForEnd {

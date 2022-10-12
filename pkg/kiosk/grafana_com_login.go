@@ -57,7 +57,7 @@ func GrafanaKioskGCOM(cfg *Config) {
 	// XPATH of grafana.com login button = //*[@href="login/grafana_com"]/i
 	// XPATH for grafana.com login (new) = //a[contains(@href,'login/grafana_com')]
 
-	//chromedp.WaitVisible(`//*[@href="login/grafana_com"]/i`, chromedp.BySearch),
+	// chromedp.WaitVisible(`//*[@href="login/grafana_com"]/i`, chromedp.BySearch),
 
 	// Click the grafana_com login button
 	if err := chromedp.Run(taskCtx,

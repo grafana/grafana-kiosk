@@ -25,5 +25,5 @@ type Config struct {
 	IDTOKEN struct {
 		KeyFile  string `yaml:"idtoken-keyfile" env:"KIOSK_IDTOKEN_KEYFILE" env-description:"JSON Credentials for idtoken"`
 		Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, tpyically your oauth client id"`
-	} `yaml:"goauth"`
+	} `yaml:"idtoken"`
 }

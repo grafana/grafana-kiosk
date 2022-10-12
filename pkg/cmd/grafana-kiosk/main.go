@@ -13,7 +13,7 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 )
 
-// Args command-line parameters
+// Args command-line parameters.
 type Args struct {
 	AutoFit                 bool
 	IgnoreCertificateErrors bool
@@ -32,40 +32,43 @@ type Args struct {
 	WindowPosition          string
 }
 
-// ProcessArgs processes and handles CLI arguments
+// ProcessArgs processes and handles CLI arguments.
 func ProcessArgs(cfg interface{}) Args {
-	var a Args
+	var processedArgs Args
 
-	f := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
-	f.StringVar(&a.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
-	f.StringVar(&a.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth]")
-	f.StringVar(&a.Username, "username", "guest", "username")
-	f.StringVar(&a.Password, "password", "guest", "password")
-	f.StringVar(&a.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
-	f.StringVar(&a.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
-	f.StringVar(&a.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
-	f.BoolVar(&a.IsPlayList, "playlists", false, "URL is a playlist")
-	f.BoolVar(&a.AutoFit, "autofit", true, "Fit panels to screen")
-	f.BoolVar(&a.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
-	f.StringVar(&a.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
-	f.BoolVar(&a.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
-	f.BoolVar(&a.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
-	f.StringVar(&a.UsernameField, "field-username", "username", "Fieldname for the username")
-	f.StringVar(&a.PasswordField, "field-password", "password", "Fieldname for the password")
+	flagSettings := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
+	flagSettings.StringVar(&processedArgs.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
+	flagSettings.StringVar(&processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth]")
+	flagSettings.StringVar(&processedArgs.Username, "username", "guest", "username")
+	flagSettings.StringVar(&processedArgs.Password, "password", "guest", "password")
+	flagSettings.StringVar(&processedArgs.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
+	flagSettings.StringVar(&processedArgs.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
+	flagSettings.StringVar(&processedArgs.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
+	flagSettings.BoolVar(&processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
+	flagSettings.BoolVar(&processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
+	flagSettings.BoolVar(&processedArgs.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
+	flagSettings.StringVar(&processedArgs.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
+	flagSettings.BoolVar(&processedArgs.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
+	flagSettings.BoolVar(&processedArgs.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
+	flagSettings.StringVar(&processedArgs.UsernameField, "field-username", "username", "Fieldname for the username")
+	flagSettings.StringVar(&processedArgs.PasswordField, "field-password", "password", "Fieldname for the password")
 
-	fu := f.Usage
-	f.Usage = func() {
+	fu := flagSettings.Usage
+	flagSettings.Usage = func() {
 		fu()
+
 		envHelp, _ := cleanenv.GetDescription(cfg, nil)
-		fmt.Fprintln(f.Output())
-		fmt.Fprintln(f.Output(), envHelp)
+
+		fmt.Fprintln(flagSettings.Output())
+		fmt.Fprintln(flagSettings.Output(), envHelp)
 	}
 
-	err := f.Parse(os.Args[1:])
+	err := flagSettings.Parse(os.Args[1:])
 	if err != nil {
 		os.Exit(-1)
 	}
-	return a
+
+	return processedArgs
 }
 
 func setEnvironment() {
@@ -76,6 +79,7 @@ func setEnvironment() {
 		os.Setenv("DISPLAY", ":0.0")
 		displayEnv = os.Getenv("DISPLAY")
 	}
+
 	log.Println("DISPLAY=", displayEnv)
 
 	var xAuthorityEnv = os.Getenv("XAUTHORITY")
@@ -83,9 +87,11 @@ func setEnvironment() {
 		log.Println("XAUTHORITY not set, autosetting")
 		// use HOME of current user
 		var homeEnv = os.Getenv("HOME")
+
 		os.Setenv("XAUTHORITY", homeEnv+"/.Xauthority")
 		xAuthorityEnv = os.Getenv("XAUTHORITY")
 	}
+
 	log.Println("XAUTHORITY=", xAuthorityEnv)
 }
 
@@ -145,6 +151,7 @@ func main() {
 		cfg.GOAUTH.UsernameField = args.UsernameField
 		cfg.GOAUTH.PasswordField = args.PasswordField
 	}
+
 	summary(&cfg)
 	// make sure the url has content
 	if cfg.Target.URL == "" {
@@ -155,6 +162,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	summary(&cfg)
 
 	if cfg.General.LXDEEnabled {

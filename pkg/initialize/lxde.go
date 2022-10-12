@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-// LXDE runs shell commands to setup LXDE for kiosk mode
+// LXDE runs shell commands to setup LXDE for kiosk mode.
 func LXDE(path string) {
 	var command = "/usr/bin/lxpanel"
 
@@ -36,18 +36,23 @@ func runCommand(path string, command string, args []string, waitForEnd bool) {
 	log.Printf("command: %v", command)
 	log.Printf("arg0: %v", args[0])
 	cmd := exec.Command(command, args...)
+
 	cmd.Env = append(os.Environ(),
 		"DISPLAY=:0.0",
 		"XAUTHORITY="+path+"/.Xauthority",
 	)
 	err := cmd.Start()
+
 	if err != nil {
 		// log.Printf(err)
 		log.Printf("Error in output, ignoring...")
 	}
+
 	if waitForEnd {
 		log.Printf("Waiting for command to finish...")
+
 		err = cmd.Wait()
+
 		if err != nil {
 			log.Printf("Command finished with error: %v", err)
 		}

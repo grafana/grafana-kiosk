@@ -33,33 +33,81 @@ go install github.com/mgechev/revive
 
 exit_if_fail golangci-lint --verbose run\
   --deadline 5m\
+  --enable=asciicheck\
   --enable=bodyclose\
-  --enable=gosec\
-  --enable=interfacer\
-  --enable=unconvert\
+  --enable=containedctx\
+  --enable=contextcheck\
+  --enable=decorder\
+  --enable=depguard\
+  --enable=dogsled\
   --enable=dupl\
+  --enable=dupword\
+  --enable=durationcheck\
+  --enable=errchkjson\
+  --enable=errname\
+  --enable=errorlint\
+  --enable=execinquery\
+  --enable=exhaustive\
+  --enable=exhaustruct\
+  --enable=exportloopref\
+  --enable=forbidigo\
+  --enable=forcetypeassert\
+  --enable=gochecknoglobals\
+  --enable=gochecknoinits\
+  --enable=gocognit\
   --enable=goconst\
+  --enable=gocritic\
   --enable=gocyclo\
   --enable=gocognit\
-  --enable=gofmt\
-  --enable=maligned\
-  --enable=depguard\
-  --enable=misspell\
-  --enable=dogsled\
-  --enable=nakedret\
-  --enable=prealloc\
-  --enable=scopelint\
-  --enable=gocritic\
-  --enable=gochecknoinits\
+  --enable=godot\
   --enable=godox\
+  --enable=goerr113\
+  --enable=gofmt\
+  --enable=goheader\
+  --enable=goprintffuncname\
+  --enable=gosec\
+  --enable=grouper\
+  --enable=importas\
+  --enable=interfacebloat\
+  --enable=ireturn\
+  --enable=loggercheck\
+  --enable=maintidx\
+  --enable=makezero\
+  --enable=misspell\
+  --enable=nakedret\
+  --enable=nestif\
+  --enable=nilerr\
+  --enable=nilnil\
+  --enable=nlreturn\
+  --enable=noctx\
+  --enable=nolintlint\
+  --enable=nonamedreturns\
+  --enable=nosprintfhostport\
+  --enable=prealloc\
+  --enable=predeclared\
+  --enable=promlinter\
+  --enable=reassign\
+  --enable=revive\
+  --enable=stylecheck\
+  --enable=tenv\
+  --enable=unconvert\
+  --enable=usestdlibvars\
+  --enable=varnamelen\
   --enable=whitespace\
+  --enable=wrapcheck\
+  --enable=wsl\
     ./...
 
+
+
 # TODO: Enable these linters in the future
+# --enable=cyclop\
 # --enable=funlen
-# --enable=gochecknoglobals
+# --enable=gomnd\
 # --enable=lll
 # --enable=unparam
+# --enable=paralleltest\
+# --enable=tagliatelle\
 # --enable=wsl
 
 # go vet is already run by linter above

@@ -9,12 +9,13 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account
+// GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account.
 func GrafanaKioskAnonymous(cfg *Config) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
 	}
+
 	log.Println("Using temp dir:", dir)
 	defer os.RemoveAll(dir)
 
@@ -53,6 +54,7 @@ func GrafanaKioskAnonymous(cfg *Config) {
 	time.Sleep(2000 * time.Millisecond)
 
 	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+
 	log.Println("Navigating to ", generatedURL)
 	/*
 		Launch chrome and look for main-view element
@@ -65,6 +67,7 @@ func GrafanaKioskAnonymous(cfg *Config) {
 	); err != nil {
 		panic(err)
 	}
+
 	log.Println("Sleep before exit...")
 	// wait here for the process to exit
 	time.Sleep(2000 * time.Millisecond)

@@ -85,6 +85,7 @@ func GrafanaKioskGCOM(cfg *Config) {
 	if err := chromedp.Run(taskCtx,
 		chromedp.WaitVisible(`//input[@name="login"]`, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="login"]`, cfg.Target.Username, chromedp.BySearch),
+		chromedp.Click(`#submit`, chromedp.ByID),
 		chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
 		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
 	); err != nil {

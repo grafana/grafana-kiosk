@@ -51,7 +51,7 @@ executors:
 jobs:
   build:
     executor: go_exec
-    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    working_directory: /home/circleci/go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
       - run:
@@ -64,7 +64,7 @@ jobs:
 
   cmd_lint:
     executor: go_exec
-    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    working_directory: /home/circleci/go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
       - run:
@@ -73,7 +73,7 @@ jobs:
 
   cmd_test:
     executor: go_exec
-    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    working_directory: /home/circleci/go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
       - run:
@@ -92,7 +92,7 @@ jobs:
 
   code_coverage:
     executor: go_exec
-    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    working_directory: /home/circleci/go/src/github.com/grafana/grafana-kiosk
     steps:
       - checkout
       - attach_workspace:
@@ -112,7 +112,7 @@ jobs:
 
   upload_coverage:
     executor: go_exec
-    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    working_directory: /home/circleci/go/src/github.com/grafana/grafana-kiosk
     steps:
       - attach_workspace:
           at: .
@@ -126,7 +126,7 @@ jobs:
           path: ci/jobs/upload_coverage
 
   publish_github_release:
-    working_directory: /go/src/github.com/grafana/grafana-kiosk
+    working_directory: /home/circleci/go/src/github.com/grafana/grafana-kiosk
     docker:
       - image: cibuilds/github:0.13
     steps:
@@ -146,7 +146,7 @@ jobs:
             VERSION=`awk 'BEGIN {FS="##"; RS=""} FNR==2 {print; exit}' CHANGELOG.md | cut -f2 -d' '`
             # create zip file
             echo "Creating ZIP"
-            cd /go/src/github.com/grafana
+            cd /home/circleci/go/src/github.com/grafana
             zip \
               -x grafana-kiosk/.circleci/**\* \
               -x grafana-kiosk/.git/**\* \
@@ -178,9 +178,9 @@ jobs:
             gzip /tmp/grafana-kiosk-${VERSION}.tar
             # create artifacts
             mkdir -p /go/src/github.com/grafana/grafana-kiosk/artifacts
-            mv /tmp/grafana-kiosk-${VERSION}.zip /go/src/github.com/grafana/grafana-kiosk/artifacts/
-            mv /tmp/grafana-kiosk-${VERSION}.tar.gz /go/src/github.com/grafana/grafana-kiosk/artifacts/
-            cd /go/src/github.com/grafana/grafana-kiosk
+            mv /tmp/grafana-kiosk-${VERSION}.zip /home/circleci/go/src/github.com/grafana/grafana-kiosk/artifacts/
+            mv /tmp/grafana-kiosk-${VERSION}.tar.gz /home/circleci/go/src/github.com/grafana/grafana-kiosk/artifacts/
+            cd /home/circleci/go/src/github.com/grafana/grafana-kiosk
             ls -al
             git config user.email "eng@grafana.com"
             git config user.name "CircleCI Automation"

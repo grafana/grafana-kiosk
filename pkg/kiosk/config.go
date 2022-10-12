@@ -22,4 +22,8 @@ type Config struct {
 		UsernameField string `yaml:"fieldname-username" env:"KIOSK_GOAUTH_FIELD_USER" env-description:"Username html input name value"`
 		PasswordField string `yaml:"fieldname-password" env:"KIOSK_GOAUTH_FIELD_PASSWORD" env-description:"Password html input name value"`
 	} `yaml:"goauth"`
+	IDTOKEN struct {
+		KeyFile string `yaml:"idtoken-keyfile" env:"KIOSK_IDTOKEN_KEYFILE" env-description:"JSON Credentials for idtoken"`
+		Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, tpyically your oauth client id"`
+	} `yaml:"goauth"`
 }

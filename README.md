@@ -55,6 +55,8 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
 ```TEXT
   -URL string
         URL to Grafana server (default "https://play.grafana.org")
+  -audience string
+        idtoken audience
   -auto-login
         oauth_auto_login is enabled in grafana config
   -autofit
@@ -67,6 +69,8 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
         Fieldname for the username (default "username")
   -ignore-certificate-errors
         Ignore SSL/TLS certificate error
+  -keyfile string
+        idtoken json credentials (default "key.json")
   -kiosk-mode string
         Kiosk Display Mode [full|tv|disabled]
         full = No TOPNAV and No SIDEBAR
@@ -146,6 +150,10 @@ They can also be used instead of a configuration file.
         Username html input name value
   KIOSK_GOAUTH_FIELD_PASSWORD string
         Password html input name value
+  KIOSK_IDTOKEN_KEYFILE string
+        JSON Credentials for idtoken
+  KIOSK_IDTOKEN_AUDIENCE string
+        Audience for idtoken, tpyically your oauth client id
 ```
 
 ### Hosted Grafana using grafana.com authentication
@@ -214,6 +222,14 @@ This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_lo
 
 ```bash
 go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1 -login-method=goauth -username=test -password=test -field-username=username -field-password=password -auto-login=true
+```
+
+### Google Idtoken authentication
+
+This allows you to log in through Google Identity Aware Proxy using a service account through injecting authorization headers with bearer tokens into each request. the idtoken library will generate new tokens as needed on expiry, allowing grafana kiosk mode without exposing a fully privileged google user on your kiosk device.
+
+```bash
+./bin/grafana-kiosk -URL=https://play.grafana.org/playlists/play/1 -login-method=idtoken -keyfile /tmp/foo.json -audience myoauthid.apps.googleusercontent.com
 ```
 
 ## LXDE Options

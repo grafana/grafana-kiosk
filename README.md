@@ -30,16 +30,16 @@ Download the zip or tar file from [releases](https://github.com/grafana/grafana-
 
 The release file includes pre-built binaries. See table below for the types available.
 
-|  OS    | Architecture | Description    | Executable                      |
-| ------ | ------------ | -------------- | ------------------------------- |
-| linux  | amd64        | 64bit          | grafana-kiosk.linux.amd64       |
-| linux  | 386          | 32bit          | grafana-kiosk.linux.386         |
-| linux  | arm64        | 64bit Arm v7   | grafana-kiosk.linux.arm64       |
-| linux  | arm          | ARM v5         | grafana-kiosk.linux.armv5       |
-| linux  | arm          | ARM v6         | grafana-kiosk.linux.armv6       |
-| linux  | arm          | ARM v7         | grafana-kiosk.linux.armv7       |
-| darwin | amd64        | 64bit          | grafana-kiosk.darwin.amd64      |
-| windows| amd64        | 64bit          | grafana-kiosk.windows.amd64.exe |
+| OS      | Architecture | Description  | Executable                      |
+| ------- | ------------ | ------------ | ------------------------------- |
+| linux   | amd64        | 64bit        | grafana-kiosk.linux.amd64       |
+| linux   | 386          | 32bit        | grafana-kiosk.linux.386         |
+| linux   | arm64        | 64bit Arm v7 | grafana-kiosk.linux.arm64       |
+| linux   | arm          | ARM v5       | grafana-kiosk.linux.armv5       |
+| linux   | arm          | ARM v6       | grafana-kiosk.linux.armv6       |
+| linux   | arm          | ARM v7       | grafana-kiosk.linux.armv7       |
+| darwin  | amd64        | 64bit        | grafana-kiosk.darwin.amd64      |
+| windows | amd64        | 64bit        | grafana-kiosk.windows.amd64.exe |
 
 Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana-kiosk:
 
@@ -54,43 +54,43 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
 
 ```TEXT
   -URL string
-        URL to Grafana server (default "https://play.grafana.org")
+      URL to Grafana server (default "https://play.grafana.org")
   -audience string
-        idtoken audience
+      idtoken audience
   -auto-login
-        oauth_auto_login is enabled in grafana config
+      oauth_auto_login is enabled in grafana config
   -autofit
-        Fit panels to screen (default true)
+      Fit panels to screen (default true)
   -c string
-        Path to configuration file (config.yaml)
+      Path to configuration file (config.yaml)
   -field-password string
-        Fieldname for the password (default "password")
+      Fieldname for the password (default "password")
   -field-username string
-        Fieldname for the username (default "username")
+      Fieldname for the username (default "username")
   -ignore-certificate-errors
-        Ignore SSL/TLS certificate error
+      Ignore SSL/TLS certificate error
   -keyfile string
-        idtoken json credentials (default "key.json")
+      idtoken json credentials (default "key.json")
   -kiosk-mode string
-        Kiosk Display Mode [full|tv|disabled]
-        full = No TOPNAV and No SIDEBAR
-        tv = No SIDEBAR
-        disabled = omit option
-         (default "full")
+      Kiosk Display Mode [full|tv|disabled]
+      full = No TOPNAV and No SIDEBAR
+      tv = No SIDEBAR
+      disabled = omit option
+       (default "full")
   -login-method string
-        [anon|local|gcom|goauth] (default "anon")
+      [anon|local|gcom|goauth|idtoken] (default "anon")
   -lxde
-        Initialize LXDE for kiosk mode
+      Initialize LXDE for kiosk mode
   -lxde-home string
-        Path to home directory of LXDE user running X Server (default "/home/pi")
+      Path to home directory of LXDE user running X Server (default "/home/pi")
   -password string
-        password (default "guest")
+      password (default "guest")
   -playlists
-        URL is a playlist
+      URL is a playlist
   -username string
-        username (default "guest")
+      username (default "guest")
   -window-position string
-        Top Left Position of Kiosk (default "0,0")
+      Top Left Position of Kiosk (default "0,0")
 ```
 
 ### Using a configuration file
@@ -123,37 +123,37 @@ They can also be used instead of a configuration file.
 
 ```TEXT
   KIOSK_AUTOFIT bool
-        fit panels to screen (default "true")
+      fit panels to screen (default "true")
   KIOSK_LXDE_ENABLED bool
-        initialize LXDE for kiosk mode (default "false")
+      initialize LXDE for kiosk mode (default "false")
   KIOSK_LXDE_HOME string
-        path to home directory of LXDE user running X Server (default "/home/pi")
+      path to home directory of LXDE user running X Server (default "/home/pi")
   KIOSK_MODE string
-        [full|tv|disabled] (default "full")
+      [full|tv|disabled] (default "full")
   KIOSK_WINDOW_POSITION string
-        Top Left Position of Kiosk (default "0,0")
+      Top Left Position of Kiosk (default "0,0")
   KIOSK_IGNORE_CERTIFICATE_ERRORS bool
-        ignore SSL/TLS certificate errors (default "false")
+      ignore SSL/TLS certificate errors (default "false")
   KIOSK_IS_PLAYLIST bool
-        URL is a playlist (default "false")
+      URL is a playlist (default "false")
   KIOSK_LOGIN_METHOD string
-        [anon|local|gcom|goauth] (default "anon")
+      [anon|local|gcom|goauth|idtoken] (default "anon")
   KIOSK_LOGIN_PASSWORD string
-        password (default "guest")
+      password (default "guest")
   KIOSK_URL string
-        URL to Grafana server (default "https://play.grafana.org")
+      URL to Grafana server (default "https://play.grafana.org")
   KIOSK_LOGIN_USER string
-        username (default "guest")
+      username (default "guest")
   KIOSK_GOAUTH_AUTO_LOGIN bool
-        [false|true]
+      [false|true]
   KIOSK_GOAUTH_FIELD_USER string
-        Username html input name value
+      Username html input name value
   KIOSK_GOAUTH_FIELD_PASSWORD string
-        Password html input name value
+      Password html input name value
   KIOSK_IDTOKEN_KEYFILE string
-        JSON Credentials for idtoken
+      JSON Credentials for idtoken
   KIOSK_IDTOKEN_AUDIENCE string
-        Audience for idtoken, tpyically your oauth client id
+      Audience for idtoken, tpyically your oauth client id
 ```
 
 ### Hosted Grafana using grafana.com authentication

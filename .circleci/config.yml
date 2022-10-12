@@ -46,7 +46,7 @@ executors:
       - image: grafana/grafana-plugin-ci:1.1.2-alpine
   go_exec:
     docker:
-      - image: circleci/golang:1.19
+      - image: circleci/golang:1.17
 
 jobs:
   build:

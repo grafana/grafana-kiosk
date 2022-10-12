@@ -200,7 +200,7 @@ func main() {
 		kiosk.GrafanaKioskGenericOauth(&cfg)
 	case "idtoken":
 		log.Printf("Launching idtoken oauth kiosk")
-		kiosk.GrafanaKioskIdToken(&cfg)
+		kiosk.GrafanaKioskIDToken(&cfg)
 	default:
 		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(&cfg)

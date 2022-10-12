@@ -373,3 +373,4 @@ This will generate executables in "bin" that can be run on a variety of platform
 - [Alex Heylin](https://github.com/AlexHeylin) for the v7 login fix - and also works with v6!
 - [Xan Manning](https://github.com/xanmanning) for the ignore certificate option!
 - [David Stäheli](https://github.com/mistadave) for the OAuth implementation!
+- [Marcus Ramberg](https://github.com/marcusramberg) for the Google ID Token Auth implementation!

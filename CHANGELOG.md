@@ -4,6 +4,8 @@
 
 - Update go modules to fix continuous error messages
 - Updated linters and circleci config for go 1.19
+- Adds support for Google IAP Auth (idtoken)
+- Fixes GCOM auth login hanging
 
 ## 1.0.4
 

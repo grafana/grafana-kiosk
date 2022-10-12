@@ -55,6 +55,7 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.StringVar(&processedArgs.UsernameField, "field-username", "username", "Fieldname for the username")
 	flagSettings.StringVar(&processedArgs.PasswordField, "field-password", "password", "Fieldname for the password")
 	flagSettings.StringVar(&processedArgs.Audience, "audience", "", "idtoken audience")
+	flagSettings.StringVar(&processedArgs.KeyFile, "keyfile", "key.json", "idtoken json credentials")
 
 	fu := flagSettings.Usage
 	flagSettings.Usage = func() {

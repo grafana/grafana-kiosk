@@ -12,7 +12,7 @@ type Config struct {
 	Target struct {
 		IgnoreCertificateErrors bool   `yaml:"ignore-certificate-errors" env:"KIOSK_IGNORE_CERTIFICATE_ERRORS" env-description:"ignore SSL/TLS certificate errors" env-default:"false"`
 		IsPlayList              bool   `yaml:"playlist" env:"KIOSK_IS_PLAYLIST" env-default:"false" env-description:"URL is a playlist"`
-		LoginMethod             string `yaml:"login-method" env:"KIOSK_LOGIN_METHOD" env-default:"anon" env-description:"[anon|local|gcom|goauth]"`
+		LoginMethod             string `yaml:"login-method" env:"KIOSK_LOGIN_METHOD" env-default:"anon" env-description:"[anon|local|gcom|goauth|idtoken]"`
 		Password                string `yaml:"password" env:"KIOSK_LOGIN_PASSWORD" env-default:"guest" env-description:"password"`
 		URL                     string `yaml:"URL" env:"KIOSK_URL" env-default:"https://play.grafana.org" env-description:"URL to Grafana server"`
 		Username                string `yaml:"username" env:"KIOSK_LOGIN_USER" env-default:"guest" env-description:"username"`
@@ -23,7 +23,7 @@ type Config struct {
 		PasswordField string `yaml:"fieldname-password" env:"KIOSK_GOAUTH_FIELD_PASSWORD" env-description:"Password html input name value"`
 	} `yaml:"goauth"`
 	IDTOKEN struct {
-		KeyFile  string `yaml:"idtoken-keyfile" env:"KIOSK_IDTOKEN_KEYFILE" env-description:"JSON Credentials for idtoken"`
+		KeyFile  string `yaml:"idtoken-keyfile" env:"KIOSK_IDTOKEN_KEYFILE" env-default:"key.json" env-description:"JSON Credentials for idtoken"`
 		Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, tpyically your oauth client id"`
 	} `yaml:"idtoken"`
 }

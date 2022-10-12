@@ -150,11 +150,13 @@ jobs:
             zip \
               -x grafana-kiosk/.circleci/**\* \
               -x grafana-kiosk/.git/**\* \
+              -x grafana-kiosk/.gitattributes \
               -x grafana-kiosk/.gitignore \
               -x grafana-kiosk/go.mod \
               -x grafana-kiosk/go.sum \
               -x grafana-kiosk/Makefile \
               -x grafana-kiosk/build/**\* \
+              -x grafana-kiosk/ci/**\* \
               -x grafana-kiosk/coverage/**\* \
               -x grafana-kiosk/pkg/**\* \
               -x grafana-kiosk/vendor/**\* \
@@ -165,19 +167,21 @@ jobs:
             tar \
               --exclude .circleci \
               --exclude .git \
+              --exclude .gitattributes \
               --exclude .gitignore \
               --exclude go.mod \
               --exclude go.sum \
               --exclude Makefile \
               --exclude build \
               --exclude coverage \
+              --exclude ci \
               --exclude pkg \
               --exclude vendor \
               -cvf /tmp/grafana-kiosk-${VERSION}.tar \
               grafana-kiosk
             gzip /tmp/grafana-kiosk-${VERSION}.tar
             # create artifacts
-            mkdir -p /go/src/github.com/grafana/grafana-kiosk/artifacts
+            mkdir -p /home/circleci/go/src/github.com/grafana/grafana-kiosk/artifacts
             mv /tmp/grafana-kiosk-${VERSION}.zip /home/circleci/go/src/github.com/grafana/grafana-kiosk/artifacts/
             mv /tmp/grafana-kiosk-${VERSION}.tar.gz /home/circleci/go/src/github.com/grafana/grafana-kiosk/artifacts/
             cd /home/circleci/go/src/github.com/grafana/grafana-kiosk

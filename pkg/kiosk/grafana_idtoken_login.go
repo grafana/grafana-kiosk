@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -17,12 +16,13 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
-// GrafanaKioskGenericOauth creates a chrome-based kiosk using a oauth2 authenticated account
-func GrafanaKioskIdToken(cfg *Config) {
-	dir, err := ioutil.TempDir("", "chromedp-example")
+// GrafanaKioskIDToken creates a chrome-based kiosk using a oauth2 authenticated account.
+func GrafanaKioskIDToken(cfg *Config) {
+	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
 	}
+
 	defer os.RemoveAll(dir)
 
 	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
@@ -42,15 +42,18 @@ func GrafanaKioskIdToken(cfg *Config) {
 	}
 
 	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+
 	log.Println("Navigating to ", generatedURL)
 
-	log.Printf("Token is using audience %s and reading from %s\n",cfg.IDTOKEN.Audience, cfg.IDTOKEN.KeyFile)
-	ts, err := idtoken.NewTokenSource(context.Background(), cfg.IDTOKEN.Audience, idtoken.WithCredentialsFile(cfg.IDTOKEN.KeyFile))
+	log.Printf("Token is using audience %s and reading from %s\n", cfg.IDTOKEN.Audience, cfg.IDTOKEN.KeyFile)
+	tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IDTOKEN.Audience, idtoken.WithCredentialsFile(cfg.IDTOKEN.KeyFile))
+
 	if err != nil {
 		panic(err)
 	}
 
 	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
+		//nolint:gocritic // future events can be handled here
 		switch ev := ev.(type) {
 		case *fetch.EventRequestPaused:
 			go func() {
@@ -58,12 +61,15 @@ func GrafanaKioskIdToken(cfg *Config) {
 				for k, v := range ev.Request.Headers {
 					fetchReq.Headers = append(fetchReq.Headers, &fetch.HeaderEntry{Name: k, Value: fmt.Sprintf("%v", v)})
 				}
-				token, err := ts.Token()
+				token, err := tokenSource.Token()
 				if err != nil {
-					panic(fmt.Errorf("idtoken.NewClient: %v", err))
+					panic(fmt.Errorf("idtoken.NewClient: %w", err))
 				}
 				fetchReq.Headers = append(fetchReq.Headers, &fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + token.AccessToken})
-				fetchReq.Do(GetExecutor(taskCtx))
+				err = fetchReq.Do(GetExecutor(taskCtx))
+				if err != nil {
+					panic(fmt.Errorf("idtoken.NewClient fetchReq error: %w", err))
+				}
 			}()
 		}
 	})
@@ -71,6 +77,7 @@ func GrafanaKioskIdToken(cfg *Config) {
 	if err := chromedp.Run(taskCtx, enableFetch(generatedURL)); err != nil {
 		panic(err)
 	}
+
 	log.Println("Sleeping 2 seconds before exit.")
 	time.Sleep(2 * time.Second)
 	log.Println("Exit...")
@@ -78,9 +85,9 @@ func GrafanaKioskIdToken(cfg *Config) {
 
 func GetExecutor(ctx context.Context) context.Context {
 	c := chromedp.FromContext(ctx)
+
 	return cdp.WithExecutor(ctx, c.Target)
 }
-
 
 func enableFetch(url string) chromedp.Tasks {
 	return chromedp.Tasks{

@@ -54,7 +54,7 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.BoolVar(&processedArgs.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
 	flagSettings.StringVar(&processedArgs.UsernameField, "field-username", "username", "Fieldname for the username")
 	flagSettings.StringVar(&processedArgs.PasswordField, "field-password", "password", "Fieldname for the password")
-	flagSettings.StringVar(&a.Audience, "audience", "", "idtoken audience")
+	flagSettings.StringVar(&processedArgs.Audience, "audience", "", "idtoken audience")
 
 	fu := flagSettings.Usage
 	flagSettings.Usage = func() {
@@ -113,7 +113,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
 	log.Println("IsPlayList:", cfg.Target.IsPlayList)
 	// goauth
-	log.Println("Fieldname Username:", cfg.GOAUTH.AutoLogin)
+	log.Println("Fieldname AutoLogin:", cfg.GOAUTH.AutoLogin)
 	log.Println("Fieldname Username:", cfg.GOAUTH.UsernameField)
 	log.Println("Fieldname Password:", cfg.GOAUTH.PasswordField)
 }
@@ -125,7 +125,7 @@ func main() {
 
 	// validate auth methods
 	switch args.LoginMethod {
-	case "goauth", "anon", "local", "gcom":
+	case "goauth", "anon", "local", "gcom", "idtoken":
 	default:
 		log.Println("Invalid auth method", args.LoginMethod)
 		os.Exit(-1)
@@ -200,7 +200,7 @@ func main() {
 		kiosk.GrafanaKioskGenericOauth(&cfg)
 	case "idtoken":
 		log.Printf("Launching idtoken oauth kiosk")
-		kiosk.GrafanaKioskIdToken(&cfg)
+		kiosk.GrafanaKioskIDToken(&cfg)
 	default:
 		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(&cfg)

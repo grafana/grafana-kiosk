@@ -2,8 +2,10 @@ package kiosk
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
@@ -50,7 +52,14 @@ func GrafanaKioskLocal(cfg *Config) {
 		panic(err)
 	}
 
-	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+	anURL := cfg.Target.URL
+	if cfg.Target.IsPlayList {
+		anURL, err = gatherPlayListUID(anURL, cfg.Target.Username, cfg.Target.Password, cfg.Target.IgnoreCertificateErrors)
+		if err != nil {
+			panic(err)
+		}
+	}
+	var generatedURL = GenerateURL(anURL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
 	log.Println("Navigating to ", generatedURL)
 	/*
 		Launch chrome and login with local user account
@@ -70,4 +79,36 @@ func GrafanaKioskLocal(cfg *Config) {
 	); err != nil {
 		panic(err)
 	}
+}
+
+func gatherPlayListUID(anURL, username, password string, ignoreCertErrors bool) (string, error) {
+	client, err := NewGrafanaClient(anURL, username, password, ignoreCertErrors)
+	if err != nil {
+		log.Println("unable to create grafana Client")
+		return "", err
+	}
+	uid, err := GetPlayListUID(anURL, client)
+	if err != nil {
+		log.Println("")
+		return "", fmt.Errorf("unable to get the uid from the id defined %e", err)
+	}
+
+	log.Printf("Playlist uid: %s", uid)
+
+	// replace the id with uid
+	urlOfAnURL, err := url.Parse(anURL)
+	if err != nil {
+		return "", err
+	}
+	uidURL := UrlChangeIDtoUID(urlOfAnURL, uid)
+
+	/*
+		err = nil
+		anURL, err = ChangeIDtoUID(anURL, uid)
+		if err != nil {
+			return "", err
+		}
+	*/
+	log.Println("URL using uid:", uidURL.String())
+	return uidURL.String(), nil
 }

@@ -305,6 +305,12 @@ After=network.target
 User=pi
 Environment="DISPLAY=:0"
 Environment="XAUTHORITY=/home/pi/.Xauthority"
+
+# Disable screensaver and monitor standby
+ExecStartPre=xset s off
+ExecStartPre=xset -dpms
+ExecStartPre=xset s noblank
+
 ExecStart=/usr/bin/grafana-kiosk -URL=<url> -login-method=local -username=<username> -password=<password> -playlists=true
 
 [Install]

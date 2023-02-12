@@ -109,7 +109,7 @@ target:
   login-method: anon
   username: user
   password: changeme
-  playlists: false
+  playlist: false
   URL: https://play.grafana.org
   ignore-certificate-errors: false
 ```

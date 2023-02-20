@@ -20,6 +20,7 @@ type Args struct {
 	IsPlayList              bool
 	OauthAutoLogin          bool
 	LXDEEnabled             bool
+	UseMFA                  bool
 	Audience                string
 	KeyFile                 string
 	LXDEHome                string
@@ -40,9 +41,10 @@ func ProcessArgs(cfg interface{}) Args {
 
 	flagSettings := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
 	flagSettings.StringVar(&processedArgs.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
-	flagSettings.StringVar(&processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken]")
+	flagSettings.StringVar(&processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken|aws]")
 	flagSettings.StringVar(&processedArgs.Username, "username", "guest", "username")
 	flagSettings.StringVar(&processedArgs.Password, "password", "guest", "password")
+	flagSettings.BoolVar(&processedArgs.UseMFA, "use-mfa", false, "password")
 	flagSettings.StringVar(&processedArgs.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
 	flagSettings.StringVar(&processedArgs.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
 	flagSettings.StringVar(&processedArgs.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
@@ -113,6 +115,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("Password:", "*redacted*")
 	log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
 	log.Println("IsPlayList:", cfg.Target.IsPlayList)
+	log.Println("UseMFA:", cfg.Target.UseMFA)
 	// goauth
 	log.Println("Fieldname AutoLogin:", cfg.GOAUTH.AutoLogin)
 	log.Println("Fieldname Username:", cfg.GOAUTH.UsernameField)
@@ -126,7 +129,7 @@ func main() {
 
 	// validate auth methods
 	switch args.LoginMethod {
-	case "goauth", "anon", "local", "gcom", "idtoken":
+	case "goauth", "anon", "local", "gcom", "idtoken", "aws":
 	default:
 		log.Println("Invalid auth method", args.LoginMethod)
 		os.Exit(-1)
@@ -153,6 +156,7 @@ func main() {
 		cfg.Target.Password = args.Password
 		cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors
 		cfg.Target.IsPlayList = args.IsPlayList
+		cfg.Target.UseMFA = args.UseMFA
 		//
 		cfg.General.AutoFit = args.AutoFit
 		cfg.General.LXDEEnabled = args.LXDEEnabled
@@ -202,6 +206,9 @@ func main() {
 	case "idtoken":
 		log.Printf("Launching idtoken oauth kiosk")
 		kiosk.GrafanaKioskIDToken(&cfg)
+	case "aws":
+		log.Printf("Launcing AWS SSO kiosk")
+		kiosk.GrafanaKioskAWSLogin(&cfg)
 	default:
 		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(&cfg)

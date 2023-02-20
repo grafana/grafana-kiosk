@@ -16,6 +16,7 @@ The utitilty provides these options:
   - to a Grafana server with anonymous-mode enabled (same method used on [play.grafana.org](https://play.grafana.org))
   - to a Grafana Cloud instance
   - to a Grafana server with OAuth enabled
+  - to an AWS Managed Grafana instance (both with and without MFA)
 - Switch to kiosk or kiosk-tv mode
 - Display the default home page set for the user
 - Display a specified dashboard
@@ -78,7 +79,7 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
       disabled = omit option
        (default "full")
   -login-method string
-      [anon|local|gcom|goauth|idtoken] (default "anon")
+      [anon|local|gcom|goauth|idtoken|aws] (default "anon")
   -lxde
       Initialize LXDE for kiosk mode
   -lxde-home string
@@ -89,6 +90,8 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
       URL is a playlist
   -username string
       username (default "guest")
+  -use-mfa
+      MFA is enabled for given account (default false)
   -window-position string
       Top Left Position of Kiosk (default "0,0")
 ```

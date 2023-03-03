@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.6
+
+- Switch to git workflow for builds
+- Update go modules
+- Includes PR#
+
 ## 1.0.5
 
 - Update go modules to fix continuous error messages

@@ -26,6 +26,12 @@ var archTargets = map[string]map[string]string{
 		"GOARCH":      "amd64",
 		"GOOS":        "darwin",
 	},
+	"darwin_arm64": {
+		"CGO_ENABLED": "0",
+		"GO111MODULE": "on",
+		"GOARCH":      "arm64",
+		"GOOS":        "darwin",
+	},
 	"linux_amd64": {
 		"CGO_ENABLED": "0",
 		"GO111MODULE": "on",
@@ -192,6 +198,7 @@ func Clean() {
 	os.RemoveAll("./bin/linux_armv6")
 	os.RemoveAll("./bin/linux_armv7")
 	os.RemoveAll("./bin/darwin_amd64")
+	os.RemoveAll("./bin/darwin_arm64")
 	os.RemoveAll("./bin/windows_amd64")
 }
 

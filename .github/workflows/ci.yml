@@ -1,4 +1,4 @@
-name: Go package
+name: Build
 
 on: [push]
 
@@ -11,7 +11,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.20.0
+          go-version: 1.20
           cache: true
 
       - name: Install dependencies
@@ -28,8 +28,54 @@ jobs:
         with:
           args: ./...
 
+      - name: Branch name
+        id: branch_name
+        run: |
+          echo ::set-output name=SOURCE_NAME::${GITHUB_REF#refs/*/}
+          echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
+          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
+
       - name: Build with Mage
         uses: magefile/mage-action@v2
         with:
           version: latest
           args: -v build:ci
+
+      - name: Package Release
+        id: package-release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
+          SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
+          SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+        run: |
+          mkdir ./grafana-kiosk-$SOURCE_TAG
+          cp -p bin/darwin_amd64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.darwin.amd64
+          cp -p bin/darwin_arm64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.darwin.arm64
+          cp -p bin/linux_386/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.386
+          cp -p bin/linux_amd64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.amd64
+          cp -p bin/linux_arm64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.arm64
+          cp -p bin/linux_armv5/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.armv5
+          cp -p bin/linux_armv6/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.armv6
+          cp -p bin/linux_armv7/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.armv7
+          cp -p bin/windows_amd64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.windows.amd64.exe
+          zip -r grafana-kiosk-$SOURCE_TAG.zip grafana-kiosk-$SOURCE_TAG
+          tar cf grafana-kiosk-$SOURCE_TAG.tar grafana-kiosk-$SOURCE_TAG
+          gzip grafana-kiosk-$SOURCE_TAG.tar
+          cp -p grafana-kiosk-$SOURCE_TAG.tar.gz grafana-kiosk-$SOURCE_TAG
+          cp -p grafana-kiosk-$SOURCE_TAG.zip grafana-kiosk-$SOURCE_TAG
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        env:
+          SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
+          SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
+          SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          generate_release_notes: true
+          files: |
+            ./grafana-kiosk-$SOURCE_TAG/*
+          body: |
+            ** Draft release **

@@ -31,15 +31,31 @@ jobs:
       - name: Branch name
         id: branch_name
         run: |
-          echo ::set-output name=SOURCE_NAME::${GITHUB_REF#refs/*/}
-          echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
-          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
+          echo "{SOURCE_NAME}={${GITHUB_REF#refs/*/}}" >> $GITHUB_OUTPUT
+          echo "{SOURCE_BRANCH}={${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+          echo "{SOURCE_TAG}={${GITHUB_REF#refs/tags/}}" >> $GITHUB_OUTPUT
 
       - name: Build with Mage
         uses: magefile/mage-action@v2
         with:
           version: latest
           args: -v build:ci
+
+      - name: Test ENV Variables
+        env:
+          SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
+          SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
+          SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+        run: |
+          echo Source Name $SOURCE_NAME
+          echo Source Branch $SOURCE_BRANCH
+          echo Source Tag $SOURCE_TAG
+
+      - name: Test Step Variables
+        run: |
+          echo Source Name ${{ steps.branch_name.outputs.SOURCE_NAME }}
+          echo Source Branch ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
+          echo Source Tag ${{ steps.branch_name.outputs.SOURCE_TAG }}
 
       - name: Package Release
         id: package-release

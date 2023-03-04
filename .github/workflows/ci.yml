@@ -1,6 +1,11 @@
 name: Build
 
-on: [push]
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -41,15 +46,15 @@ jobs:
           version: latest
           args: -v build:ci
 
-      - name: Test ENV Variables
-        env:
-          SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
-          SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
-          SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
-        run: |
-          echo Source Name $SOURCE_NAME
-          echo Source Branch $SOURCE_BRANCH
-          echo Source Tag $SOURCE_TAG
+#      - name: Test ENV Variables
+#        env:
+#          SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
+#          SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
+#          SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+#        run: |
+#          echo Source Name $SOURCE_NAME
+#          echo Source Branch $SOURCE_BRANCH
+#          echo Source Tag $SOURCE_TAG
 
       - name: Test Step Variables
         run: |
@@ -59,39 +64,40 @@ jobs:
 
       - name: Package Release
         id: package-release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/v')
         env:
           SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
           SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
         run: |
-          mkdir ./grafana-kiosk-$SOURCE_TAG
-          cp -p bin/darwin_amd64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.darwin.amd64
-          cp -p bin/darwin_arm64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.darwin.arm64
-          cp -p bin/linux_386/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.386
-          cp -p bin/linux_amd64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.amd64
-          cp -p bin/linux_arm64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.arm64
-          cp -p bin/linux_armv5/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.armv5
-          cp -p bin/linux_armv6/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.armv6
-          cp -p bin/linux_armv7/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.linux.armv7
-          cp -p bin/windows_amd64/grafana-kiosk ./grafana-kiosk-$SOURCE_TAG/grafana-kiosk.windows.amd64.exe
-          zip -r grafana-kiosk-$SOURCE_TAG.zip grafana-kiosk-$SOURCE_TAG
-          tar cf grafana-kiosk-$SOURCE_TAG.tar grafana-kiosk-$SOURCE_TAG
-          gzip grafana-kiosk-$SOURCE_TAG.tar
-          cp -p grafana-kiosk-$SOURCE_TAG.tar.gz grafana-kiosk-$SOURCE_TAG
-          cp -p grafana-kiosk-$SOURCE_TAG.zip grafana-kiosk-$SOURCE_TAG
+          mkdir ./grafana-kiosk-$SOURCE_BRANCH
+          cp -p bin/darwin_amd64/grafana-kiosk ./grafana-kiosk-$SOURCE_BRANCH/grafana-kiosk.darwin.amd64
+          cp -p bin/darwin_arm64/grafana-kiosk ./grafana-kiosk-$SOURCE_BRANCH/grafana-kiosk.darwin.arm64
+          cp -p bin/linux_386/grafana-kiosk ./grafana-kiosk-$SOURCE_BRANCH/grafana-kiosk.linux.386
+          cp -p bin/linux_amd64/grafana-kiosk ./grafana-kiosk-$SOURCE_BRANCH/grafana-kiosk.linux.amd64
+          cp -p bin/linux_arm64/grafana-kiosk ./grafana-kiosk-$SOURCE_BRANCH/grafana-kiosk.linux.arm64
+          cp -p bin/linux_armv5/grafana-kiosk ./grafana-kiosk-$SOURCE_BRANCH/grafana-kiosk.linux.armv5
+          cp -p bin/linux_armv6/grafana-kiosk ./grafana-kiosk-$SOURCE_BRANCH/grafana-kiosk.linux.armv6
+          cp -p bin/linux_armv7/grafana-kiosk ./grafana-kiosk-$SOURCE_BRANCH/grafana-kiosk.linux.armv7
+          cp -p bin/windows_amd64/grafana-kiosk ./grafana-kiosk-$SOURCE_BRANCH/grafana-kiosk.windows.amd64.exe
+          zip -r grafana-kiosk-$SOURCE_BRANCH.zip grafana-kiosk-$SOURCE_BRANCH
+          tar cf grafana-kiosk-$SOURCE_BRANCH.tar grafana-kiosk-$SOURCE_BRANCH
+          gzip grafana-kiosk-$SOURCE_BRANCH.tar
+          cp -p grafana-kiosk-$SOURCE_BRANCH.tar.gz grafana-kiosk-$SOURCE_BRANCH
+          cp -p grafana-kiosk-$SOURCE_BRANCH.zip grafana-kiosk-$SOURCE_BRANCH
 
       - name: Release
         uses: softprops/action-gh-release@v1
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
           SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           draft: true
           generate_release_notes: true
           files: |
-            ./grafana-kiosk-$SOURCE_TAG/*
+            ./grafana-kiosk-$SOURCE_BRANCH/**
           body: |
             ** Draft release **

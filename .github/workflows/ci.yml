@@ -51,7 +51,7 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
         with:
-          #prefix: github.com/grafana/grafana-kiosk
+          prefix: github.com/grafana/grafana-kiosk
           coverageLocations: |
             ${{github.workspace}}/coverage.out:gocov
 

@@ -51,14 +51,9 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
         with:
-          prefix: github.com/grafana/grafana-kiosk
-          coverageCommand: |
-            mkdir coverage
-            go test -v -coverpkg=./... --coverprofile=coverage/coverage.out ./...
-            go tool cover -func coverage/coverage.out
-            go tool cover -html=coverage/coverage.out -o coverage/coverage.html
+          #prefix: github.com/grafana/grafana-kiosk
           coverageLocations: |
-            ${{github.workspace}}/coverage/*.out:gocov
+            ${{github.workspace}}/coverage.out:gocov
 
       - name: Test Step Variables
         run: |

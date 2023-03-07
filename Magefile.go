@@ -116,13 +116,25 @@ func buildCmdAll() error {
 func testVerbose() error {
 	os.Setenv("GO111MODULE", "on")
 	os.Setenv("CGO_ENABLED", "0")
-	return sh.RunV("go", "test", "-v", "./pkg/...")
+	if err := sh.RunV("go", "test", "-v", "-coverpkg=./...", "--coverprofile=coverage.out", "./pkg/..."); err != nil {
+		return err
+	}
+	if err := sh.RunV("go", "tool", "cover", "-func", "coverage.out"); err != nil {
+		return err
+	}
+	return sh.RunV("go", "tool", "cover", "-html=coverage.out", "-o", "coverage.html")
 }
 
 func test() error {
 	os.Setenv("GO111MODULE", "on")
 	os.Setenv("CGO_ENABLED", "0")
-	return sh.RunV("go", "test", "./pkg/...")
+	if err := sh.RunV("go", "test", "-coverpkg=./...", "--coverprofile=coverage.out", "./pkg/..."); err != nil {
+		return err
+	}
+	if err := sh.RunV("go", "tool", "cover", "-func", "coverage.out"); err != nil {
+		return err
+	}
+	return sh.RunV("go", "tool", "cover", "-html=coverage.out", "-o", "coverage.html")
 }
 
 // Formats the source files

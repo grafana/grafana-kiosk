@@ -1,6 +1,6 @@
 # Grafana Kiosk
 
-[![CircleCI](https://circleci.com/gh/grafana/grafana-kiosk.svg?style=svg)](https://circleci.com/gh/grafana/grafana-kiosk)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgrafana%2Fgrafana-kiosk%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/grafana/grafana-kiosk/goto?ref=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana-kiosk)](https://goreportcard.com/report/github.com/grafana/grafana-kiosk)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/maintainability)](https://codeclimate.com/github/grafana/grafana-kiosk/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/test_coverage)](https://codeclimate.com/github/grafana/grafana-kiosk/test_coverage)

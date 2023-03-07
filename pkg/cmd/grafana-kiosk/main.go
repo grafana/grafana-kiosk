@@ -80,7 +80,9 @@ func setEnvironment() {
 	var displayEnv = os.Getenv("DISPLAY")
 	if displayEnv == "" {
 		log.Println("DISPLAY not set, autosetting to :0.0")
-		os.Setenv("DISPLAY", ":0.0")
+		if err := os.Setenv("DISPLAY", ":0.0"); err != nil {
+			log.Println("Error setting DISPLAY", err.Error())
+		}
 		displayEnv = os.Getenv("DISPLAY")
 	}
 
@@ -92,7 +94,9 @@ func setEnvironment() {
 		// use HOME of current user
 		var homeEnv = os.Getenv("HOME")
 
-		os.Setenv("XAUTHORITY", homeEnv+"/.Xauthority")
+		if err := os.Setenv("XAUTHORITY", homeEnv+"/.Xauthority"); err != nil {
+			log.Println("Error setting XAUTHORITY", err.Error())
+		}
 		xAuthorityEnv = os.Getenv("XAUTHORITY")
 	}
 

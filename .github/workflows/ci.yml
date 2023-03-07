@@ -53,7 +53,7 @@ jobs:
         with:
           prefix: github.com/grafana/grafana-kiosk
           coverageCommand: |
-            mkdir -p coverage
+            mkdir coverage
             go test -v -coverpkg=./... --coverprofile=coverage/coverage.out ./...
             go tool cover -func coverage/coverage.out
             go tool cover -html=coverage/coverage.out -o coverage/coverage.html

@@ -46,7 +46,7 @@ jobs:
           version: latest
           args: -v build:ci
 
-      - name: Test & publish code coverage
+      - name: Upload Code Climate Report
         uses: paambaati/codeclimate-action@v3.2.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}

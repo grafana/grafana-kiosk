@@ -46,15 +46,19 @@ jobs:
           version: latest
           args: -v build:ci
 
-#      - name: Test ENV Variables
-#        env:
-#          SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
-#          SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
-#          SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
-#        run: |
-#          echo Source Name $SOURCE_NAME
-#          echo Source Branch $SOURCE_BRANCH
-#          echo Source Tag $SOURCE_TAG
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v3.2.0
+        env:
+          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+        with:
+          prefix: github.com/grafana/grafana-kiosk
+          coverageCommand: |
+            mkdir -p coverage
+            go test -v -coverpkg=./... --coverprofile=coverage/coverage.out ./...
+            go tool cover -func coverage/coverage.out
+            go tool cover -html=coverage/coverage.out -o coverage/coverage.html
+          coverageLocations: |
+            ${{github.workspace}}/coverage/*.out:gocov
 
       - name: Test Step Variables
         run: |

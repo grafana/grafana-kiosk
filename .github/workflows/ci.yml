@@ -55,11 +55,11 @@ jobs:
           coverageLocations: |
             ${{github.workspace}}/coverage.out:gocov
 
-      - name: Test Step Variables
-        run: |
-          echo Source Name ${{ steps.branch_name.outputs.SOURCE_NAME }}
-          echo Source Branch ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
-          echo Source Tag ${{ steps.branch_name.outputs.SOURCE_TAG }}
+      #- name: Test Step Variables
+      #  run: |
+      #    echo Source Name ${{ steps.branch_name.outputs.SOURCE_NAME }}
+      #    echo Source Branch ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
+      #    echo Source Tag ${{ steps.branch_name.outputs.SOURCE_TAG }}
 
       - name: Package Release
         id: package-release

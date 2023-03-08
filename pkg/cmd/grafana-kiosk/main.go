@@ -22,6 +22,7 @@ type Args struct {
 	LXDEEnabled             bool
 	Audience                string
 	KeyFile                 string
+	Apikey                  string
 	LXDEHome                string
 	ConfigPath              string
 	Mode                    string
@@ -40,7 +41,7 @@ func ProcessArgs(cfg interface{}) Args {
 
 	flagSettings := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
 	flagSettings.StringVar(&processedArgs.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
-	flagSettings.StringVar(&processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken]")
+	flagSettings.StringVar(&processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken|apikey]")
 	flagSettings.StringVar(&processedArgs.Username, "username", "guest", "username")
 	flagSettings.StringVar(&processedArgs.Password, "password", "guest", "password")
 	flagSettings.StringVar(&processedArgs.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
@@ -56,6 +57,7 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.StringVar(&processedArgs.PasswordField, "field-password", "password", "Fieldname for the password")
 	flagSettings.StringVar(&processedArgs.Audience, "audience", "", "idtoken audience")
 	flagSettings.StringVar(&processedArgs.KeyFile, "keyfile", "key.json", "idtoken json credentials")
+	flagSettings.StringVar(&processedArgs.Apikey, "apikey", "", "apikey")
 
 	fu := flagSettings.Usage
 	flagSettings.Usage = func() {
@@ -130,7 +132,7 @@ func main() {
 
 	// validate auth methods
 	switch args.LoginMethod {
-	case "goauth", "anon", "local", "gcom", "idtoken":
+	case "goauth", "anon", "local", "gcom", "idtoken", "apikey":
 	default:
 		log.Println("Invalid auth method", args.LoginMethod)
 		os.Exit(-1)
@@ -170,6 +172,8 @@ func main() {
 
 		cfg.IDTOKEN.Audience = args.Audience
 		cfg.IDTOKEN.KeyFile = args.KeyFile
+		
+		cfg.APIKEY.Apikey = args.Apikey
 	}
 
 	summary(&cfg)
@@ -206,6 +210,9 @@ func main() {
 	case "idtoken":
 		log.Printf("Launching idtoken oauth kiosk")
 		kiosk.GrafanaKioskIDToken(&cfg)
+	case "apikey":
+		log.Printf("Launching apikey kiosk")
+		kiosk.GrafanaKioskApikey(&cfg)
 	default:
 		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(&cfg)

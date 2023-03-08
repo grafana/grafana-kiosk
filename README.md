@@ -55,6 +55,8 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
 ```TEXT
   -URL string
       URL to Grafana server (default "https://play.grafana.org")
+  -apikey string
+      apikey
   -audience string
       idtoken audience
   -auto-login
@@ -78,7 +80,7 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
       disabled = omit option
        (default "full")
   -login-method string
-      [anon|local|gcom|goauth|idtoken] (default "anon")
+      [anon|local|gcom|goauth|idtoken|apikey] (default "anon")
   -lxde
       Initialize LXDE for kiosk mode
   -lxde-home string
@@ -137,7 +139,7 @@ They can also be used instead of a configuration file.
   KIOSK_IS_PLAYLIST bool
       URL is a playlist (default "false")
   KIOSK_LOGIN_METHOD string
-      [anon|local|gcom|goauth|idtoken] (default "anon")
+      [anon|local|gcom|goauth|idtoken|apikey] (default "anon")
   KIOSK_LOGIN_PASSWORD string
       password (default "guest")
   KIOSK_URL string
@@ -154,6 +156,8 @@ They can also be used instead of a configuration file.
       JSON Credentials for idtoken
   KIOSK_IDTOKEN_AUDIENCE string
       Audience for idtoken, tpyically your oauth client id
+  KIOSK_APIKEY_APIKEY string
+      Grafana API keys
 ```
 
 ### Hosted Grafana using grafana.com authentication
@@ -202,6 +206,13 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 
 ```bash
 ./bin/grafana-kiosk -URL=https://play.grafana.org/playlists/play/1 -login-method=anon -kiosk-mode=tv
+```
+
+### Grafana Server with Api Key
+
+This will take the browser to the default dashboard on play.grafana.org in fullscreen kiosk mode:
+```bash
+./bin/grafana-kiosk -URL=https://play.grafana.org -login-method apikey --apikey "xxxxxxxxxxxxxxx" -kiosk-mode=tv 
 ```
 
 ### Grafana Server with Generic Oauth

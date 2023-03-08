@@ -81,8 +81,8 @@ jobs:
           zip -r grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
           tar cf grafana-kiosk-$SOURCE_TAG.tar $RELEASE_TARGET_DIR
           gzip grafana-kiosk-$SOURCE_TAG.tar
-          cp -p grafana-kiosk-$SOURCE_TAG.tar.gz $RELEASE_TARGET_DIR
-          cp -p grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
+          mv grafana-kiosk-$SOURCE_TAG.tar.gz $RELEASE_TARGET_DIR
+          mv grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v3

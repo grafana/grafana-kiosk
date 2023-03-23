@@ -2,6 +2,9 @@ package kiosk
 
 // Config configuration for backend.
 type Config struct {
+	BuildInfo struct {
+		Version string `yaml:"version,omitempty"`
+	}
 	General struct {
 		AutoFit        bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
 		LXDEEnabled    bool   `yaml:"lxde" env:"KIOSK_LXDE_ENABLED" env-default:"false" env-description:"initialize LXDE for kiosk mode"`

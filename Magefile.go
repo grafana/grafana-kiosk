@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -79,6 +81,15 @@ var archTargets = map[string]map[string]string{
 	},
 }
 
+func getVersion() string {
+	out, err := exec.Command("git", "describe", "--tags").Output()
+	if err != nil {
+		return "unknown"
+	}
+	version := strings.TrimRight(string(out), "\r\n")
+	return version
+}
+
 // Default target to run when none is specified
 // If not set, running mage will list available targets
 var Default = Build.Local
@@ -91,7 +102,13 @@ func buildCommand(command string, arch string) error {
 	log.Printf("Building %s/%s\n", arch, command)
 	outDir := fmt.Sprintf("./bin/%s/%s", arch, command)
 	cmdDir := fmt.Sprintf("./pkg/cmd/%s", command)
-	if err := sh.RunWith(env, "go", "build", "-o", outDir, cmdDir); err != nil {
+	if err := sh.RunWith(
+		env,
+		"go",
+		"build",
+		"-ldflags",
+		fmt.Sprintf("-X main.Version=%s", getVersion()),
+		"-o", outDir, cmdDir); err != nil {
 		return err
 	}
 

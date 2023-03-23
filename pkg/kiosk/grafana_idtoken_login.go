@@ -25,7 +25,7 @@ func GrafanaKioskIDToken(cfg *Config) {
 
 	defer os.RemoveAll(dir)
 
-	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
+	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()

@@ -6,9 +6,8 @@ import (
 	"os"
 	"time"
 
-
-  "github.com/chromedp/cdproto/network"
-  "github.com/chromedp/chromedp"
+	"github.com/chromedp/cdproto/network"
+	"github.com/chromedp/chromedp"
 )
 
 // GrafanaKioskApikey creates a chrome-based kiosk using a grafana api key.
@@ -21,7 +20,7 @@ func GrafanaKioskApikey(cfg *Config) {
 	log.Println("Using temp dir:", dir)
 	defer os.RemoveAll(dir)
 
-	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
+	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()
@@ -47,11 +46,11 @@ func GrafanaKioskApikey(cfg *Config) {
 		Launch chrome and look for main-view element
 	*/
 	headers := map[string]interface{}{
-    "Authorization": "Bearer " + cfg.APIKEY.Apikey,
-  }
+		"Authorization": "Bearer " + cfg.APIKEY.Apikey,
+	}
 	if err := chromedp.Run(taskCtx,
-	  network.Enable(),
-    network.SetExtraHTTPHeaders(network.Headers(headers)),
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
 		// wait forever (for now)

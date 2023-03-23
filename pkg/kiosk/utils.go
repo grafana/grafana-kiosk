@@ -40,8 +40,8 @@ func GenerateURL(anURL string, kioskMode string, autoFit bool, isPlayList bool) 
 	return parsedURI.String()
 }
 
-func generateExecutorOptions(dir string, version string, windowPosition string, ignoreCertificateErrors bool) []chromedp.ExecAllocatorOption {
-	kioskVersion := fmt.Sprintf("GrafanaKiosk/%s (%s %s)", version, runtime.GOOS, runtime.GOARCH)
+func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOption {
+	kioskVersion := fmt.Sprintf("GrafanaKiosk/%s (%s %s)", cfg.BuildInfo.Version, runtime.GOOS, runtime.GOARCH)
 	userAgent := fmt.Sprintf("Mozilla/5.0 (X11; CrOS armv7l 13597.84.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 %s", kioskVersion)
 	return []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
@@ -54,10 +54,10 @@ func generateExecutorOptions(dir string, version string, windowPosition string, 
 		chromedp.Flag("disable-sync", true),
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),
-		chromedp.Flag("window-position", windowPosition),
+		chromedp.Flag("window-position", cfg.General.WindowPosition),
 		chromedp.Flag("check-for-update-interval", "31536000"),
-		chromedp.Flag("ignore-certificate-errors", ignoreCertificateErrors),
-		chromedp.Flag("test-type", ignoreCertificateErrors),
+		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
+		chromedp.Flag("test-type", cfg.Target.IgnoreCertificateErrors),
 		chromedp.UserDataDir(dir),
 	}
 }

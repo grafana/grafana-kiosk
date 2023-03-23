@@ -13,6 +13,10 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 )
 
+var (
+	Version string
+)
+
 // Args command-line parameters.
 type Args struct {
 	AutoFit                 bool
@@ -65,6 +69,7 @@ func ProcessArgs(cfg interface{}) Args {
 
 		envHelp, _ := cleanenv.GetDescription(cfg, nil)
 
+		fmt.Println("GrafanaKiosk", Version)
 		fmt.Fprintln(flagSettings.Output())
 		fmt.Fprintln(flagSettings.Output(), envHelp)
 	}
@@ -106,6 +111,7 @@ func setEnvironment() {
 }
 
 func summary(cfg *kiosk.Config) {
+	log.Println("GrafanaKiosk", Version)
 	// general
 	log.Println("AutoFit:", cfg.General.AutoFit)
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
@@ -127,6 +133,8 @@ func summary(cfg *kiosk.Config) {
 
 func main() {
 	var cfg kiosk.Config
+	// set the version
+	cfg.BuildInfo.Version = Version
 	// override
 	args := ProcessArgs(&cfg)
 
@@ -172,11 +180,10 @@ func main() {
 
 		cfg.IDTOKEN.Audience = args.Audience
 		cfg.IDTOKEN.KeyFile = args.KeyFile
-		
+
 		cfg.APIKEY.Apikey = args.Apikey
 	}
 
-	summary(&cfg)
 	// make sure the url has content
 	if cfg.Target.URL == "" {
 		os.Exit(1)

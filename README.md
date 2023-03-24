@@ -84,10 +84,10 @@ NOTE: Flags with parameters should use an "equals" `-autofit=true` `-URL=https:/
       idtoken json credentials (default "key.json")
   -kiosk-mode string
       Kiosk Display Mode [full|tv|disabled]
-      full = No TOPNAV and No SIDEBAR
-      tv = No SIDEBAR
-      disabled = omit option
-       (default "full")
+        full = No TOPNAV and No SIDEBAR
+        tv = No SIDEBAR
+        disabled = omit option
+        (default "full")
   -login-method string
       [anon|local|gcom|goauth|idtoken|apikey] (default "anon")
   -lxde
@@ -144,11 +144,11 @@ They can also be used instead of a configuration file.
   KIOSK_WINDOW_POSITION string
       Top Left Position of Kiosk (default "0,0")
   KIOSK_IGNORE_CERTIFICATE_ERRORS bool
-      ignore SSL/TLS certificate errors (default "false")
+      Ignore SSL/TLS certificate errors (default "false")
   KIOSK_IS_PLAYLIST bool
       URL is a playlist (default "false")
   KIOSK_LOGIN_METHOD string
-      [anon|local|gcom|goauth|idtoken|apikey] (default "anon")
+      [anon|local|gcom|goauth|idtoken] (default "anon")
   KIOSK_LOGIN_PASSWORD string
       password (default "guest")
   KIOSK_URL string
@@ -162,11 +162,11 @@ They can also be used instead of a configuration file.
   KIOSK_GOAUTH_FIELD_PASSWORD string
       Password html input name value
   KIOSK_IDTOKEN_KEYFILE string
-      JSON Credentials for idtoken
+      JSON Credentials for idtoken (default "key.json")
   KIOSK_IDTOKEN_AUDIENCE string
       Audience for idtoken, tpyically your oauth client id
   KIOSK_APIKEY_APIKEY string
-      Grafana API keys
+      APIKEY Generated in Grafana Server
 ```
 
 ### Hosted Grafana using grafana.com authentication

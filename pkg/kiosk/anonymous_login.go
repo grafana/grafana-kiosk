@@ -10,7 +10,7 @@ import (
 )
 
 // GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account.
-func GrafanaKioskAnonymous(cfg *Config) {
+func GrafanaKioskAnonymous(cfg *Config, messages chan string) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
@@ -47,14 +47,17 @@ func GrafanaKioskAnonymous(cfg *Config) {
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
-		// wait forever (for now)
-		chromedp.WaitVisible("notinputPassword", chromedp.ByID),
 	); err != nil {
 		panic(err)
 	}
-
-	log.Println("Sleep before exit...")
-	// wait here for the process to exit
-	time.Sleep(2000 * time.Millisecond)
-	log.Println("Exit...")
+	// blocking wait
+	for {
+		messageFromChrome := <-messages
+		if err := chromedp.Run(taskCtx,
+			chromedp.Navigate(generatedURL),
+		); err != nil {
+			panic(err)
+		}
+		log.Println("Chromium output:", messageFromChrome)
+	}
 }

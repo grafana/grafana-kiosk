@@ -11,7 +11,7 @@ import (
 )
 
 // GrafanaKioskGenericOauth creates a chrome-based kiosk using a oauth2 authenticated account.
-func GrafanaKioskGenericOauth(cfg *Config) {
+func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
@@ -71,8 +71,17 @@ func GrafanaKioskGenericOauth(cfg *Config) {
 		chromedp.WaitVisible(`//input[@name="`+cfg.GOAUTH.UsernameField+`"]`, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="`+cfg.GOAUTH.UsernameField+`"]`, cfg.Target.Username, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="`+cfg.GOAUTH.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
 	); err != nil {
 		panic(err)
+	}
+	// blocking wait
+	for {
+		messageFromChrome := <-messages
+		if err := chromedp.Run(taskCtx,
+			chromedp.Navigate(generatedURL),
+		); err != nil {
+			panic(err)
+		}
+		log.Println("Chromium output:", messageFromChrome)
 	}
 }

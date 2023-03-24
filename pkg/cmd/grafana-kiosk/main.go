@@ -204,24 +204,25 @@ func main() {
 	setEnvironment()
 	log.Println("method ", cfg.Target.LoginMethod)
 
+	messages := make(chan string)
 	switch cfg.Target.LoginMethod {
 	case "local":
 		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(&cfg)
+		kiosk.GrafanaKioskLocal(&cfg, messages)
 	case "gcom":
 		log.Printf("Launching GCOM login kiosk")
-		kiosk.GrafanaKioskGCOM(&cfg)
+		kiosk.GrafanaKioskGCOM(&cfg, messages)
 	case "goauth":
 		log.Printf("Launching Generic Oauth login kiosk")
-		kiosk.GrafanaKioskGenericOauth(&cfg)
+		kiosk.GrafanaKioskGenericOauth(&cfg, messages)
 	case "idtoken":
 		log.Printf("Launching idtoken oauth kiosk")
-		kiosk.GrafanaKioskIDToken(&cfg)
+		kiosk.GrafanaKioskIDToken(&cfg, messages)
 	case "apikey":
 		log.Printf("Launching apikey kiosk")
-		kiosk.GrafanaKioskApikey(&cfg)
+		kiosk.GrafanaKioskApikey(&cfg, messages)
 	default:
 		log.Printf("Launching ANON login kiosk")
-		kiosk.GrafanaKioskAnonymous(&cfg)
+		kiosk.GrafanaKioskAnonymous(&cfg, messages)
 	}
 }

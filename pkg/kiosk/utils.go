@@ -31,11 +31,10 @@ func GenerateURL(anURL string, kioskMode string, autoFit bool, isPlayList bool) 
 	if isPlayList {
 		parsedQuery.Set("inactive", "1")
 	}
-
-	parsedURI.RawQuery = parsedQuery.Encode()
 	if autoFit {
-		parsedURI.RawQuery += "&autofitpanels"
+		parsedQuery.Set("autofitpanels", "")
 	}
+	parsedURI.RawQuery = parsedQuery.Encode()
 
 	return parsedURI.String()
 }

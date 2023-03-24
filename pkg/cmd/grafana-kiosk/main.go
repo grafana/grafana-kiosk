@@ -69,7 +69,6 @@ func ProcessArgs(cfg interface{}) Args {
 
 		envHelp, _ := cleanenv.GetDescription(cfg, nil)
 
-		fmt.Println("GrafanaKiosk", Version)
 		fmt.Fprintln(flagSettings.Output())
 		fmt.Fprintln(flagSettings.Output(), envHelp)
 	}
@@ -111,7 +110,6 @@ func setEnvironment() {
 }
 
 func summary(cfg *kiosk.Config) {
-	log.Println("GrafanaKiosk", Version)
 	// general
 	log.Println("AutoFit:", cfg.General.AutoFit)
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
@@ -133,8 +131,10 @@ func summary(cfg *kiosk.Config) {
 
 func main() {
 	var cfg kiosk.Config
+	fmt.Println("GrafanaKiosk Version:", Version)
 	// set the version
 	cfg.BuildInfo.Version = Version
+
 	// override
 	args := ProcessArgs(&cfg)
 

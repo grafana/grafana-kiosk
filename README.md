@@ -375,13 +375,19 @@ apt install rng-tools
 
 ## Building
 
-A Makefile is provided for building the utility.
+A Magefile is provided for building the utility, you can install mage by following the instructions at <https://magefile.org/>
 
 ```bash
-make
+mage -v
 ```
 
 This will generate executables in "bin" that can be run on a variety of platforms.
+
+For full build and testing options use:
+
+```BASH
+mage -l
+```
 
 ## TODO
 

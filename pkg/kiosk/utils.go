@@ -57,6 +57,7 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 		chromedp.Flag("check-for-update-interval", "31536000"),
 		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
 		chromedp.Flag("test-type", cfg.Target.IgnoreCertificateErrors),
+		chromedp.Flag("autoplay-policy", "no-user-gesture-required"),
 		chromedp.UserDataDir(dir),
 	}
 

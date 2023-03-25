@@ -8,6 +8,7 @@ type Config struct {
 		LXDEHome       string `yaml:"lxde-home" env:"KIOSK_LXDE_HOME" env-default:"/home/pi" env-description:"path to home directory of LXDE user running X Server"`
 		Mode           string `yaml:"kiosk-mode" env:"KIOSK_MODE" env-default:"full" env-description:"[full|tv|disabled]"`
 		WindowPosition string `yaml:"window-position" env:"KIOSK_WINDOW_POSITION" env-default:"0,0" env-description:"Top Left Position of Kiosk"`
+		WindowSize     string `yaml:"window-size" env:"KIOSK_WINDOW_SIZE" env-description:"Size of Kiosk in pixels (width,height)"`
 	} `yaml:"general"`
 	Target struct {
 		IgnoreCertificateErrors bool   `yaml:"ignore-certificate-errors" env:"KIOSK_IGNORE_CERTIFICATE_ERRORS" env-description:"ignore SSL/TLS certificate errors" env-default:"false"`

@@ -38,8 +38,8 @@ func GenerateURL(anURL string, kioskMode string, autoFit bool, isPlayList bool) 
 	return parsedURI.String()
 }
 
-func generateExecutorOptions(dir string, windowPosition string, ignoreCertificateErrors bool) []chromedp.ExecAllocatorOption {
-	return []chromedp.ExecAllocatorOption{
+func generateExecutorOptions(dir string, windowPosition string, windowSize string, ignoreCertificateErrors bool) []chromedp.ExecAllocatorOption {
+	execAllocatorOption := []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
 		chromedp.NoDefaultBrowserCheck,
 		chromedp.Flag("noerrdialogs", true),
@@ -55,4 +55,10 @@ func generateExecutorOptions(dir string, windowPosition string, ignoreCertificat
 		chromedp.Flag("test-type", ignoreCertificateErrors),
 		chromedp.UserDataDir(dir),
 	}
+
+	if windowSize != "" {
+		execAllocatorOption = append(execAllocatorOption, chromedp.Flag("window-size", windowSize))
+	}
+
+	return execAllocatorOption
 }

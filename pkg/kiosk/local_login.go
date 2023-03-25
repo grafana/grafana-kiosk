@@ -20,7 +20,7 @@ func GrafanaKioskLocal(cfg *Config) {
 	log.Println("Using temp dir:", dir)
 	defer os.RemoveAll(dir)
 
-	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
+	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.General.WindowSize, cfg.Target.IgnoreCertificateErrors)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()

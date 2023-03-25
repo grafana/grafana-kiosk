@@ -148,7 +148,7 @@ They can also be used instead of a configuration file.
   KIOSK_IS_PLAYLIST bool
       URL is a playlist (default "false")
   KIOSK_LOGIN_METHOD string
-      [anon|local|gcom|goauth|idtoken] (default "anon")
+      [anon|local|gcom|goauth|idtoken|apikey] (default "anon")
   KIOSK_LOGIN_PASSWORD string
       password (default "guest")
   KIOSK_URL string

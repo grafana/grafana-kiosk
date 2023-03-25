@@ -8,8 +8,6 @@ import (
 
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
-	"github.com/chromedp/cdproto/network"
-	"github.com/chromedp/chromedp"
 )
 
 // GrafanaKioskApikey creates a chrome-based kiosk using a grafana api key.
@@ -48,8 +46,6 @@ func GrafanaKioskApikey(cfg *Config, messages chan string) {
 		Launch chrome and look for main-view element
 	*/
 	headers := map[string]interface{}{
-		"Authorization": "Bearer " + cfg.APIKEY.Apikey,
-	}
 		"Authorization": "Bearer " + cfg.APIKEY.Apikey,
 	}
 	if err := chromedp.Run(taskCtx,

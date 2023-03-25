@@ -1,6 +1,6 @@
 # Grafana Kiosk
 
-[![CircleCI](https://circleci.com/gh/grafana/grafana-kiosk.svg?style=svg)](https://circleci.com/gh/grafana/grafana-kiosk)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgrafana%2Fgrafana-kiosk%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/grafana/grafana-kiosk/goto?ref=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana-kiosk)](https://goreportcard.com/report/github.com/grafana/grafana-kiosk)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/maintainability)](https://codeclimate.com/github/grafana/grafana-kiosk/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/test_coverage)](https://codeclimate.com/github/grafana/grafana-kiosk/test_coverage)
@@ -56,6 +56,8 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
 ```TEXT
   -URL string
       URL to Grafana server (default "https://play.grafana.org")
+  -apikey string
+      apikey
   -audience string
       idtoken audience
   -auto-login
@@ -79,7 +81,7 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
       disabled = omit option
        (default "full")
   -login-method string
-      [anon|local|gcom|goauth|idtoken|aws] (default "anon")
+      [anon|local|gcom|goauth|idtoken|apikey|aws] (default "anon")
   -lxde
       Initialize LXDE for kiosk mode
   -lxde-home string
@@ -94,6 +96,8 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
       MFA is enabled for given account (default false)
   -window-position string
       Top Left Position of Kiosk (default "0,0")
+  -window-size string
+      Size of Kiosk in pixels (e.g. "1920,1080")
 ```
 
 ### Using a configuration file
@@ -112,7 +116,7 @@ target:
   login-method: anon
   username: user
   password: changeme
-  playlists: false
+  playlist: false
   URL: https://play.grafana.org
   ignore-certificate-errors: false
 ```
@@ -135,12 +139,14 @@ They can also be used instead of a configuration file.
       [full|tv|disabled] (default "full")
   KIOSK_WINDOW_POSITION string
       Top Left Position of Kiosk (default "0,0")
+  KIOSK_WINDOW_SIZE string
+      Size of Kiosk in pixels (e.g. "1920,1080")
   KIOSK_IGNORE_CERTIFICATE_ERRORS bool
       ignore SSL/TLS certificate errors (default "false")
   KIOSK_IS_PLAYLIST bool
       URL is a playlist (default "false")
   KIOSK_LOGIN_METHOD string
-      [anon|local|gcom|goauth|idtoken] (default "anon")
+      [anon|local|gcom|goauth|idtoken|apikey|aws] (default "anon")
   KIOSK_LOGIN_PASSWORD string
       password (default "guest")
   KIOSK_URL string
@@ -157,6 +163,8 @@ They can also be used instead of a configuration file.
       JSON Credentials for idtoken
   KIOSK_IDTOKEN_AUDIENCE string
       Audience for idtoken, tpyically your oauth client id
+  KIOSK_APIKEY_APIKEY string
+      Grafana API keys
 ```
 
 ### Hosted Grafana using grafana.com authentication
@@ -205,6 +213,13 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 
 ```bash
 ./bin/grafana-kiosk -URL=https://play.grafana.org/playlists/play/1 -login-method=anon -kiosk-mode=tv
+```
+
+### Grafana Server with Api Key
+
+This will take the browser to the default dashboard on play.grafana.org in fullscreen kiosk mode:
+```bash
+./bin/grafana-kiosk -URL=https://play.grafana.org -login-method apikey --apikey "xxxxxxxxxxxxxxx" -kiosk-mode=tv 
 ```
 
 ### Grafana Server with Generic Oauth
@@ -308,6 +323,12 @@ After=network.target
 User=pi
 Environment="DISPLAY=:0"
 Environment="XAUTHORITY=/home/pi/.Xauthority"
+
+# Disable screensaver and monitor standby
+ExecStartPre=xset s off
+ExecStartPre=xset -dpms
+ExecStartPre=xset s noblank
+
 ExecStart=/usr/bin/grafana-kiosk -URL=<url> -login-method=local -username=<username> -password=<password> -playlists=true
 
 [Install]

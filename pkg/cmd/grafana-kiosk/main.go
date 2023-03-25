@@ -23,6 +23,7 @@ type Args struct {
 	UseMFA                  bool
 	Audience                string
 	KeyFile                 string
+	Apikey                  string
 	LXDEHome                string
 	ConfigPath              string
 	Mode                    string
@@ -33,6 +34,7 @@ type Args struct {
 	UsernameField           string
 	PasswordField           string
 	WindowPosition          string
+	WindowSize              string
 }
 
 // ProcessArgs processes and handles CLI arguments.
@@ -41,13 +43,14 @@ func ProcessArgs(cfg interface{}) Args {
 
 	flagSettings := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
 	flagSettings.StringVar(&processedArgs.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
-	flagSettings.StringVar(&processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken|aws]")
+	flagSettings.StringVar(&processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken|apikey|aws]")
 	flagSettings.StringVar(&processedArgs.Username, "username", "guest", "username")
 	flagSettings.StringVar(&processedArgs.Password, "password", "guest", "password")
 	flagSettings.BoolVar(&processedArgs.UseMFA, "use-mfa", false, "password")
 	flagSettings.StringVar(&processedArgs.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
 	flagSettings.StringVar(&processedArgs.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
 	flagSettings.StringVar(&processedArgs.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
+	flagSettings.StringVar(&processedArgs.WindowSize, "window-size", "", "Size of Kiosk in pixels (width,height)")
 	flagSettings.BoolVar(&processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
 	flagSettings.BoolVar(&processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
 	flagSettings.BoolVar(&processedArgs.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
@@ -58,6 +61,7 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.StringVar(&processedArgs.PasswordField, "field-password", "password", "Fieldname for the password")
 	flagSettings.StringVar(&processedArgs.Audience, "audience", "", "idtoken audience")
 	flagSettings.StringVar(&processedArgs.KeyFile, "keyfile", "key.json", "idtoken json credentials")
+	flagSettings.StringVar(&processedArgs.Apikey, "apikey", "", "apikey")
 
 	fu := flagSettings.Usage
 	flagSettings.Usage = func() {
@@ -82,7 +86,9 @@ func setEnvironment() {
 	var displayEnv = os.Getenv("DISPLAY")
 	if displayEnv == "" {
 		log.Println("DISPLAY not set, autosetting to :0.0")
-		os.Setenv("DISPLAY", ":0.0")
+		if err := os.Setenv("DISPLAY", ":0.0"); err != nil {
+			log.Println("Error setting DISPLAY", err.Error())
+		}
 		displayEnv = os.Getenv("DISPLAY")
 	}
 
@@ -94,7 +100,9 @@ func setEnvironment() {
 		// use HOME of current user
 		var homeEnv = os.Getenv("HOME")
 
-		os.Setenv("XAUTHORITY", homeEnv+"/.Xauthority")
+		if err := os.Setenv("XAUTHORITY", homeEnv+"/.Xauthority"); err != nil {
+			log.Println("Error setting XAUTHORITY", err.Error())
+		}
 		xAuthorityEnv = os.Getenv("XAUTHORITY")
 	}
 
@@ -108,6 +116,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("LXDEHome:", cfg.General.LXDEHome)
 	log.Println("Mode:", cfg.General.Mode)
 	log.Println("WindowPosition:", cfg.General.WindowPosition)
+	log.Println("WindowSize:", cfg.General.WindowSize)
 	// target
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
@@ -129,7 +138,7 @@ func main() {
 
 	// validate auth methods
 	switch args.LoginMethod {
-	case "goauth", "anon", "local", "gcom", "idtoken", "aws":
+	case "goauth", "anon", "local", "gcom", "idtoken", "apikey", "aws":
 	default:
 		log.Println("Invalid auth method", args.LoginMethod)
 		os.Exit(-1)
@@ -163,6 +172,7 @@ func main() {
 		cfg.General.LXDEHome = args.LXDEHome
 		cfg.General.Mode = args.Mode
 		cfg.General.WindowPosition = args.WindowPosition
+		cfg.General.WindowSize = args.WindowSize
 		//
 		cfg.GOAUTH.AutoLogin = args.OauthAutoLogin
 		cfg.GOAUTH.UsernameField = args.UsernameField
@@ -170,6 +180,8 @@ func main() {
 
 		cfg.IDTOKEN.Audience = args.Audience
 		cfg.IDTOKEN.KeyFile = args.KeyFile
+
+		cfg.APIKEY.Apikey = args.Apikey
 	}
 
 	summary(&cfg)
@@ -206,6 +218,9 @@ func main() {
 	case "idtoken":
 		log.Printf("Launching idtoken oauth kiosk")
 		kiosk.GrafanaKioskIDToken(&cfg)
+	case "apikey":
+		log.Printf("Launching apikey kiosk")
+		kiosk.GrafanaKioskApikey(&cfg)
 	case "aws":
 		log.Printf("Launcing AWS SSO kiosk")
 		kiosk.GrafanaKioskAWSLogin(&cfg)

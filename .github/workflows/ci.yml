@@ -1,0 +1,105 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.1
+          cache: true
+
+      - name: Install dependencies
+        run: go get .
+
+      - name: Install osv-scanner
+        run: go install github.com/google/osv-scanner/cmd/osv-scanner@v1
+
+      - name: Install golangci-lint
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.51.2
+
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: ./...
+
+      - name: Branch name
+        id: branch_name
+        run: |
+          echo "SOURCE_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+          echo "SOURCE_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build with Mage
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: -v build:ci
+
+      - name: Upload Code Climate Report
+        uses: paambaati/codeclimate-action@v3.2.0
+        env:
+          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+        with:
+          prefix: github.com/grafana/grafana-kiosk
+          coverageLocations: |
+            ${{github.workspace}}/coverage.out:gocov
+
+      #- name: Test Step Variables
+      #  run: |
+      #    echo Source Name ${{ steps.branch_name.outputs.SOURCE_NAME }}
+      #    echo Source Branch ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
+      #    echo Source Tag ${{ steps.branch_name.outputs.SOURCE_TAG }}
+
+      - name: Package Release
+        id: package-release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+        run: |
+          export RELEASE_TARGET_DIR=grafana-kiosk-$SOURCE_TAG
+          mkdir $RELEASE_TARGET_DIR
+          cp -p bin/darwin_amd64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.darwin.amd64
+          cp -p bin/darwin_arm64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.darwin.arm64
+          cp -p bin/linux_386/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.386
+          cp -p bin/linux_amd64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.amd64
+          cp -p bin/linux_arm64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.arm64
+          cp -p bin/linux_armv5/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.armv5
+          cp -p bin/linux_armv6/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.armv6
+          cp -p bin/linux_armv7/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.armv7
+          cp -p bin/windows_amd64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.windows.amd64.exe
+          zip -r grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
+          tar cf grafana-kiosk-$SOURCE_TAG.tar $RELEASE_TARGET_DIR
+          gzip grafana-kiosk-$SOURCE_TAG.tar
+          mv grafana-kiosk-$SOURCE_TAG.tar.gz $RELEASE_TARGET_DIR
+          mv grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v3
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: upload-release-artifacts
+          path: grafana-kiosk-v*/**
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          draft: true
+          generate_release_notes: true
+          files: |
+            ./grafana-kiosk-v*/**
+          body: |
+            ** Draft release **

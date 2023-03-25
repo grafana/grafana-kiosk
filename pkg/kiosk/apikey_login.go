@@ -6,12 +6,12 @@ import (
 	"os"
 	"time"
 
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
-	"github.com/chromedp/chromedp/kb"
 )
 
-// GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account.
-func GrafanaKioskLocal(cfg *Config) {
+// GrafanaKioskApikey creates a chrome-based kiosk using a grafana api key.
+func GrafanaKioskApikey(cfg *Config) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
@@ -29,32 +29,38 @@ func GrafanaKioskLocal(cfg *Config) {
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	listenChromeEvents(taskCtx, targetCrashed)
+	listenChromeEvents(taskCtx, consoleAPICall|targetCrashed)
 
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {
 		panic(err)
 	}
 
+	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
+	time.Sleep(2000 * time.Millisecond)
+
 	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
 
 	log.Println("Navigating to ", generatedURL)
 	/*
-		Launch chrome and login with local user account
-
-		name=user, type=text
-		id=inputPassword, type=password, name=password
+		Launch chrome and look for main-view element
 	*/
-	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
-	time.Sleep(2000 * time.Millisecond)
-
+	headers := map[string]interface{}{
+		"Authorization": "Bearer " + cfg.APIKEY.Apikey,
+	}
 	if err := chromedp.Run(taskCtx,
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.Navigate(generatedURL),
-		chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
-		chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
-		chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
+		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
+		// wait forever (for now)
+		chromedp.WaitVisible("notinputPassword", chromedp.ByID),
 	); err != nil {
 		panic(err)
 	}
+
+	log.Println("Sleep before exit...")
+	// wait here for the process to exit
+	time.Sleep(2000 * time.Millisecond)
+	log.Println("Exit...")
 }

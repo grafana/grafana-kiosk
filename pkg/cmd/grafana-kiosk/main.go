@@ -13,6 +13,11 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 )
 
+var (
+	// Version this is set during build time using git tags
+	Version string
+)
+
 // Args command-line parameters.
 type Args struct {
 	AutoFit                 bool
@@ -133,6 +138,10 @@ func summary(cfg *kiosk.Config) {
 
 func main() {
 	var cfg kiosk.Config
+	fmt.Println("GrafanaKiosk Version:", Version)
+	// set the version
+	cfg.BuildInfo.Version = Version
+
 	// override
 	args := ProcessArgs(&cfg)
 
@@ -184,7 +193,6 @@ func main() {
 		cfg.APIKEY.Apikey = args.Apikey
 	}
 
-	summary(&cfg)
 	// make sure the url has content
 	if cfg.Target.URL == "" {
 		os.Exit(1)
@@ -205,27 +213,28 @@ func main() {
 	setEnvironment()
 	log.Println("method ", cfg.Target.LoginMethod)
 
+	messages := make(chan string)
 	switch cfg.Target.LoginMethod {
 	case "local":
 		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(&cfg)
+		kiosk.GrafanaKioskLocal(&cfg, messages)
 	case "gcom":
 		log.Printf("Launching GCOM login kiosk")
-		kiosk.GrafanaKioskGCOM(&cfg)
+		kiosk.GrafanaKioskGCOM(&cfg, messages)
 	case "goauth":
 		log.Printf("Launching Generic Oauth login kiosk")
-		kiosk.GrafanaKioskGenericOauth(&cfg)
+		kiosk.GrafanaKioskGenericOauth(&cfg, messages)
 	case "idtoken":
 		log.Printf("Launching idtoken oauth kiosk")
-		kiosk.GrafanaKioskIDToken(&cfg)
+		kiosk.GrafanaKioskIDToken(&cfg, messages)
 	case "apikey":
 		log.Printf("Launching apikey kiosk")
-		kiosk.GrafanaKioskApikey(&cfg)
+		kiosk.GrafanaKioskApikey(&cfg, messages)
 	case "aws":
 		log.Printf("Launcing AWS SSO kiosk")
-		kiosk.GrafanaKioskAWSLogin(&cfg)
+		kiosk.GrafanaKioskAWSLogin(&cfg, messages)
 	default:
 		log.Printf("Launching ANON login kiosk")
-		kiosk.GrafanaKioskAnonymous(&cfg)
+		kiosk.GrafanaKioskAnonymous(&cfg, messages)
 	}
 }

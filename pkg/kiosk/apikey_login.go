@@ -11,7 +11,7 @@ import (
 )
 
 // GrafanaKioskApikey creates a chrome-based kiosk using a grafana api key.
-func GrafanaKioskApikey(cfg *Config) {
+func GrafanaKioskApikey(cfg *Config, messages chan string) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
@@ -20,7 +20,7 @@ func GrafanaKioskApikey(cfg *Config) {
 	log.Println("Using temp dir:", dir)
 	defer os.RemoveAll(dir)
 
-	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.General.WindowSize, cfg.Target.IgnoreCertificateErrors)
+	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()
@@ -51,16 +51,21 @@ func GrafanaKioskApikey(cfg *Config) {
 	if err := chromedp.Run(taskCtx,
 		network.Enable(),
 		network.SetExtraHTTPHeaders(network.Headers(headers)),
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
-		// wait forever (for now)
-		chromedp.WaitVisible("notinputPassword", chromedp.ByID),
 	); err != nil {
 		panic(err)
 	}
-
-	log.Println("Sleep before exit...")
-	// wait here for the process to exit
-	time.Sleep(2000 * time.Millisecond)
-	log.Println("Exit...")
+	// blocking wait
+	for {
+		messageFromChrome := <-messages
+		if err := chromedp.Run(taskCtx,
+			chromedp.Navigate(generatedURL),
+		); err != nil {
+			panic(err)
+		}
+		log.Println("Chromium output:", messageFromChrome)
+	}
 }

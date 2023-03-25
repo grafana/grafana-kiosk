@@ -2,14 +2,16 @@ package kiosk
 
 import (
 	"context"
-	"github.com/chromedp/chromedp"
-	"github.com/chromedp/chromedp/kb"
 	"log"
 	"os"
 	"time"
+
+	"github.com/chromedp/chromedp"
+	"github.com/chromedp/chromedp/kb"
 )
 
-func GrafanaKioskAWSLogin(cfg *Config) {
+// GrafanaKioskAWSLogin Provides login for AWS Managed Grafana instances
+func GrafanaKioskAWSLogin(cfg *Config, messages chan string) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
@@ -18,7 +20,7 @@ func GrafanaKioskAWSLogin(cfg *Config) {
 	log.Println("Using temp dir:", dir)
 	defer os.RemoveAll(dir)
 
-	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.Target.IgnoreCertificateErrors)
+	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()
@@ -61,9 +63,14 @@ func GrafanaKioskAWSLogin(cfg *Config) {
 		}
 	}
 
-	if err := chromedp.Run(taskCtx,
-		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
-	); err != nil {
-		panic(err)
+	// blocking wait
+	for {
+		messageFromChrome := <-messages
+		if err := chromedp.Run(taskCtx,
+			chromedp.Navigate(generatedURL),
+		); err != nil {
+			panic(err)
+		}
+		log.Println("Chromium output:", messageFromChrome)
 	}
 }

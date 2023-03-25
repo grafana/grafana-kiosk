@@ -2,7 +2,6 @@ package kiosk
 
 import (
 	"context"
-	"time"
 
 	"fmt"
 	"log"
@@ -17,7 +16,7 @@ import (
 )
 
 // GrafanaKioskIDToken creates a chrome-based kiosk using a oauth2 authenticated account.
-func GrafanaKioskIDToken(cfg *Config) {
+func GrafanaKioskIDToken(cfg *Config, messages chan string) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
@@ -25,7 +24,7 @@ func GrafanaKioskIDToken(cfg *Config) {
 
 	defer os.RemoveAll(dir)
 
-	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.General.WindowSize, cfg.Target.IgnoreCertificateErrors)
+	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()
@@ -78,11 +77,19 @@ func GrafanaKioskIDToken(cfg *Config) {
 		panic(err)
 	}
 
-	log.Println("Sleeping 2 seconds before exit.")
-	time.Sleep(2 * time.Second)
-	log.Println("Exit...")
+	// blocking wait
+	for {
+		messageFromChrome := <-messages
+		if err := chromedp.Run(taskCtx,
+			chromedp.Navigate(generatedURL),
+		); err != nil {
+			panic(err)
+		}
+		log.Println("Chromium output:", messageFromChrome)
+	}
 }
 
+// GetExecutor returns executor for chromedp
 func GetExecutor(ctx context.Context) context.Context {
 	c := chromedp.FromContext(ctx)
 
@@ -93,6 +100,5 @@ func enableFetch(url string) chromedp.Tasks {
 	return chromedp.Tasks{
 		fetch.Enable(),
 		chromedp.Navigate(url),
-		chromedp.WaitVisible("notinputPassword", chromedp.ByID),
 	}
 }

@@ -8,15 +8,22 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 	// mg contains helpful utility functions, like Deps
 )
 
+// Build namespace
 type Build mg.Namespace
+
+// Test namespace
 type Test mg.Namespace
+
+// Run namespace
 type Run mg.Namespace
 
 var archTargets = map[string]map[string]string{
@@ -79,6 +86,15 @@ var archTargets = map[string]map[string]string{
 	},
 }
 
+func getVersion() string {
+	out, err := exec.Command("git", "describe", "--tags").Output()
+	if err != nil {
+		return "unknown"
+	}
+	version := strings.TrimRight(string(out), "\r\n")
+	return version
+}
+
 // Default target to run when none is specified
 // If not set, running mage will list available targets
 var Default = Build.Local
@@ -91,7 +107,13 @@ func buildCommand(command string, arch string) error {
 	log.Printf("Building %s/%s\n", arch, command)
 	outDir := fmt.Sprintf("./bin/%s/%s", arch, command)
 	cmdDir := fmt.Sprintf("./pkg/cmd/%s", command)
-	if err := sh.RunWith(env, "go", "build", "-o", outDir, cmdDir); err != nil {
+	if err := sh.RunWith(
+		env,
+		"go",
+		"build",
+		"-ldflags",
+		fmt.Sprintf("-X main.Version=%s", getVersion()),
+		"-o", outDir, cmdDir); err != nil {
 		return err
 	}
 
@@ -137,7 +159,7 @@ func test() error {
 	return sh.RunV("go", "tool", "cover", "-html=coverage.out", "-o", "coverage.html")
 }
 
-// Formats the source files
+// Format Formats the source files
 func (Build) Format() error {
 	if err := sh.RunV("gofmt", "-w", "./pkg"); err != nil {
 		return err
@@ -145,7 +167,7 @@ func (Build) Format() error {
 	return nil
 }
 
-// Minimal build
+// Local Minimal build
 func (Build) Local(ctx context.Context) {
 	mg.Deps(
 		Clean,
@@ -153,7 +175,7 @@ func (Build) Local(ctx context.Context) {
 	)
 }
 
-// Lint/Format/Test/Build
+// CI Lint/Format/Test/Build
 func (Build) CI(ctx context.Context) {
 	mg.Deps(
 		Build.OSVScanner,
@@ -165,6 +187,7 @@ func (Build) CI(ctx context.Context) {
 	)
 }
 
+// All build all
 func (Build) All(ctx context.Context) {
 	mg.Deps(
 		Build.Lint,
@@ -174,33 +197,34 @@ func (Build) All(ctx context.Context) {
 	)
 }
 
-// Run linter against codebase
+// Lint Run linter against codebase
 func (Build) Lint() error {
 	os.Setenv("GO111MODULE", "on")
 	log.Printf("Linting...")
 	return sh.RunV("golangci-lint", "--timeout", "5m", "run", "./pkg/...")
 }
 
+// OSVScanner Vulnerability scanning
 func (Build) OSVScanner() error {
 	log.Printf("Scanning...")
 	return sh.RunV("osv-scanner", "--lockfile", "./go.mod")
 }
 
-// Run tests in verbose mode
+// Verbose Run tests in verbose mode
 func (Test) Verbose() {
 	mg.Deps(
 		testVerbose,
 	)
 }
 
-// Run tests in normal mode
+// Default Run tests in normal mode
 func (Test) Default() {
 	mg.Deps(
 		test,
 	)
 }
 
-// Removes built files
+// Clean Removes built files
 func Clean() {
 	log.Printf("Cleaning all")
 	os.RemoveAll("./bin/linux_386")
@@ -214,7 +238,7 @@ func Clean() {
 	os.RemoveAll("./bin/windows_amd64")
 }
 
-// Build and Run
+// Local Build and Run
 func (Run) Local() error {
 	mg.Deps(Build.Local)
 	return sh.RunV(

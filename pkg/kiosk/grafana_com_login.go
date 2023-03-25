@@ -11,7 +11,7 @@ import (
 )
 
 // GrafanaKioskGCOM creates a chrome-based kiosk using a grafana.com authenticated account.
-func GrafanaKioskGCOM(cfg *Config) {
+func GrafanaKioskGCOM(cfg *Config, messages chan string) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
@@ -20,7 +20,7 @@ func GrafanaKioskGCOM(cfg *Config) {
 	log.Println("Using temp dir:", dir)
 	defer os.RemoveAll(dir)
 
-	opts := generateExecutorOptions(dir, cfg.General.WindowPosition, cfg.General.WindowSize, cfg.Target.IgnoreCertificateErrors)
+	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()
@@ -78,8 +78,17 @@ func GrafanaKioskGCOM(cfg *Config) {
 		chromedp.SendKeys(`//input[@name="login"]`, cfg.Target.Username, chromedp.BySearch),
 		chromedp.Click(`#submit`, chromedp.ByID),
 		chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
 	); err != nil {
 		panic(err)
+	}
+	// blocking wait
+	for {
+		messageFromChrome := <-messages
+		if err := chromedp.Run(taskCtx,
+			chromedp.Navigate(generatedURL),
+		); err != nil {
+			panic(err)
+		}
+		log.Println("Chromium output:", messageFromChrome)
 	}
 }

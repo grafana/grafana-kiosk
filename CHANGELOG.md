@@ -2,9 +2,13 @@
 
 ## 1.0.6
 
+- Includes PR#93 - adds authentication with API Key!
+- Reduces app CPU utilization to near zero while running
+- Adds version to build based on git tag
+- Adds user agent with kiosk version
 - Switch to git workflow for builds
+- Switch to Mage for building instead of make
 - Update go modules
-- Includes PR#
 
 ## 1.0.5
 

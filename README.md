@@ -49,9 +49,21 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 # sudo chmod 755 /usr/bin/grafana-kiosk
 ```
 
+## Dependencies/Suggestion Packages
+
+This application can run on most operating systems, but for linux some additional
+binaries are suggested for full support.
+
+Suggesting Packages:
+
+`unclutter` (for hiding mouse/cursor)
+`rng-tools` (for entropy issues)
+
 ## Usage
 
-NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://play.grafana.org) when also used with any boolean flags.
+NOTE: Flags with parameters should use an "equals"
+  `-autofit=true`
+  `-URL=https://play.grafana.org` when used with any boolean flags.
 
 ```TEXT
   -URL string
@@ -76,10 +88,10 @@ NOTE: Flags with parameters should use an "equals" (-autofit=true, -URL=https://
       idtoken json credentials (default "key.json")
   -kiosk-mode string
       Kiosk Display Mode [full|tv|disabled]
-      full = No TOPNAV and No SIDEBAR
-      tv = No SIDEBAR
-      disabled = omit option
-       (default "full")
+        full = No TOPNAV and No SIDEBAR
+        tv = No SIDEBAR
+        disabled = omit option
+        (default "full")
   -login-method string
       [anon|local|gcom|goauth|idtoken|apikey|aws] (default "anon")
   -lxde
@@ -142,7 +154,7 @@ They can also be used instead of a configuration file.
   KIOSK_WINDOW_SIZE string
       Size of Kiosk in pixels (e.g. "1920,1080")
   KIOSK_IGNORE_CERTIFICATE_ERRORS bool
-      ignore SSL/TLS certificate errors (default "false")
+      Ignore SSL/TLS certificate errors (default "false")
   KIOSK_IS_PLAYLIST bool
       URL is a playlist (default "false")
   KIOSK_LOGIN_METHOD string
@@ -160,11 +172,11 @@ They can also be used instead of a configuration file.
   KIOSK_GOAUTH_FIELD_PASSWORD string
       Password html input name value
   KIOSK_IDTOKEN_KEYFILE string
-      JSON Credentials for idtoken
+      JSON Credentials for idtoken (default "key.json")
   KIOSK_IDTOKEN_AUDIENCE string
       Audience for idtoken, tpyically your oauth client id
   KIOSK_APIKEY_APIKEY string
-      Grafana API keys
+      APIKEY Generated in Grafana Server
 ```
 
 ### Hosted Grafana using grafana.com authentication
@@ -218,8 +230,9 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 ### Grafana Server with Api Key
 
 This will take the browser to the default dashboard on play.grafana.org in fullscreen kiosk mode:
+
 ```bash
-./bin/grafana-kiosk -URL=https://play.grafana.org -login-method apikey --apikey "xxxxxxxxxxxxxxx" -kiosk-mode=tv 
+./bin/grafana-kiosk -URL=https://play.grafana.org -login-method apikey --apikey "xxxxxxxxxxxxxxx" -kiosk-mode=tv
 ```
 
 ### Grafana Server with Generic Oauth
@@ -372,13 +385,19 @@ apt install rng-tools
 
 ## Building
 
-A Makefile is provided for building the utility.
+A Magefile is provided for building the utility, you can install mage by following the instructions at <https://magefile.org/>
 
 ```bash
-make
+mage -v
 ```
 
 This will generate executables in "bin" that can be run on a variety of platforms.
+
+For full build and testing options use:
+
+```BASH
+mage -l
+```
 
 ## TODO
 
@@ -398,3 +417,6 @@ This will generate executables in "bin" that can be run on a variety of platform
 - [Xan Manning](https://github.com/xanmanning) for the ignore certificate option!
 - [David Stäheli](https://github.com/mistadave) for the OAuth implementation!
 - [Marcus Ramberg](https://github.com/marcusramberg) for the Google ID Token Auth implementation!
+- [Ronan Salmon](https://github.com/ronansalmon) for API token authentication!
+
+Any many others!

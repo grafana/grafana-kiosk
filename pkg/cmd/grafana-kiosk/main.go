@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	// Version this is set during build time using git tags
 	Version string
 )
 

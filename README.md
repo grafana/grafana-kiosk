@@ -50,7 +50,8 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 
 ## Dependencies/Suggestion Packages
 
-This application can run on most operating systems, but for linux some additional binaries are needed for full support.
+This application can run on most operating systems, but for linux some additional
+binaries are suggested for full support.
 
 Suggesting Packages:
 
@@ -59,7 +60,9 @@ Suggesting Packages:
 
 ## Usage
 
-NOTE: Flags with parameters should use an "equals" `-autofit=true` `-URL=https://play.grafana.org` when used with any boolean flags.
+NOTE: Flags with parameters should use an "equals"
+  `-autofit=true`
+  `-URL=https://play.grafana.org` when used with any boolean flags.
 
 ```TEXT
   -URL string

@@ -10,7 +10,7 @@ import (
 	"github.com/chromedp/chromedp/kb"
 )
 
-func GrafanaKioskAWSLogin(cfg *Config) {
+func GrafanaKioskAWSLogin(cfg *Config, messages chan string) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
@@ -62,9 +62,14 @@ func GrafanaKioskAWSLogin(cfg *Config) {
 		}
 	}
 
-	if err := chromedp.Run(taskCtx,
-		chromedp.WaitVisible(`notinputPassword`, chromedp.ByID),
-	); err != nil {
-		panic(err)
+	// blocking wait
+	for {
+		messageFromChrome := <-messages
+		if err := chromedp.Run(taskCtx,
+			chromedp.Navigate(generatedURL),
+		); err != nil {
+			panic(err)
+		}
+		log.Println("Chromium output:", messageFromChrome)
 	}
 }

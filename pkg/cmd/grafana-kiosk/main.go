@@ -232,7 +232,7 @@ func main() {
 		kiosk.GrafanaKioskApikey(&cfg, messages)
 	case "aws":
 		log.Printf("Launcing AWS SSO kiosk")
-		kiosk.GrafanaKioskAWSLogin(&cfg)
+		kiosk.GrafanaKioskAWSLogin(&cfg, messages)
 	default:
 		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(&cfg, messages)

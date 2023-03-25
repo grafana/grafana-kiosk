@@ -225,7 +225,7 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 This will take the browser to the default dashboard on play.grafana.org in fullscreen kiosk mode:
 
 ```bash
-./bin/grafana-kiosk -URL=https://play.grafana.org -login-method apikey --apikey "xxxxxxxxxxxxxxx" -kiosk-mode=tv 
+./bin/grafana-kiosk -URL=https://play.grafana.org -login-method apikey --apikey "xxxxxxxxxxxxxxx" -kiosk-mode=tv
 ```
 
 ### Grafana Server with Generic Oauth

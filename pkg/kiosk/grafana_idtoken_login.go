@@ -89,6 +89,7 @@ func GrafanaKioskIDToken(cfg *Config, messages chan string) {
 	}
 }
 
+// GetExecutor
 func GetExecutor(ctx context.Context) context.Context {
 	c := chromedp.FromContext(ctx)
 

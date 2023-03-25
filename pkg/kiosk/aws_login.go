@@ -10,6 +10,7 @@ import (
 	"github.com/chromedp/chromedp/kb"
 )
 
+// GrafanaKioskAWSLogin Provides login for AWS Managed Grafana instances
 func GrafanaKioskAWSLogin(cfg *Config, messages chan string) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {

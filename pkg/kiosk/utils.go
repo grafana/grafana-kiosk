@@ -53,6 +53,7 @@ func generateExecutorOptions(dir string, windowPosition string, windowSize strin
 		chromedp.Flag("check-for-update-interval", "31536000"),
 		chromedp.Flag("ignore-certificate-errors", ignoreCertificateErrors),
 		chromedp.Flag("test-type", ignoreCertificateErrors),
+		chromedp.Flag("autoplay-policy", "no-user-gesture-required"),
 		chromedp.UserDataDir(dir),
 	}
 

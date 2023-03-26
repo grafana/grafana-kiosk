@@ -31,10 +31,15 @@ func GenerateURL(anURL string, kioskMode string, autoFit bool, isPlayList bool) 
 	if isPlayList {
 		parsedQuery.Set("inactive", "1")
 	}
-	if autoFit {
-		parsedQuery.Set("autofitpanels", "")
-	}
 	parsedURI.RawQuery = parsedQuery.Encode()
+	// grafana is not parsing autofitpanels that uses an equals sign, so leave it out
+	if autoFit {
+		if len(parsedQuery) > 0 {
+			parsedURI.RawQuery += "&autofitpanels"
+		} else {
+			parsedURI.RawQuery += "autofitpanels"
+		}
+	}
 
 	return parsedURI.String()
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/url"
 	"runtime"
+	"strings"
 
 	"github.com/chromedp/chromedp"
 )
@@ -45,7 +46,9 @@ func GenerateURL(anURL string, kioskMode string, autoFit bool, isPlayList bool) 
 }
 
 func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOption {
-	kioskVersion := fmt.Sprintf("GrafanaKiosk/%s (%s %s)", cfg.BuildInfo.Version, runtime.GOOS, runtime.GOARCH)
+	// agent should not have the v prefix
+	buildVersion := strings.TrimPrefix(cfg.BuildInfo.Version, "v")
+	kioskVersion := fmt.Sprintf("GrafanaKiosk/%s (%s %s)", buildVersion, runtime.GOOS, runtime.GOARCH)
 	userAgent := fmt.Sprintf("Mozilla/5.0 (X11; CrOS armv7l 13597.84.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 %s", kioskVersion)
 	execAllocatorOption := []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,

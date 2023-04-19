@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
-  "strings"
+	"strings"
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
@@ -49,34 +49,34 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
 	time.Sleep(2000 * time.Millisecond)
 
-  if cfg.GOAUTH.AutoLogin {
-    // if AutoLogin is set, get the base URL and append the local login bypass before navigating to the full url
-    startIndex := strings.Index(cfg.Target.URL, "://") + 3
-    endIndex := strings.Index(cfg.Target.URL[startIndex:], "/") + startIndex
-    baseUrl := cfg.Target.URL[:endIndex]
-    bypassUrl := baseUrl + "/login/local"
-    
-    log.Println("Bypassing Azure AD autoLogin at ", bypassUrl)
-    
+	if cfg.GOAUTH.AutoLogin {
+		// if AutoLogin is set, get the base URL and append the local login bypass before navigating to the full url
+		startIndex := strings.Index(cfg.Target.URL, "://") + 3
+		endIndex := strings.Index(cfg.Target.URL[startIndex:], "/") + startIndex
+		baseUrl := cfg.Target.URL[:endIndex]
+		bypassUrl := baseUrl + "/login/local"
+		
+		log.Println("Bypassing Azure AD autoLogin at ", bypassUrl)
+		
 		if err := chromedp.Run(taskCtx,
 			chromedp.Navigate(bypassUrl),
-      chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
-      chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
-      chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-      chromedp.WaitVisible(`navbar-menu-portal-container`, chromedp.ByID),
-      chromedp.Navigate(generatedURL),
+			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
+			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
+			chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+			chromedp.WaitVisible(`navbar-menu-portal-container`, chromedp.ByID),
+			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)
 		}
 	} else {
-    if err := chromedp.Run(taskCtx,
-      chromedp.Navigate(generatedURL),
-      chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
-      chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
-      chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-    ); err != nil {
-      panic(err)
-    }
+		if err := chromedp.Run(taskCtx,
+			chromedp.Navigate(generatedURL),
+			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
+			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
+			chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+		); err != nil {
+			panic(err)
+		}
 	}
   
 	// blocking wait

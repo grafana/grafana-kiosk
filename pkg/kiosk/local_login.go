@@ -53,13 +53,13 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 		// if AutoLogin is set, get the base URL and append the local login bypass before navigating to the full url
 		startIndex := strings.Index(cfg.Target.URL, "://") + 3
 		endIndex := strings.Index(cfg.Target.URL[startIndex:], "/") + startIndex
-		baseUrl := cfg.Target.URL[:endIndex]
-		bypassUrl := baseUrl + "/login/local"
+		baseURL := cfg.Target.URL[:endIndex]
+		bypassURL := baseURL + "/login/local"
 		
-		log.Println("Bypassing Azure AD autoLogin at ", bypassUrl)
+		log.Println("Bypassing Azure AD autoLogin at ", bypassURL)
 		
 		if err := chromedp.Run(taskCtx,
-			chromedp.Navigate(bypassUrl),
+			chromedp.Navigate(bypassURL),
 			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),

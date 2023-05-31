@@ -73,5 +73,9 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 		execAllocatorOption = append(execAllocatorOption, chromedp.Flag("window-size", cfg.General.WindowSize))
 	}
 
+	if cfg.General.ScaleFactor != "" {
+		execAllocatorOption = append(execAllocatorOption, chromedp.Flag("force-device-scale-factor", cfg.General.ScaleFactor))
+	}
+
 	return execAllocatorOption
 }

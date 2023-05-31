@@ -12,6 +12,7 @@ type Config struct {
 		Mode           string `yaml:"kiosk-mode" env:"KIOSK_MODE" env-default:"full" env-description:"[full|tv|disabled]"`
 		WindowPosition string `yaml:"window-position" env:"KIOSK_WINDOW_POSITION" env-default:"0,0" env-description:"Top Left Position of Kiosk"`
 		WindowSize     string `yaml:"window-size" env:"KIOSK_WINDOW_SIZE" env-default:"" env-description:"Size of Kiosk in pixels (width,height)"`
+		ScaleFactor    string `yaml:"scale-factor" env:"KIOSK_SCALE_FACTOR" env-default:"1.0" env-description:"Scale factor, like zoom"`
 	} `yaml:"general"`
 	Target struct {
 		IgnoreCertificateErrors bool   `yaml:"ignore-certificate-errors" env:"KIOSK_IGNORE_CERTIFICATE_ERRORS" env-description:"ignore SSL/TLS certificate errors" env-default:"false"`

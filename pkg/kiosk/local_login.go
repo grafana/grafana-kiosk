@@ -63,7 +63,7 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-			chromedp.WaitVisible(`navbar-menu-portal-container`, chromedp.ByID),
+			chromedp.WaitVisible(`//img[@alt="User avatar"]`, chromedp.BySearch),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)

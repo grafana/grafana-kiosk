@@ -12,7 +12,7 @@ This provides a utility to quickly standup a kiosk on devices like a Raspberry P
 The utitilty provides these options:
 
 - Login
-  - to a Grafana server (local account)
+  - to a Grafana server (local account or bypass OAuth)
   - to a Grafana server with anonymous-mode enabled (same method used on [play.grafana.org](https://play.grafana.org))
   - to a Grafana Cloud instance
   - to a Grafana server with OAuth enabled
@@ -74,6 +74,7 @@ NOTE: Flags with parameters should use an "equals"
       idtoken audience
   -auto-login
       oauth_auto_login is enabled in grafana config
+			(set this flag along with the "local" login-method to bypass OAuth via the /login/local url and use a local grafana user/pass before continuing to the target URL)
   -autofit
       Fit panels to screen (default true)
   -c string
@@ -211,6 +212,12 @@ If you are using a self-signed certificate, you can remove the certificate error
 
 ```bash
 ./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -kiosk-mode=tv -ignore-certificate-errors
+```
+
+This will login to a grafana server, configured for AzureAD OAuth and has Oauth_auto_login is enabled, bypassing OAuth and using a manually setup local username and password.
+
+```bash
+./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -auto-login=true -kiosk-mode=tv
 ```
 
 ### Grafana Server with Anonymous access enabled

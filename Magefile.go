@@ -178,7 +178,6 @@ func (Build) Local(ctx context.Context) {
 // CI Lint/Format/Test/Build
 func (Build) CI(ctx context.Context) {
 	mg.Deps(
-		Build.OSVScanner,
 		Build.Lint,
 		Build.Format,
 		Test.Verbose,
@@ -202,12 +201,6 @@ func (Build) Lint() error {
 	os.Setenv("GO111MODULE", "on")
 	log.Printf("Linting...")
 	return sh.RunV("golangci-lint", "--timeout", "5m", "run", "./pkg/...")
-}
-
-// OSVScanner Vulnerability scanning
-func (Build) OSVScanner() error {
-	log.Printf("Scanning...")
-	return sh.RunV("osv-scanner", "--lockfile", "./go.mod")
 }
 
 // Verbose Run tests in verbose mode

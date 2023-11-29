@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 	"os"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
@@ -55,9 +55,9 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 		endIndex := strings.Index(cfg.Target.URL[startIndex:], "/") + startIndex
 		baseURL := cfg.Target.URL[:endIndex]
 		bypassURL := baseURL + "/login/local"
-		
+
 		log.Println("Bypassing Azure AD autoLogin at ", bypassURL)
-		
+
 		if err := chromedp.Run(taskCtx,
 			chromedp.Navigate(bypassURL),
 			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
@@ -78,7 +78,7 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 			panic(err)
 		}
 	}
-  
+
 	// blocking wait
 	for {
 		messageFromChrome := <-messages

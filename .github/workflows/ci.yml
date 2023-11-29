@@ -16,19 +16,16 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.20.1
+          go-version: 1.21.4
           cache: true
 
       - name: Install dependencies
         run: go get .
 
-      - name: Install osv-scanner
-        run: go install github.com/google/osv-scanner/cmd/osv-scanner@v1
-
       - name: Install golangci-lint
-        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.51.2
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
 
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master

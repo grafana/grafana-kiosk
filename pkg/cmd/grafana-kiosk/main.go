@@ -40,6 +40,7 @@ type Args struct {
 	PasswordField           string
 	WindowPosition          string
 	WindowSize              string
+	ScaleFactor             string
 }
 
 // ProcessArgs processes and handles CLI arguments.
@@ -56,6 +57,7 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.StringVar(&processedArgs.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
 	flagSettings.StringVar(&processedArgs.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
 	flagSettings.StringVar(&processedArgs.WindowSize, "window-size", "", "Size of Kiosk in pixels (width,height)")
+	flagSettings.StringVar(&processedArgs.ScaleFactor, "scale-factor", "1.0", "Scale factor, sort of zoom")
 	flagSettings.BoolVar(&processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
 	flagSettings.BoolVar(&processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
 	flagSettings.BoolVar(&processedArgs.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
@@ -122,6 +124,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("Mode:", cfg.General.Mode)
 	log.Println("WindowPosition:", cfg.General.WindowPosition)
 	log.Println("WindowSize:", cfg.General.WindowSize)
+	log.Println("ScaleFactor:", cfg.General.ScaleFactor)
 	// target
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)

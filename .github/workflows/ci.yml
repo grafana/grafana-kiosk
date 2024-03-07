@@ -11,21 +11,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.21.4
-          cache: true
+          go-version-file: go.mod
+          check-latest: true
 
       - name: Install dependencies
         run: go get .
 
       - name: Install golangci-lint
-        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          args: --exclude-use-default
+          skip-cache: true
+          skip-pkg-cache: true
 
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
@@ -40,25 +45,19 @@ jobs:
           echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build with Mage
-        uses: magefile/mage-action@v2
+        uses: magefile/mage-action@v3
         with:
           version: latest
           args: -v build:ci
 
       - name: Upload Code Climate Report
-        uses: paambaati/codeclimate-action@v3.2.0
+        uses: paambaati/codeclimate-action@v5.0.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
         with:
           prefix: github.com/grafana/grafana-kiosk
           coverageLocations: |
             ${{github.workspace}}/coverage.out:gocov
-
-      #- name: Test Step Variables
-      #  run: |
-      #    echo Source Name ${{ steps.branch_name.outputs.SOURCE_NAME }}
-      #    echo Source Branch ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
-      #    echo Source Tag ${{ steps.branch_name.outputs.SOURCE_TAG }}
 
       - name: Package Release
         id: package-release
@@ -84,7 +83,7 @@ jobs:
           mv grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
 
       - name: Upload Release Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: upload-release-artifacts

@@ -111,6 +111,8 @@ NOTE: Flags with parameters should use an "equals"
       Top Left Position of Kiosk (default "0,0")
   -window-size string
       Size of Kiosk in pixels (e.g. "1920,1080")
+  -scale-factor string
+      Scale factor of Kiosk. This is sort of like zoom. (default: "1")
 ```
 
 ### Using a configuration file
@@ -124,6 +126,7 @@ general:
   autofit: true
   lxde: true
   lxde-home: /home/pi
+  scale-factor: 1.0
 
 target:
   login-method: anon
@@ -154,6 +157,8 @@ They can also be used instead of a configuration file.
       Top Left Position of Kiosk (default "0,0")
   KIOSK_WINDOW_SIZE string
       Size of Kiosk in pixels (e.g. "1920,1080")
+  KIOSK_SCALE_FACTOR string
+      Scale factor, like zoom
   KIOSK_IGNORE_CERTIFICATE_ERRORS bool
       Ignore SSL/TLS certificate errors (default "false")
   KIOSK_IS_PLAYLIST bool

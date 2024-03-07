@@ -9,7 +9,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v6
+      - uses: actions/stale@v9
         with:
           # Number of days of inactivity before a stale Issue or Pull Request is closed.
           # Set to -1 to disable. If disabled, issues still need to be closed manually, but will remain marked as stale.

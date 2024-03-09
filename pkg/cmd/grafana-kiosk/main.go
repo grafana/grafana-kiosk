@@ -134,9 +134,9 @@ func summary(cfg *kiosk.Config) {
 	log.Println("IsPlayList:", cfg.Target.IsPlayList)
 	log.Println("UseMFA:", cfg.Target.UseMFA)
 	// goauth
-	log.Println("Fieldname AutoLogin:", cfg.GOAUTH.AutoLogin)
-	log.Println("Fieldname Username:", cfg.GOAUTH.UsernameField)
-	log.Println("Fieldname Password:", cfg.GOAUTH.PasswordField)
+	log.Println("Fieldname AutoLogin:", cfg.GoAuth.AutoLogin)
+	log.Println("Fieldname Username:", cfg.GoAuth.UsernameField)
+	log.Println("Fieldname Password:", cfg.GoAuth.PasswordField)
 }
 
 func main() {
@@ -186,14 +186,14 @@ func main() {
 		cfg.General.WindowPosition = args.WindowPosition
 		cfg.General.WindowSize = args.WindowSize
 		//
-		cfg.GOAUTH.AutoLogin = args.OauthAutoLogin
-		cfg.GOAUTH.UsernameField = args.UsernameField
-		cfg.GOAUTH.PasswordField = args.PasswordField
+		cfg.GoAuth.AutoLogin = args.OauthAutoLogin
+		cfg.GoAuth.UsernameField = args.UsernameField
+		cfg.GoAuth.PasswordField = args.PasswordField
 
-		cfg.IDTOKEN.Audience = args.Audience
-		cfg.IDTOKEN.KeyFile = args.KeyFile
+		cfg.IdToken.Audience = args.Audience
+		cfg.IdToken.KeyFile = args.KeyFile
 
-		cfg.APIKEY.Apikey = args.Apikey
+		cfg.ApiKey.Apikey = args.Apikey
 	}
 
 	// make sure the url has content

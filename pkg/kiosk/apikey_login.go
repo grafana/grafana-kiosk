@@ -29,15 +29,16 @@ func GrafanaKioskApikey(cfg *Config, messages chan string) {
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	listenChromeEvents(taskCtx, consoleAPICall|targetCrashed)
+	listenChromeEvents(cfg, taskCtx, consoleAPICall|targetCrashed)
 
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {
 		panic(err)
 	}
 
-	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
-	time.Sleep(2000 * time.Millisecond)
+	// Give browser time to load
+	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
+	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 
 	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
 
@@ -46,7 +47,7 @@ func GrafanaKioskApikey(cfg *Config, messages chan string) {
 		Launch chrome and look for main-view element
 	*/
 	headers := map[string]interface{}{
-		"Authorization": "Bearer " + cfg.APIKEY.Apikey,
+		"Authorization": "Bearer " + cfg.ApiKey.Apikey,
 	}
 	if err := chromedp.Run(taskCtx,
 		network.Enable(),

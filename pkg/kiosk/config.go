@@ -44,7 +44,7 @@ type IDToken struct {
 	Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, tpyically your oauth client id"`
 }
 
-// ApiKey API Key for login
+// APIKey APIKey for login
 type APIKey struct {
 	APIKey string `yaml:"apikey" env:"KIOSK_APIKEY_APIKEY" env-description:"APIKEY"`
 }

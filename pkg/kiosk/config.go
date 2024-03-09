@@ -51,7 +51,7 @@ type APIKey struct {
 
 // Config configuration for backend.
 type Config struct {
-	BuildInfo BuildInfo `yaml:"general"`
+	BuildInfo BuildInfo `yaml:"buildinfo"`
 	General   General   `yaml:"general"`
 	Target    Target    `yaml:"target"`
 	GoAuth    GoAuth    `yaml:"goauth"`

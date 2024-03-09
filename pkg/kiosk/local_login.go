@@ -30,7 +30,7 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	listenChromeEvents(cfg, taskCtx, targetCrashed)
+	listenChromeEvents(taskCtx, cfg, targetCrashed)
 
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {

@@ -16,7 +16,7 @@ const (
 	targetCrashed
 )
 
-func listenChromeEvents(cfg *Config, taskCtx context.Context, events chromeEvents) {
+func listenChromeEvents(taskCtx context.Context, cfg *Config, events chromeEvents) {
 	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
 		switch ev := ev.(type) {
 		case *runtime.EventConsoleAPICalled:

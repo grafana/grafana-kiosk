@@ -38,7 +38,7 @@ func TestMain(t *testing.T) {
 				UsernameField: "user",
 				PasswordField: "password",
 			},
-			IdToken: kiosk.IdToken{
+			IDToken: kiosk.IDToken{
 				KeyFile:  "/tmp/key.json",
 				Audience: "clientid",
 			},

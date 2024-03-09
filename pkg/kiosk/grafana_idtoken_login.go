@@ -49,8 +49,8 @@ func GrafanaKioskIDToken(cfg *Config, messages chan string) {
 
 	log.Println("Navigating to ", generatedURL)
 
-	log.Printf("Token is using audience %s and reading from %s", cfg.IdToken.Audience, cfg.IdToken.KeyFile)
-	tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IdToken.Audience, idtoken.WithCredentialsFile(cfg.IdToken.KeyFile))
+	log.Printf("Token is using audience %s and reading from %s", cfg.IDToken.Audience, cfg.IDToken.KeyFile)
+	tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IDToken.Audience, idtoken.WithCredentialsFile(cfg.IDToken.KeyFile))
 
 	if err != nil {
 		panic(err)

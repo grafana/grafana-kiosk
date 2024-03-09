@@ -190,8 +190,8 @@ func main() {
 		cfg.GoAuth.UsernameField = args.UsernameField
 		cfg.GoAuth.PasswordField = args.PasswordField
 
-		cfg.IdToken.Audience = args.Audience
-		cfg.IdToken.KeyFile = args.KeyFile
+		cfg.IDToken.Audience = args.Audience
+		cfg.IDToken.KeyFile = args.KeyFile
 
 		cfg.ApiKey.Apikey = args.Apikey
 	}

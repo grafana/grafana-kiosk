@@ -31,7 +31,7 @@ type GoAuth struct {
 	UsernameField string `yaml:"fieldname-username" env:"KIOSK_GOAUTH_FIELD_USER" env-description:"Username html input name value"`
 	PasswordField string `yaml:"fieldname-password" env:"KIOSK_GOAUTH_FIELD_PASSWORD" env-description:"Password html input name value"`
 }
-type IdToken struct {
+type IDToken struct {
 	KeyFile  string `yaml:"idtoken-keyfile" env:"KIOSK_IDTOKEN_KEYFILE" env-default:"key.json" env-description:"JSON Credentials for idtoken"`
 	Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, tpyically your oauth client id"`
 }
@@ -45,6 +45,6 @@ type Config struct {
 	General   General   `yaml:"general"`
 	Target    Target    `yaml:"target"`
 	GoAuth    GoAuth    `yaml:"goauth"`
-	IdToken   IdToken   `yaml:"idtoken"`
+	IDToken   IDToken   `yaml:"idtoken"`
 	ApiKey    ApiKey    `yaml:"apikey"`
 }

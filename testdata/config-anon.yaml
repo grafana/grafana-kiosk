@@ -1,0 +1,20 @@
+---
+general:
+  kiosk-mode: full
+  autofit: true
+  lxde: true
+  lxde-home: /home/pi
+
+target:
+  login-method: anon
+  username: user
+  password: changeme
+  playlist: false
+  use-mfa: false
+  URL: https://play.grafana.org
+  ignore-certificate-errors: false
+
+goauth:
+  auto-login: false
+  fieldname-username: username
+  fieldname-password: password

@@ -31,7 +31,7 @@ type Target struct {
 	UseMFA                  bool   `yaml:"use-mfa" env:"KIOSK_USE_MFA" env-default:"false" env-description:"MFA is enabled for given account"`
 }
 
-// GoAuth
+// GoAuth OAuth
 type GoAuth struct {
 	AutoLogin     bool   `yaml:"auto-login" env:"KIOSK_GOAUTH_AUTO_LOGIN" env-description:"[false|true]"`
 	UsernameField string `yaml:"fieldname-username" env:"KIOSK_GOAUTH_FIELD_USER" env-description:"Username html input name value"`
@@ -44,7 +44,7 @@ type IDToken struct {
 	Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, tpyically your oauth client id"`
 }
 
-// ApiKey
+// ApiKey API Key for login
 type APIKey struct {
 	APIKey string `yaml:"apikey" env:"KIOSK_APIKEY_APIKEY" env-description:"APIKEY"`
 }

@@ -1,8 +1,11 @@
 package kiosk
 
+// BuildInfo contains the build version
 type BuildInfo struct {
 	Version string `yaml:"version,omitempty"`
 }
+
+// General non-site specific configuations
 type General struct {
 	AutoFit         bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
 	DebugEnabled    bool   `yaml:"debug" env:"KIOSK_DEBUG" env-default:"false" env-description:"enables debug output"`
@@ -16,6 +19,8 @@ type General struct {
 	WindowPosition  string `yaml:"window-position" env:"KIOSK_WINDOW_POSITION" env-default:"0,0" env-description:"Top Left Position of Kiosk"`
 	WindowSize      string `yaml:"window-size" env:"KIOSK_WINDOW_SIZE" env-default:"" env-description:"Size of Kiosk in pixels (width,height)"`
 }
+
+// Target the dashboard/playlist details
 type Target struct {
 	IgnoreCertificateErrors bool   `yaml:"ignore-certificate-errors" env:"KIOSK_IGNORE_CERTIFICATE_ERRORS" env-description:"ignore SSL/TLS certificate errors" env-default:"false"`
 	IsPlayList              bool   `yaml:"playlist" env:"KIOSK_IS_PLAYLIST" env-default:"false" env-description:"URL is a playlist"`
@@ -26,15 +31,20 @@ type Target struct {
 	UseMFA                  bool   `yaml:"use-mfa" env:"KIOSK_USE_MFA" env-default:"false" env-description:"MFA is enabled for given account"`
 }
 
+// GoAuth
 type GoAuth struct {
 	AutoLogin     bool   `yaml:"auto-login" env:"KIOSK_GOAUTH_AUTO_LOGIN" env-description:"[false|true]"`
 	UsernameField string `yaml:"fieldname-username" env:"KIOSK_GOAUTH_FIELD_USER" env-description:"Username html input name value"`
 	PasswordField string `yaml:"fieldname-password" env:"KIOSK_GOAUTH_FIELD_PASSWORD" env-description:"Password html input name value"`
 }
+
+// IDToken token based login
 type IDToken struct {
 	KeyFile  string `yaml:"idtoken-keyfile" env:"KIOSK_IDTOKEN_KEYFILE" env-default:"key.json" env-description:"JSON Credentials for idtoken"`
 	Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, tpyically your oauth client id"`
 }
+
+// ApiKey
 type ApiKey struct {
 	Apikey string `yaml:"apikey" env:"KIOSK_APIKEY_APIKEY" env-description:"APIKEY"`
 }

@@ -28,7 +28,7 @@ type Args struct {
 	UseMFA                  bool
 	Audience                string
 	KeyFile                 string
-	Apikey                  string
+	APIKey                  string
 	LXDEHome                string
 	ConfigPath              string
 	Mode                    string
@@ -68,7 +68,7 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.StringVar(&processedArgs.PasswordField, "field-password", "password", "Fieldname for the password")
 	flagSettings.StringVar(&processedArgs.Audience, "audience", "", "idtoken audience")
 	flagSettings.StringVar(&processedArgs.KeyFile, "keyfile", "key.json", "idtoken json credentials")
-	flagSettings.StringVar(&processedArgs.Apikey, "apikey", "", "apikey")
+	flagSettings.StringVar(&processedArgs.APIKey, "apikey", "", "apikey")
 
 	fu := flagSettings.Usage
 	flagSettings.Usage = func() {
@@ -193,7 +193,7 @@ func main() {
 		cfg.IDToken.Audience = args.Audience
 		cfg.IDToken.KeyFile = args.KeyFile
 
-		cfg.ApiKey.Apikey = args.Apikey
+		cfg.APIKey.APIKey = args.APIKey
 	}
 
 	// make sure the url has content
@@ -232,7 +232,7 @@ func main() {
 		kiosk.GrafanaKioskIDToken(&cfg, messages)
 	case "apikey":
 		log.Printf("Launching apikey kiosk")
-		kiosk.GrafanaKioskApikey(&cfg, messages)
+		kiosk.GrafanaKioskAPIKey(&cfg, messages)
 	case "aws":
 		log.Printf("Launcing AWS SSO kiosk")
 		kiosk.GrafanaKioskAWSLogin(&cfg, messages)

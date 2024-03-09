@@ -42,8 +42,8 @@ func TestMain(t *testing.T) {
 				KeyFile:  "/tmp/key.json",
 				Audience: "clientid",
 			},
-			ApiKey: kiosk.ApiKey{
-				Apikey: "abc",
+			APIKey: kiosk.APIKey{
+				APIKey: "abc",
 			},
 		}
 

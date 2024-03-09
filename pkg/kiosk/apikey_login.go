@@ -10,8 +10,8 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// GrafanaKioskApikey creates a chrome-based kiosk using a grafana api key.
-func GrafanaKioskApikey(cfg *Config, messages chan string) {
+// GrafanaKioskAPIKey creates a chrome-based kiosk using a grafana api key.
+func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
 	if err != nil {
 		panic(err)
@@ -47,7 +47,7 @@ func GrafanaKioskApikey(cfg *Config, messages chan string) {
 		Launch chrome and look for main-view element
 	*/
 	headers := map[string]interface{}{
-		"Authorization": "Bearer " + cfg.ApiKey.Apikey,
+		"Authorization": "Bearer " + cfg.APIKey.APIKey,
 	}
 	if err := chromedp.Run(taskCtx,
 		network.Enable(),

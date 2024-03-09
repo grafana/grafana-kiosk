@@ -45,8 +45,8 @@ type IDToken struct {
 }
 
 // ApiKey
-type ApiKey struct {
-	Apikey string `yaml:"apikey" env:"KIOSK_APIKEY_APIKEY" env-description:"APIKEY"`
+type APIKey struct {
+	APIKey string `yaml:"apikey" env:"KIOSK_APIKEY_APIKEY" env-description:"APIKEY"`
 }
 
 // Config configuration for backend.
@@ -56,5 +56,5 @@ type Config struct {
 	Target    Target    `yaml:"target"`
 	GoAuth    GoAuth    `yaml:"goauth"`
 	IDToken   IDToken   `yaml:"idtoken"`
-	ApiKey    ApiKey    `yaml:"apikey"`
+	APIKey    APIKey    `yaml:"apikey"`
 }

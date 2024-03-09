@@ -1,0 +1,14 @@
+---
+general:
+  kiosk-mode: full
+  autofit: true
+  lxde: true
+  lxde-home: /home/pi
+
+target:
+  login-method: aws
+  username: bkgann@gmail.com
+  password: changeme
+  playlist: false
+  URL: https://g-0469dbd3ca.grafana-workspace.us-east-1.amazonaws.com/d/tmsOtSxZk/amazon-ec2?orgId=1
+  ignore-certificate-errors: false

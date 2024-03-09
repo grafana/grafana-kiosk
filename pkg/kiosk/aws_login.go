@@ -29,7 +29,10 @@ func GrafanaKioskAWSLogin(cfg *Config, messages chan string) {
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	listenChromeEvents(taskCtx, targetCrashed)
+	listenChromeEvents(taskCtx, cfg, targetCrashed)
+	// Give browser time to load
+	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
+	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {

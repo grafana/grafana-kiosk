@@ -16,14 +16,14 @@ const (
 	targetCrashed
 )
 
-func listenChromeEvents(taskCtx context.Context, events chromeEvents) {
+func listenChromeEvents(taskCtx context.Context, cfg *Config, events chromeEvents) {
 	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
 		switch ev := ev.(type) {
 		case *runtime.EventConsoleAPICalled:
 			if events&consoleAPICall != 0 {
-				log.Printf("console.%s call:\n", ev.Type)
+				log.Printf("console.%s call:", ev.Type)
 				for _, arg := range ev.Args {
-					log.Printf("	%s - %s\n", arg.Type, arg.Value)
+					log.Printf("	%s - %s", arg.Type, arg.Value)
 				}
 			}
 		case *inspector.EventTargetCrashed:
@@ -32,6 +32,10 @@ func listenChromeEvents(taskCtx context.Context, events chromeEvents) {
 				go func() {
 					_ = chromedp.Run(taskCtx, chromedp.Reload())
 				}()
+			}
+		default:
+			if cfg.General.DebugEnabled {
+				log.Printf("Unknown Event: %+v", ev)
 			}
 		}
 	})

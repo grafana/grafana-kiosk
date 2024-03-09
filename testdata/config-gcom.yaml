@@ -1,0 +1,19 @@
+---
+general:
+  kiosk-mode: full
+  autofit: true
+  lxde: true
+  lxde-home: /home/pi
+
+target:
+  login-method: gcom
+  username: bkgann@yahoo.com
+  password: changeme
+  playlist: false
+  URL: https://bkgann4.grafana.net
+  ignore-certificate-errors: false
+
+goauth:
+  auto-login: false
+  fieldname-username: username
+  fieldname-password: password

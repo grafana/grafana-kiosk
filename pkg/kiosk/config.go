@@ -9,7 +9,7 @@ type BuildInfo struct {
 type General struct {
 	AutoFit         bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
 	DebugEnabled    bool   `yaml:"debug" env:"KIOSK_DEBUG" env-default:"false" env-description:"enables debug output"`
-	GPUEnabled      bool   `yaml:"gpu-enabled" env:"KIOSK_GPU_ENABLED" env-default:"false" env-description:"disable GPU support"`
+	GPUEnabled      bool   `yaml:"gpu-enabled" env:"KIOSK_GPU_ENABLED" env-default:"true" env-description:"Enable/Disable GPU support"`
 	LXDEEnabled     bool   `yaml:"lxde" env:"KIOSK_LXDE_ENABLED" env-default:"false" env-description:"initialize LXDE for kiosk mode"`
 	LXDEHome        string `yaml:"lxde-home" env:"KIOSK_LXDE_HOME" env-default:"/home/pi" env-description:"path to home directory of LXDE user running X Server"`
 	Mode            string `yaml:"kiosk-mode" env:"KIOSK_MODE" env-default:"full" env-description:"[full|tv|disabled]"`

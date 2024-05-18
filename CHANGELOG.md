@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.7
+
+- Adds toggle for GPU (default is true)
+- Update workflow
+- Update go modules
+
 ## 1.0.6
 
 - Includes PR#93 - adds authentication with API Key!

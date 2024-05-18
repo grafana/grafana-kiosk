@@ -29,7 +29,7 @@ func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	listenChromeEvents(taskCtx, targetCrashed)
+	listenChromeEvents(taskCtx, cfg, targetCrashed)
 
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {
@@ -46,9 +46,9 @@ func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 	// XPATH of grafana.com for Generic OAUTH login button = //*[@href="login/grafana_com"]/i
 
 	// Click the OAUTH login button
-	log.Println("Oauth_Auto_Login enabled: ", cfg.GOAUTH.AutoLogin)
+	log.Println("Oauth_Auto_Login enabled: ", cfg.GoAuth.AutoLogin)
 
-	if cfg.GOAUTH.AutoLogin {
+	if cfg.GoAuth.AutoLogin {
 		if err := chromedp.Run(taskCtx,
 			chromedp.Navigate(generatedURL),
 		); err != nil {
@@ -64,13 +64,15 @@ func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 		}
 	}
 
-	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
-	time.Sleep(2000 * time.Millisecond)
+	// Give browser time to load
+	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
+	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+
 	// Fill out OAUTH login page
 	if err := chromedp.Run(taskCtx,
-		chromedp.WaitVisible(`//input[@name="`+cfg.GOAUTH.UsernameField+`"]`, chromedp.BySearch),
-		chromedp.SendKeys(`//input[@name="`+cfg.GOAUTH.UsernameField+`"]`, cfg.Target.Username, chromedp.BySearch),
-		chromedp.SendKeys(`//input[@name="`+cfg.GOAUTH.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+		chromedp.WaitVisible(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, chromedp.BySearch),
+		chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, cfg.Target.Username, chromedp.BySearch),
+		chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
 	); err != nil {
 		panic(err)
 	}

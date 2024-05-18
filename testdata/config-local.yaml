@@ -1,0 +1,15 @@
+---
+general:
+  kiosk-mode: full
+  autofit: true
+  chromium-disable-update: true
+  lxde: true
+  lxde-home: /home/pi
+
+target:
+  login-method: local
+  username: user1
+  password: changeme
+  playlist: false
+  URL: https://monitor.plan3systems.com/grafana/d/BfHbSM0Mk/mining-p1?orgId=1&refresh=1m
+  ignore-certificate-errors: false

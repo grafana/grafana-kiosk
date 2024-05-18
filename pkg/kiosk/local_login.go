@@ -30,7 +30,7 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	listenChromeEvents(taskCtx, targetCrashed)
+	listenChromeEvents(taskCtx, cfg, targetCrashed)
 
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {
@@ -46,10 +46,11 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 		name=user, type=text
 		id=inputPassword, type=password, name=password
 	*/
-	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
-	time.Sleep(2000 * time.Millisecond)
+	// Give browser time to load
+	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
+	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 
-	if cfg.GOAUTH.AutoLogin {
+	if cfg.GoAuth.AutoLogin {
 		// if AutoLogin is set, get the base URL and append the local login bypass before navigating to the full url
 		startIndex := strings.Index(cfg.Target.URL, "://") + 3
 		endIndex := strings.Index(cfg.Target.URL[startIndex:], "/") + startIndex

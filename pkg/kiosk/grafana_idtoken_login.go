@@ -2,6 +2,7 @@ package kiosk
 
 import (
 	"context"
+	"time"
 
 	"fmt"
 	"log"
@@ -33,19 +34,23 @@ func GrafanaKioskIDToken(cfg *Config, messages chan string) {
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	listenChromeEvents(taskCtx, targetCrashed)
+	listenChromeEvents(taskCtx, cfg, targetCrashed)
 
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {
 		panic(err)
 	}
 
+	// Give browser time to load
+	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
+	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+
 	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
 
 	log.Println("Navigating to ", generatedURL)
 
-	log.Printf("Token is using audience %s and reading from %s\n", cfg.IDTOKEN.Audience, cfg.IDTOKEN.KeyFile)
-	tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IDTOKEN.Audience, idtoken.WithCredentialsFile(cfg.IDTOKEN.KeyFile))
+	log.Printf("Token is using audience %s and reading from %s", cfg.IDToken.Audience, cfg.IDToken.KeyFile)
+	tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IDToken.Audience, idtoken.WithCredentialsFile(cfg.IDToken.KeyFile))
 
 	if err != nil {
 		panic(err)

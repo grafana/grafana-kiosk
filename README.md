@@ -9,7 +9,7 @@ A very useful feature of Grafana is the ability to display dashboards and playli
 
 This provides a utility to quickly standup a kiosk on devices like a Raspberry Pi or NUC.
 
-The utitilty provides these options:
+The utility provides these options:
 
 - Login
   - to a Grafana server (local account or bypass OAuth)

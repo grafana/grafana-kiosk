@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.7
+
+- Fix for GCOM login Issue [#132](https://github.com/grafana/grafana-kiosk/issues/132)
+- Update go modules
+
 ## 1.0.6
 
 - Includes PR#93 - adds authentication with API Key!

@@ -33,8 +33,13 @@ func listenChromeEvents(taskCtx context.Context, cfg *Config, events chromeEvent
 					_ = chromedp.Run(taskCtx, chromedp.Reload())
 				}()
 			}
+		//case *network.CorsError:
+		//	if cfg.ChromeDPFlags.DebugEnabled {
+		//		log.Printf("Cors Error: %+v", ev)
+		//		//log.Printf("CORS Event: %+v", string(ev))
+		//	}
 		default:
-			if cfg.General.DebugEnabled {
+			if cfg.ChromeDPFlags.DebugEnabled {
 				log.Printf("Unknown Event: %+v", ev)
 			}
 		}

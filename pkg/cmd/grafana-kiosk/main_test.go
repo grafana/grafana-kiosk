@@ -18,10 +18,14 @@ func TestMain(t *testing.T) {
 				Version: "1.0.0",
 			},
 			General: kiosk.General{
-				AutoFit:        true,
-				LXDEEnabled:    true,
-				LXDEHome:       "/home/pi",
-				Mode:           "full",
+				LXDEEnabled: true,
+				LXDEHome:    "/home/pi",
+			},
+			GrafanaOptions: kiosk.GrafanaOptions{
+				AutoFit:   true,
+				KioskMode: "full",
+			},
+			ChromeDPFlags: kiosk.ChromeDPFlags{
 				WindowPosition: "0,0",
 				WindowSize:     "1920,1080",
 				ScaleFactor:    "1.0",
@@ -44,7 +48,7 @@ func TestMain(t *testing.T) {
 				KeyFile:  "/tmp/key.json",
 				Audience: "clientid",
 			},
-			APIKey: kiosk.APIKey{
+			Bearer: kiosk.Bearer{
 				APIKey: "abc",
 			},
 		}
@@ -74,7 +78,7 @@ func TestMain(t *testing.T) {
 				if err := cleanenv.ReadEnv(&cfg); err != nil {
 					log.Println("Error reading config from environment", err)
 				}
-				So(cfg.General.AutoFit, ShouldBeFalse)
+				So(cfg.GrafanaOptions.AutoFit, ShouldBeFalse)
 			})
 		})
 		// end of general options

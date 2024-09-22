@@ -1,8 +1,9 @@
 general:
   kiosk-mode: full
   autofit: true
-  lxde: true
+  lxde: false
   lxde-home: /home/pi
+  window-position: 1920,1000
 
 target:
   login-method: anon

@@ -15,6 +15,8 @@ The utility provides these options:
   - to a Grafana server (local account or bypass OAuth)
   - to a Grafana server with anonymous-mode enabled (same method used on [play.grafana.org](https://play.grafana.org))
   - to a Grafana Cloud instance
+  - to a Grafana Cloud instance with Legacy API Token
+  - to a Grafana Cloud instance with Service Account Token
   - to a Grafana server with OAuth enabled
   - to an AWS Managed Grafana instance (both with and without MFA)
 - Switch to kiosk or kiosk-tv mode
@@ -24,6 +26,10 @@ The utility provides these options:
 - Can specify where to start kiosk for multiple displays
 
 Additionally, an initialize option is provided to configure LXDE for Raspberry Pi Desktop.
+
+## BREAKING CHANGES from 1.0 to 1.1
+
+NOTICE: Release 1.1.0 contains breaking changes. Parameters and YAML configurations have significantly changed.
 
 ## Installing on Linux
 
@@ -54,7 +60,7 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 This application can run on most operating systems, but for linux some additional
 binaries are suggested for full support.
 
-Suggesting Packages:
+Suggested Packages:
 
 `unclutter` (for hiding mouse/cursor)
 `rng-tools` (for entropy issues)

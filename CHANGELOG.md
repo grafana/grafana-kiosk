@@ -46,7 +46,7 @@ geolocation toggle
 
 
 - Update workflow
-- Update go modules
+- Fix for GCOM login Issue [#132](https://github.com/grafana/grafana-kiosk/issues/132)
 
 ## 1.0.6
 

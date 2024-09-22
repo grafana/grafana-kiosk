@@ -59,26 +59,23 @@ func GrafanaKioskGCOM(cfg *Config, messages chan string) {
 		chromedp.Navigate(generatedURL),
 		chromedp.ActionFunc(func(context.Context) error {
 			log.Println("waiting for login dialog")
-
 			return nil
 		}),
 		chromedp.WaitVisible(`//a[contains(@href,'login/grafana_com')]`, chromedp.BySearch),
 		chromedp.ActionFunc(func(context.Context) error {
 			log.Println("gcom login dialog detected")
-
 			return nil
 		}),
-		chromedp.Click(`//a[contains(@href,'login/grafana_com')]/..`, chromedp.BySearch),
+		chromedp.Click(`//a[contains(@href,'login/grafana_com')]`, chromedp.BySearch),
 		chromedp.ActionFunc(func(context.Context) error {
 			log.Println("gcom button clicked")
-
 			return nil
 		}),
 	); err != nil {
 		panic(err)
 	}
 	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
-	time.Sleep(2000 * time.Millisecond)
+	time.Sleep(3000 * time.Millisecond)
 	// Fill out grafana_com login page
 	if err := chromedp.Run(taskCtx,
 		chromedp.WaitVisible(`//input[@name="login"]`, chromedp.BySearch),

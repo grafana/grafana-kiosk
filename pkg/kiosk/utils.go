@@ -70,6 +70,7 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 		chromedp.Flag("disable-notifications", true),
 		//chromedp.Flag("disable-web-security", true), // polystat did load...
 		chromedp.Flag("disable-overlay-scrollbar", true),
+		chromedp.Flag("disable-search-engine-choice-screen", true),
 		chromedp.Flag("disable-sync", true),
 		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
 		chromedp.Flag("kiosk", cfg.ChromeDPFlags.Kiosk),

@@ -5,19 +5,20 @@ type BuildInfo struct {
 	Version string `yaml:"version,omitempty"`
 }
 
-// General non-site specific configuations
+// General non-site specific configurations
 type General struct {
 	LXDEEnabled     bool   `yaml:"lxde" env:"KIOSK_GENERAL_LXDE_ENABLED" env-default:"false" env-description:"initialize LXDE for kiosk mode"`
 	LXDEHome        string `yaml:"lxde-home" env:"KIOSK_GENERAL_LXDE_HOME" env-default:"/home/pi" env-description:"path to home directory of LXDE user running X Server"`
 	PageLoadDelayMS int64  `yaml:"page-load-delay-ms" env:"KIOSK_GENERAL_PAGE_LOAD_DELAY_MS" env-default:"2000" env-description:"milliseconds to wait before expecting page load"`
 }
 
+// GrafanaOptions grafana specific flags
 type GrafanaOptions struct {
 	AutoFit   bool   `yaml:"autofit" env:"KIOSK_GRAFANA_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
 	KioskMode string `yaml:"kiosk-mode" env:"KIOSK_GRAFANA_MODE" env-default:"full" env-description:"[full|tv|disabled]"`
 }
 
-// ChromeDP flags specific to chrome
+// ChromeDPFlags flags specific to chrome
 type ChromeDPFlags struct {
 	DebugEnabled     bool   `yaml:"debug" env:"KIOSK_CHROMEDP_DEBUG" env-default:"false" env-description:"enables debug output"`
 	GPUEnabled       bool   `yaml:"gpu-enabled" env:"KIOSK_CHROMEDP_GPU_ENABLED" env-default:"true" env-description:"Enable/Disable GPU support"`

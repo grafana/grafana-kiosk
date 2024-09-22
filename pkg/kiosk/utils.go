@@ -68,38 +68,50 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 		chromedp.Flag("check-for-update-interval", "31536000"),
 		chromedp.Flag("disable-features", "Translate"),
 		chromedp.Flag("disable-notifications", true),
+		//chromedp.Flag("disable-web-security", true), // polystat did load...
 		chromedp.Flag("disable-overlay-scrollbar", true),
 		chromedp.Flag("disable-sync", true),
 		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
-		chromedp.Flag("incognito", true),
-		chromedp.Flag("kiosk", true),
+		chromedp.Flag("kiosk", cfg.ChromeDPFlags.Kiosk),
 		chromedp.Flag("noerrdialogs", true),
-		chromedp.Flag("start-fullscreen", true),
-		chromedp.Flag("start-maximized", true),
+		chromedp.Flag("start-fullscreen", cfg.ChromeDPFlags.StartFullscreen),
+		chromedp.Flag("start-maximized", cfg.ChromeDPFlags.StartMaximized),
 		chromedp.Flag("user-agent", userAgent),
-		chromedp.Flag("window-position", cfg.General.WindowPosition),
+		chromedp.Flag("window-position", cfg.ChromeDPFlags.WindowPosition),
 		chromedp.UserDataDir(dir),
 	}
 
-	if !cfg.General.GPUEnabled {
+	if cfg.ChromeDPFlags.StartFullscreen {
 		execAllocatorOption = append(
 			execAllocatorOption,
-			chromedp.Flag("disable-gpu", cfg.General.GPUEnabled))
+			chromedp.Flag("incognito", true))
 	}
-	if cfg.General.OzonePlatform != "" {
+
+	if cfg.ChromeDPFlags.IncognitoEnabled {
 		execAllocatorOption = append(
 			execAllocatorOption,
-			chromedp.Flag("ozone-platform", cfg.General.OzonePlatform))
+			chromedp.Flag("incognito", true))
 	}
-	if cfg.General.WindowSize != "" {
+
+	if !cfg.ChromeDPFlags.GPUEnabled {
 		execAllocatorOption = append(
 			execAllocatorOption,
-			chromedp.Flag("window-size", cfg.General.WindowSize))
+			chromedp.Flag("disable-gpu", true))
 	}
-	if cfg.General.ScaleFactor != "" {
+	if cfg.ChromeDPFlags.OzonePlatform != "" {
 		execAllocatorOption = append(
 			execAllocatorOption,
-			chromedp.Flag("force-device-scale-factor", cfg.General.ScaleFactor))
+			chromedp.Flag("ozone-platform", cfg.ChromeDPFlags.OzonePlatform))
+	}
+	if cfg.ChromeDPFlags.WindowSize != "" {
+		execAllocatorOption = append(
+			execAllocatorOption,
+			chromedp.Flag("window-size", cfg.ChromeDPFlags.WindowSize))
+	}
+	if cfg.ChromeDPFlags.ScaleFactor != "" {
+		execAllocatorOption = append(
+			execAllocatorOption,
+			chromedp.Flag("force-device-scale-factor", cfg.ChromeDPFlags.ScaleFactor))
 	}
 
 	return execAllocatorOption

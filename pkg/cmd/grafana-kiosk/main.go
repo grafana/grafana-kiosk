@@ -185,6 +185,7 @@ func main() {
 		cfg.General.Mode = args.Mode
 		cfg.General.WindowPosition = args.WindowPosition
 		cfg.General.WindowSize = args.WindowSize
+		cfg.General.ScaleFactor = args.ScaleFactor
 		//
 		cfg.GoAuth.AutoLogin = args.OauthAutoLogin
 		cfg.GoAuth.UsernameField = args.UsernameField

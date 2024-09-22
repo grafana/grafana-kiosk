@@ -1,8 +1,50 @@
 # Change Log
 
-## 1.0.7
+## 1.1.0
 
-- Adds toggle for GPU (default is true)
+NOTICE: BREAKING CHANGES!
+
+The configuration parameters and YAML configurations have significantly changed.
+
+- NEW configuration options:
+  - toggle for GPU (default: true)
+
+```YAML
+    ---
+general:
+  gpu-enabled: false
+```
+
+  - debug output to assist with setting up kiosk for first time (default: false)
+
+```YAML
+---
+general:
+  debug: true
+```
+
+  - start-maximized (default: true)
+  - start-fullscreen (default: true)
+
+
+    chromedp.Flag("start-fullscreen", true),
+		chromedp.Flag("start-maximized", true),
+
+
+  - PageLoadDelayMS, delay can be set to extend timeout to websocket (default: 2000)
+      (verified working)
+- Fixes:
+  - `--kiosk` toggle to fix for latest chrome/bookworm (default: true)
+
+		chromedp.Flag("kiosk", true),
+
+incognito toggle
+
+geolocation toggle
+
+  autofit now working from config
+
+
 - Update workflow
 - Update go modules
 

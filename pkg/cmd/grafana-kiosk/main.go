@@ -118,13 +118,13 @@ func setEnvironment() {
 
 func summary(cfg *kiosk.Config) {
 	// general
-	log.Println("AutoFit:", cfg.General.AutoFit)
+	log.Println("AutoFit:", cfg.GrafanaOptions.AutoFit)
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
 	log.Println("LXDEHome:", cfg.General.LXDEHome)
-	log.Println("Mode:", cfg.General.Mode)
-	log.Println("WindowPosition:", cfg.General.WindowPosition)
-	log.Println("WindowSize:", cfg.General.WindowSize)
-	log.Println("ScaleFactor:", cfg.General.ScaleFactor)
+	log.Println("GrafanaOptions - Kiosk Mode:", cfg.GrafanaOptions.KioskMode)
+	log.Println("WindowPosition:", cfg.ChromeDPFlags.WindowPosition)
+	log.Println("WindowSize:", cfg.ChromeDPFlags.WindowSize)
+	log.Println("ScaleFactor:", cfg.ChromeDPFlags.ScaleFactor)
 	// target
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
@@ -179,12 +179,14 @@ func main() {
 		cfg.Target.IsPlayList = args.IsPlayList
 		cfg.Target.UseMFA = args.UseMFA
 		//
-		cfg.General.AutoFit = args.AutoFit
+		cfg.GrafanaOptions.AutoFit = args.AutoFit
+		cfg.GrafanaOptions.KioskMode = args.Mode
+		//
 		cfg.General.LXDEEnabled = args.LXDEEnabled
 		cfg.General.LXDEHome = args.LXDEHome
-		cfg.General.Mode = args.Mode
-		cfg.General.WindowPosition = args.WindowPosition
-		cfg.General.WindowSize = args.WindowSize
+		//
+		cfg.ChromeDPFlags.WindowPosition = args.WindowPosition
+		cfg.ChromeDPFlags.WindowSize = args.WindowSize
 		//
 		cfg.GoAuth.AutoLogin = args.OauthAutoLogin
 		cfg.GoAuth.UsernameField = args.UsernameField
@@ -193,7 +195,7 @@ func main() {
 		cfg.IDToken.Audience = args.Audience
 		cfg.IDToken.KeyFile = args.KeyFile
 
-		cfg.APIKey.APIKey = args.APIKey
+		cfg.Bearer.APIKey = args.APIKey
 	}
 
 	// make sure the url has content

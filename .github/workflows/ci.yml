@@ -50,7 +50,7 @@ jobs:
           args: -v build:ci
 
       - name: Upload Code Climate Report
-        uses: paambaati/codeclimate-action@v6.0.0
+        uses: paambaati/codeclimate-action@v9.0.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
         with:

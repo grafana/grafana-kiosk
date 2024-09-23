@@ -46,6 +46,7 @@ The release file includes pre-built binaries. See table below for the types avai
 | linux   | arm          | ARM v6       | grafana-kiosk.linux.armv6       |
 | linux   | arm          | ARM v7       | grafana-kiosk.linux.armv7       |
 | darwin  | amd64        | 64bit        | grafana-kiosk.darwin.amd64      |
+| darwin  | arm64        | 64bit        | grafana-kiosk.darwin.arm64      |
 | windows | amd64        | 64bit        | grafana-kiosk.windows.amd64.exe |
 
 Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana-kiosk:

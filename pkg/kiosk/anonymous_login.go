@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 )
 
@@ -45,7 +46,15 @@ func GrafanaKioskAnonymous(cfg *Config, messages chan string) {
 	/*
 		Launch chrome and look for main-view element
 	*/
+	headers := make(map[string]interface{})
+	if len(cfg.BasicAuth.Username) != 0 && len(cfg.BasicAuth.Password) != 0 {
+		headers["Authorization"] = GenerateHTTPBasicAuthHeader(cfg.BasicAuth.Username, cfg.BasicAuth.Password)
+	}
 	if err := chromedp.Run(taskCtx,
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
 	); err != nil {
@@ -55,6 +64,10 @@ func GrafanaKioskAnonymous(cfg *Config, messages chan string) {
 	for {
 		messageFromChrome := <-messages
 		if err := chromedp.Run(taskCtx,
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)

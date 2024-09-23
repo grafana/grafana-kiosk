@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
 )
@@ -50,6 +51,11 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
 	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 
+	headers := make(map[string]interface{})
+	if len(cfg.BasicAuth.Username) != 0 && len(cfg.BasicAuth.Password) != 0 {
+		headers["Authorization"] = GenerateHTTPBasicAuthHeader(cfg.BasicAuth.Username, cfg.BasicAuth.Password)
+	}
+
 	if cfg.GoAuth.AutoLogin {
 		// if AutoLogin is set, get the base URL and append the local login bypass before navigating to the full url
 		startIndex := strings.Index(cfg.Target.URL, "://") + 3
@@ -60,6 +66,10 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 		log.Println("Bypassing Azure AD autoLogin at ", bypassURL)
 
 		if err := chromedp.Run(taskCtx,
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(bypassURL),
 			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
@@ -71,6 +81,10 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 		}
 	} else {
 		if err := chromedp.Run(taskCtx,
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
@@ -84,6 +98,10 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 	for {
 		messageFromChrome := <-messages
 		if err := chromedp.Run(taskCtx,
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)

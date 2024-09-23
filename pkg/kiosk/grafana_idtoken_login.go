@@ -10,6 +10,7 @@ import (
 
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/fetch"
+	"github.com/chromedp/cdproto/network"
 
 	"github.com/chromedp/chromedp"
 
@@ -56,6 +57,11 @@ func GrafanaKioskIDToken(cfg *Config, messages chan string) {
 		panic(err)
 	}
 
+	headers := make(map[string]interface{})
+	if len(cfg.BasicAuth.Username) != 0 && len(cfg.BasicAuth.Password) != 0 {
+		headers["Authorization"] = GenerateHTTPBasicAuthHeader(cfg.BasicAuth.Username, cfg.BasicAuth.Password)
+	}
+
 	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
 		//nolint:gocritic // future events can be handled here
 		switch ev := ev.(type) {
@@ -78,7 +84,12 @@ func GrafanaKioskIDToken(cfg *Config, messages chan string) {
 		}
 	})
 
-	if err := chromedp.Run(taskCtx, enableFetch(generatedURL)); err != nil {
+	if err := chromedp.Run(taskCtx,
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
+		enableFetch(generatedURL)); err != nil {
 		panic(err)
 	}
 
@@ -86,6 +97,10 @@ func GrafanaKioskIDToken(cfg *Config, messages chan string) {
 	for {
 		messageFromChrome := <-messages
 		if err := chromedp.Run(taskCtx,
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)

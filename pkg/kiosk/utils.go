@@ -1,6 +1,7 @@
 package kiosk
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/url"
@@ -104,4 +105,10 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	}
 
 	return execAllocatorOption
+}
+
+func GenerateHTTPBasicAuthHeader(username string, password string) string {
+	auth := username + ":" + password
+	encodedAuth := base64.StdEncoding.EncodeToString([]byte(auth))
+	return "Basic " + encodedAuth
 }

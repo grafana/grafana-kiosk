@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
 )
@@ -50,8 +51,17 @@ func GrafanaKioskGCOM(cfg *Config, messages chan string) {
 
 	// chromedp.WaitVisible(`//*[@href="login/grafana_com"]/i`, chromedp.BySearch),
 
+	headers := make(map[string]interface{})
+	if len(cfg.BasicAuth.Username) != 0 && len(cfg.BasicAuth.Password) != 0 {
+		headers["Authorization"] = GenerateHTTPBasicAuthHeader(cfg.BasicAuth.Username, cfg.BasicAuth.Password)
+	}
+
 	// Click the grafana_com login button
 	if err := chromedp.Run(taskCtx,
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.Navigate(generatedURL),
 		chromedp.ActionFunc(func(context.Context) error {
 			log.Println("waiting for login dialog")
@@ -74,6 +84,10 @@ func GrafanaKioskGCOM(cfg *Config, messages chan string) {
 	time.Sleep(3000 * time.Millisecond)
 	// Fill out grafana_com login page
 	if err := chromedp.Run(taskCtx,
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.WaitVisible(`//input[@name="login"]`, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="login"]`, cfg.Target.Username, chromedp.BySearch),
 		chromedp.Click(`#submit`, chromedp.ByID),
@@ -85,6 +99,10 @@ func GrafanaKioskGCOM(cfg *Config, messages chan string) {
 	for {
 		messageFromChrome := <-messages
 		if err := chromedp.Run(taskCtx,
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)

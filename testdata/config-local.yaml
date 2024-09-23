@@ -1,10 +1,14 @@
 ---
 general:
-  kiosk-mode: full
-  autofit: true
-  chromium-disable-update: true
   lxde: true
   lxde-home: /home/pi
+
+grafana-options:
+  kiosk-mode: full
+  autofit: true
+
+chromedp-options:
+  chromium-disable-update: true
 
 target:
   login-method: local

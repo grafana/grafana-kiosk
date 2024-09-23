@@ -1,5 +1,49 @@
 # Change Log
 
+## 1.1.0
+
+NOTICE: BREAKING CHANGES!
+
+The configuration parameters and YAML configurations have significantly changed.
+
+- NEW configuration options:
+  - toggle for GPU (default: true)
+
+```YAML
+    ---
+general:
+  gpu-enabled: false
+```
+
+- debug output to assist with setting up kiosk for first time (default: false)
+
+```YAML
+---
+general:
+  debug: true
+```
+
+- start-maximized (default: true)
+- start-fullscreen (default: true)
+
+    chromedp.Flag("start-fullscreen", true),
+    chromedp.Flag("start-maximized", true),
+
+- PageLoadDelayMS, delay can be set to extend timeout to websocket (default: 2000)(verified working)
+- Fixes:
+  - `--kiosk` toggle to fix for latest chrome/bookworm (default: true)
+
+    chromedp.Flag("kiosk", true),
+
+incognito toggle
+
+geolocation toggle
+
+  autofit now working from config
+
+- Update workflow
+- Fix for GCOM login Issue [#132](https://github.com/grafana/grafana-kiosk/issues/132)
+
 ## 1.0.8
 
 - Fix for issue [#137](https://github.com/grafana/grafana-kiosk/issues/137) How to get rid of "Choose your search engine" window

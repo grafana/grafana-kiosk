@@ -37,7 +37,11 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 		panic(err)
 	}
 
-	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+	var generatedURL = GenerateURL(
+		cfg.Target.URL,
+		cfg.GrafanaOptions.KioskMode,
+		cfg.GrafanaOptions.AutoFit,
+		cfg.Target.IsPlayList)
 
 	log.Println("Navigating to ", generatedURL)
 	/*

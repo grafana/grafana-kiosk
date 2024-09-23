@@ -1,0 +1,15 @@
+---
+general:
+  kiosk-mode: full
+  autofit: true
+  lxde: true
+  lxde-home: /home/pi
+  window-size: 1920,1080
+
+target:
+  login-method: local
+  username: user1
+  password: changeme
+  playlist: false
+  URL: https://notplay.grafana.com
+  ignore-certificate-errors: false

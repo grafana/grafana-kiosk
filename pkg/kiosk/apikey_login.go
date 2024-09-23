@@ -40,18 +40,28 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
 	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 
-	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+	var generatedURL = GenerateURL(cfg.Target.URL,
+		cfg.GrafanaOptions.KioskMode,
+		cfg.GrafanaOptions.AutoFit,
+		cfg.Target.IsPlayList)
 
-	log.Println("Navigating to ", generatedURL)
 	/*
 		Launch chrome and look for main-view element
 	*/
-	headers := map[string]interface{}{
-		"Authorization": "Bearer " + cfg.APIKey.APIKey,
+	useKey := cfg.Bearer.APIKey
+	if useKey == "" {
+		useKey = cfg.Bearer.ServiceAccountToken
+		log.Println("Using Service Account Token")
+	} else {
+		log.Println("Using legacy API Key")
 	}
+	headers := map[string]interface{}{
+		"Access-Control-Allow-Origin": "*.grafana.net *.grafana.com *.grafana-ops.net",
+		"Authorization":               "Bearer " + useKey,
+	}
+	log.Println("Navigating to ", generatedURL)
+
 	if err := chromedp.Run(taskCtx,
-		network.Enable(),
-		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		network.Enable(),
 		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.Navigate(generatedURL),

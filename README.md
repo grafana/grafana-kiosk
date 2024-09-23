@@ -15,6 +15,8 @@ The utility provides these options:
   - to a Grafana server (local account or bypass OAuth)
   - to a Grafana server with anonymous-mode enabled (same method used on [play.grafana.org](https://play.grafana.org))
   - to a Grafana Cloud instance
+  - to a Grafana Cloud instance with Legacy API Token
+  - to a Grafana Cloud instance with Service Account Token
   - to a Grafana server with OAuth enabled
   - to an AWS Managed Grafana instance (both with and without MFA)
 - Switch to kiosk or kiosk-tv mode
@@ -24,6 +26,10 @@ The utility provides these options:
 - Can specify where to start kiosk for multiple displays
 
 Additionally, an initialize option is provided to configure LXDE for Raspberry Pi Desktop.
+
+## BREAKING CHANGES from 1.0 to 1.1
+
+NOTICE: Release 1.1.0 contains breaking changes. Parameters and YAML configurations have significantly changed.
 
 ## Installing on Linux
 
@@ -40,6 +46,7 @@ The release file includes pre-built binaries. See table below for the types avai
 | linux   | arm          | ARM v6       | grafana-kiosk.linux.armv6       |
 | linux   | arm          | ARM v7       | grafana-kiosk.linux.armv7       |
 | darwin  | amd64        | 64bit        | grafana-kiosk.darwin.amd64      |
+| darwin  | arm64        | 64bit        | grafana-kiosk.darwin.arm64      |
 | windows | amd64        | 64bit        | grafana-kiosk.windows.amd64.exe |
 
 Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana-kiosk:
@@ -54,7 +61,7 @@ Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana
 This application can run on most operating systems, but for linux some additional
 binaries are suggested for full support.
 
-Suggesting Packages:
+Suggested Packages:
 
 `unclutter` (for hiding mouse/cursor)
 `rng-tools` (for entropy issues)
@@ -74,7 +81,7 @@ NOTE: Flags with parameters should use an "equals"
       idtoken audience
   -auto-login
       oauth_auto_login is enabled in grafana config
-			(set this flag along with the "local" login-method to bypass OAuth via the /login/local url and use a local grafana user/pass before continuing to the target URL)
+        (set this flag along with the "local" login-method to bypass OAuth via the /login/local url and use a local grafana user/pass before continuing to the target URL)
   -autofit
       Fit panels to screen (default true)
   -c string
@@ -180,7 +187,7 @@ They can also be used instead of a configuration file.
   KIOSK_IDTOKEN_KEYFILE string
       JSON Credentials for idtoken (default "key.json")
   KIOSK_IDTOKEN_AUDIENCE string
-      Audience for idtoken, tpyically your oauth client id
+      Audience for idtoken, typically your oauth client id
   KIOSK_APIKEY_APIKEY string
       APIKEY Generated in Grafana Server
 ```
@@ -219,7 +226,7 @@ If you are using a self-signed certificate, you can remove the certificate error
 ./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -kiosk-mode=tv -ignore-certificate-errors
 ```
 
-This will login to a grafana server, configured for AzureAD OAuth and has Oauth_auto_login is enabled, bypassing OAuth and using a manually setup local username and password.
+This will login to a grafana server, configured for AzureAD OAuth and has OAuth_auto_login is enabled, bypassing OAuth and using a manually setup local username and password.
 
 ```bash
 ./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -auto-login=true -kiosk-mode=tv
@@ -247,21 +254,27 @@ This will take the browser to the default dashboard on play.grafana.org in fulls
 ./bin/grafana-kiosk -URL=https://play.grafana.org -login-method apikey --apikey "xxxxxxxxxxxxxxx" -kiosk-mode=tv
 ```
 
-### Grafana Server with Generic Oauth
+Note: You can use a legacy API key, or the new Service Account method that has a token issued to it:
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used.
+See: [Create A Service Account]<https://grafana.com/docs/grafana/latest/administration/service-accounts/#create-a-service-account-in-grafana> and [Service Account Tokens]<https://grafana.com/docs/grafana/latest/administration/service-accounts/#service-account-tokens>
+
+For Legacy Keys see: [API Keys]<https://grafana.com/docs/grafana/latest/administration/api-keys/#api-keys>
+
+### Grafana Server with Generic OAuth
+
+This will login to a Generic OAuth service, configured on Grafana. `oauth_auto_login` is disabled. An OAuth provider called `Keycloak` is used.
 
 ```bash
 go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1  -login-method=goauth -username=test -password=test
 ```
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used and also the login and password html input name is set.
+This will login to a Generic OAuth service, configured on Grafana. `oauth_auto_login` is disabled. An OAuth provider called `Keycloak` is used and the login and password html input name is set.
 
 ```bash
 go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1 -login-method=goauth -username=test -password=test -field-username=username -field-password=password
 ```
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is enabled. As Oauth provider is Keycloak used and also the login and password html input name is set.
+This will login to a Generic OAuth service, configured on Grafana. `oauth_auto_login` is enabled. An OAuth provider called `Keycloak` is used and the login and password html input name is set.
 
 ```bash
 go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1 -login-method=goauth -username=test -password=test -field-username=username -field-password=password -auto-login=true

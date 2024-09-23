@@ -38,6 +38,7 @@ type Args struct {
 	Password                string
 	UsernameField           string
 	PasswordField           string
+	PageLoadDelayMS         int64
 	WindowPosition          string
 	WindowSize              string
 	ScaleFactor             string
@@ -62,6 +63,7 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.BoolVar(&processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
 	flagSettings.BoolVar(&processedArgs.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
 	flagSettings.StringVar(&processedArgs.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
+	flagSettings.Int64Var(&processedArgs.PageLoadDelayMS, "pageload-delay-ms", 2000, "Milliseconds to wait for page to load")
 	flagSettings.BoolVar(&processedArgs.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
 	flagSettings.BoolVar(&processedArgs.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
 	flagSettings.StringVar(&processedArgs.UsernameField, "field-username", "username", "Fieldname for the username")
@@ -118,13 +120,14 @@ func setEnvironment() {
 
 func summary(cfg *kiosk.Config) {
 	// general
-	log.Println("AutoFit:", cfg.General.AutoFit)
+	log.Println("AutoFit:", cfg.GrafanaOptions.AutoFit)
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
 	log.Println("LXDEHome:", cfg.General.LXDEHome)
-	log.Println("Mode:", cfg.General.Mode)
-	log.Println("WindowPosition:", cfg.General.WindowPosition)
-	log.Println("WindowSize:", cfg.General.WindowSize)
-	log.Println("ScaleFactor:", cfg.General.ScaleFactor)
+	log.Println("PageLoadDelayMS:", cfg.General.PageLoadDelayMS)
+	log.Println("GrafanaOptions - Kiosk Mode:", cfg.GrafanaOptions.KioskMode)
+	log.Println("WindowPosition:", cfg.ChromeDPFlags.WindowPosition)
+	log.Println("WindowSize:", cfg.ChromeDPFlags.WindowSize)
+	log.Println("ScaleFactor:", cfg.ChromeDPFlags.ScaleFactor)
 	// target
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
@@ -171,6 +174,9 @@ func main() {
 		if err := cleanenv.ReadEnv(&cfg); err != nil {
 			log.Println("Error reading config from environment", err)
 		}
+		//
+		cfg.Bearer.APIKey = args.APIKey
+		//
 		cfg.Target.URL = args.URL
 		cfg.Target.LoginMethod = args.LoginMethod
 		cfg.Target.Username = args.Username
@@ -179,22 +185,32 @@ func main() {
 		cfg.Target.IsPlayList = args.IsPlayList
 		cfg.Target.UseMFA = args.UseMFA
 		//
-		cfg.General.AutoFit = args.AutoFit
+		cfg.ChromeDPFlags.WindowPosition = args.WindowPosition
+		cfg.ChromeDPFlags.WindowSize = args.WindowSize
+		cfg.ChromeDPFlags.ScaleFactor = args.ScaleFactor
+		//
 		cfg.General.LXDEEnabled = args.LXDEEnabled
 		cfg.General.LXDEHome = args.LXDEHome
-		cfg.General.Mode = args.Mode
-		cfg.General.WindowPosition = args.WindowPosition
-		cfg.General.WindowSize = args.WindowSize
-		cfg.General.ScaleFactor = args.ScaleFactor
+		cfg.General.PageLoadDelayMS = args.PageLoadDelayMS
 		//
 		cfg.GoAuth.AutoLogin = args.OauthAutoLogin
 		cfg.GoAuth.UsernameField = args.UsernameField
 		cfg.GoAuth.PasswordField = args.PasswordField
-
+		//
+		cfg.GrafanaOptions.AutoFit = args.AutoFit
+		cfg.GrafanaOptions.KioskMode = args.Mode
+		//
 		cfg.IDToken.Audience = args.Audience
 		cfg.IDToken.KeyFile = args.KeyFile
+		//
+		cfg.Target.URL = args.URL
+		cfg.Target.LoginMethod = args.LoginMethod
+		cfg.Target.Username = args.Username
+		cfg.Target.Password = args.Password
+		cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors
+		cfg.Target.IsPlayList = args.IsPlayList
+		cfg.Target.UseMFA = args.UseMFA
 
-		cfg.APIKey.APIKey = args.APIKey
 	}
 
 	// make sure the url has content

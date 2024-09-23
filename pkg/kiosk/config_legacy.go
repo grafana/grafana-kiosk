@@ -10,7 +10,7 @@ type ConfigLegacy struct {
 	APIKey    LegacyAPIKey  `yaml:"apikey"`
 }
 
-// LegacyGeneral non-site specific configuations
+// LegacyGeneral non-site specific configurations
 type LegacyGeneral struct {
 	AutoFit         bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
 	DebugEnabled    bool   `yaml:"debug" env:"KIOSK_DEBUG" env-default:"false" env-description:"enables debug output"`
@@ -46,7 +46,7 @@ type LegacyGoAuth struct {
 // LegacyIDToken token based login
 type LegacyIDToken struct {
 	KeyFile  string `yaml:"idtoken-keyfile" env:"KIOSK_IDTOKEN_KEYFILE" env-default:"key.json" env-description:"JSON Credentials for idtoken"`
-	Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, tpyically your oauth client id"`
+	Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, typically your oauth client id"`
 }
 
 // LegacyAPIKey APIKey for login

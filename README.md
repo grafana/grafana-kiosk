@@ -187,7 +187,7 @@ They can also be used instead of a configuration file.
   KIOSK_IDTOKEN_KEYFILE string
       JSON Credentials for idtoken (default "key.json")
   KIOSK_IDTOKEN_AUDIENCE string
-      Audience for idtoken, tpyically your oauth client id
+      Audience for idtoken, typically your oauth client id
   KIOSK_APIKEY_APIKEY string
       APIKEY Generated in Grafana Server
 ```

@@ -15,7 +15,7 @@ general:
   gpu-enabled: false
 ```
 
-  - debug output to assist with setting up kiosk for first time (default: false)
+- debug output to assist with setting up kiosk for first time (default: false)
 
 ```YAML
 ---
@@ -23,20 +23,17 @@ general:
   debug: true
 ```
 
-  - start-maximized (default: true)
-  - start-fullscreen (default: true)
-
+- start-maximized (default: true)
+- start-fullscreen (default: true)
 
     chromedp.Flag("start-fullscreen", true),
-		chromedp.Flag("start-maximized", true),
+    chromedp.Flag("start-maximized", true),
 
-
-  - PageLoadDelayMS, delay can be set to extend timeout to websocket (default: 2000)
-      (verified working)
+- PageLoadDelayMS, delay can be set to extend timeout to websocket (default: 2000)(verified working)
 - Fixes:
   - `--kiosk` toggle to fix for latest chrome/bookworm (default: true)
 
-		chromedp.Flag("kiosk", true),
+    chromedp.Flag("kiosk", true),
 
 incognito toggle
 

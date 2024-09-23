@@ -44,9 +44,18 @@ geolocation toggle
 
   autofit now working from config
 
-
 - Update workflow
 - Fix for GCOM login Issue [#132](https://github.com/grafana/grafana-kiosk/issues/132)
+
+## 1.0.8
+
+- Fix for issue [#137](https://github.com/grafana/grafana-kiosk/issues/137) How to get rid of "Choose your search engine" window
+- Fix for scale-factor parameter [#142](https://github.com/grafana/grafana-kiosk/pull/142)
+
+## 1.0.7
+
+- Fix for GCOM login Issue [#132](https://github.com/grafana/grafana-kiosk/issues/132)
+- Update go modules
 
 ## 1.0.6
 

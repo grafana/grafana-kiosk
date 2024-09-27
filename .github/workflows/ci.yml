@@ -49,12 +49,19 @@ jobs:
           version: latest
           args: -v build:ci
 
+      - name: Get PR
+        uses: jwalton/gh-find-current-pr@master
+        id: findPr
+        with:
+          state: open
+
       - name: Archive Build
         uses: actions/upload-artifact@v4
+        if: success() && steps.findPr.outputs.number
         env:
-          PR_NUMBER: ${{ github.event.number }}
+          PR: ${{ steps.findPr.outputs.pr }}
         with:
-          name: grafana-kiosk-${{env.PR_NUMBER}}.zip
+          name: grafana-kiosk-${{env.PR}}.zip
           path: bin
           overwrite: true
           retention-days: 7

@@ -50,9 +50,6 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 		"Authorization": "Bearer " + cfg.APIKey.APIKey,
 	}
 	if err := chromedp.Run(taskCtx,
-		network.Enable(),
-		network.SetExtraHTTPHeaders(network.Headers(headers)),
-		network.Enable(),
 		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
@@ -63,6 +60,7 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 	for {
 		messageFromChrome := <-messages
 		if err := chromedp.Run(taskCtx,
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)

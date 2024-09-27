@@ -51,10 +51,10 @@ jobs:
 
       - name: Archive Build
         uses: actions/upload-artifact@v4
-        env:
-          SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+        #env:
+        #  SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
         with:
-          name: grafana-kiosk-$SOURCE_TAG.zip
+          name: grafana-kiosk-${{ steps.branch_name.outputs.SOURCE_TAG }}.zip
           path: bin
           overwrite: true
           retention-days: 7

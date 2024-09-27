@@ -49,12 +49,18 @@ type APIKey struct {
 	APIKey string `yaml:"apikey" env:"KIOSK_APIKEY_APIKEY" env-description:"APIKEY"`
 }
 
+type HTTPBasicAuth struct {
+	Username string `yaml:"basicauth-username" env:"KIOSK_BASICAUTH_USERNAME" env-description:"HTTP basic auth username"`
+	Password string `yaml:"basicauth-password" env:"KIOSK_BASICAUTH_PASSWORD" env-description:"HTTP basic auth password"`
+}
+
 // Config configuration for backend.
 type Config struct {
-	BuildInfo BuildInfo `yaml:"buildinfo"`
-	General   General   `yaml:"general"`
-	Target    Target    `yaml:"target"`
-	GoAuth    GoAuth    `yaml:"goauth"`
-	IDToken   IDToken   `yaml:"idtoken"`
-	APIKey    APIKey    `yaml:"apikey"`
+	BuildInfo BuildInfo     `yaml:"buildinfo"`
+	General   General       `yaml:"general"`
+	Target    Target        `yaml:"target"`
+	GoAuth    GoAuth        `yaml:"goauth"`
+	IDToken   IDToken       `yaml:"idtoken"`
+	APIKey    APIKey        `yaml:"apikey"`
+	BasicAuth HTTPBasicAuth `yaml:"BasicAuth"`
 }

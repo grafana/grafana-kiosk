@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
 )
@@ -47,15 +48,26 @@ func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 
 	// Click the OAUTH login button
 	log.Println("Oauth_Auto_Login enabled: ", cfg.GoAuth.AutoLogin)
-
+	headers := make(map[string]interface{})
+	if len(cfg.BasicAuth.Username) != 0 && len(cfg.BasicAuth.Password) != 0 {
+		headers["Authorization"] = GenerateHTTPBasicAuthHeader(cfg.BasicAuth.Username, cfg.BasicAuth.Password)
+	}
 	if cfg.GoAuth.AutoLogin {
 		if err := chromedp.Run(taskCtx,
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)
 		}
 	} else {
 		if err := chromedp.Run(taskCtx,
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 			chromedp.WaitVisible(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),
 			chromedp.Click(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),
@@ -70,6 +82,10 @@ func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 
 	// Fill out OAUTH login page
 	if err := chromedp.Run(taskCtx,
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
+		network.Enable(),
+		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.WaitVisible(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, cfg.Target.Username, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
@@ -80,6 +96,10 @@ func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 	for {
 		messageFromChrome := <-messages
 		if err := chromedp.Run(taskCtx,
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
+			network.Enable(),
+			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)

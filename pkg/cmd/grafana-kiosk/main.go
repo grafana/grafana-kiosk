@@ -41,6 +41,8 @@ type Args struct {
 	WindowPosition          string
 	WindowSize              string
 	ScaleFactor             string
+	BasicAuthUsername       string
+	BasicAuthPassword       string
 }
 
 // ProcessArgs processes and handles CLI arguments.
@@ -69,6 +71,8 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.StringVar(&processedArgs.Audience, "audience", "", "idtoken audience")
 	flagSettings.StringVar(&processedArgs.KeyFile, "keyfile", "key.json", "idtoken json credentials")
 	flagSettings.StringVar(&processedArgs.APIKey, "apikey", "", "apikey")
+	flagSettings.StringVar(&processedArgs.BasicAuthUsername, "basic-username", "", "Specify HTTP basic auth username.")
+	flagSettings.StringVar(&processedArgs.BasicAuthPassword, "basic-password", "", "Specify HTTP basic auth password.")
 
 	fu := flagSettings.Usage
 	flagSettings.Usage = func() {
@@ -195,6 +199,10 @@ func main() {
 		cfg.IDToken.KeyFile = args.KeyFile
 
 		cfg.APIKey.APIKey = args.APIKey
+
+		//
+		cfg.BasicAuth.Username = args.BasicAuthUsername
+		cfg.BasicAuth.Password = args.BasicAuthPassword
 	}
 
 	// make sure the url has content

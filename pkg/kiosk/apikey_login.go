@@ -46,9 +46,13 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 	/*
 		Launch chrome and look for main-view element
 	*/
+	if len(cfg.BasicAuth.Username) != 0 {
+		log.Fatal("Grafana Kiosk API login cannot be combined with http basic auth login.")
+	}
 	headers := map[string]interface{}{
 		"Authorization": "Bearer " + cfg.APIKey.APIKey,
 	}
+
 	if err := chromedp.Run(taskCtx,
 		network.SetExtraHTTPHeaders(network.Headers(headers)),
 		chromedp.Navigate(generatedURL),

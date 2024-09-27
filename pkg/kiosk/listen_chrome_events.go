@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/chromedp/cdproto/inspector"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 )
@@ -17,6 +18,11 @@ const (
 )
 
 func listenChromeEvents(taskCtx context.Context, cfg *Config, events chromeEvents) {
+	headers := make(map[string]interface{})
+	if len(cfg.BasicAuth.Username) != 0 && len(cfg.BasicAuth.Password) != 0 {
+		headers["Authorization"] = GenerateHTTPBasicAuthHeader(cfg.BasicAuth.Username, cfg.BasicAuth.Password)
+	}
+
 	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
 		switch ev := ev.(type) {
 		case *runtime.EventConsoleAPICalled:
@@ -30,7 +36,12 @@ func listenChromeEvents(taskCtx context.Context, cfg *Config, events chromeEvent
 			if events&targetCrashed != 0 {
 				log.Printf("target crashed, reload...")
 				go func() {
-					_ = chromedp.Run(taskCtx, chromedp.Reload())
+					_ = chromedp.Run(taskCtx,
+						network.Enable(),
+						network.SetExtraHTTPHeaders(network.Headers(headers)),
+						network.Enable(),
+						network.SetExtraHTTPHeaders(network.Headers(headers)),
+						chromedp.Reload())
 				}()
 			}
 		default:

@@ -57,21 +57,46 @@ func GrafanaKioskLocal(cfg *Config, messages chan string) {
 		baseURL := cfg.Target.URL[:endIndex]
 		bypassURL := baseURL + "/login/local"
 
-		log.Println("Bypassing Azure AD autoLogin at ", bypassURL)
+		log.Println("Bypassing autoLogin using URL ", bypassURL)
 
 		if err := chromedp.Run(taskCtx,
 			chromedp.Navigate(bypassURL),
+			chromedp.ActionFunc(func(context.Context) error {
+				log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
+				time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+				return nil
+			}),
 			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+			chromedp.ActionFunc(func(context.Context) error {
+				log.Printf("Sleeping %d MS before checking for topnav", cfg.General.PageLoadDelayMS)
+				time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+				return nil
+			}),
 			chromedp.WaitVisible(`//img[@alt="User avatar"]`, chromedp.BySearch),
+			chromedp.ActionFunc(func(context.Context) error {
+				log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
+				time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+				return nil
+			}),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)
 		}
 	} else {
 		if err := chromedp.Run(taskCtx,
+			chromedp.ActionFunc(func(context.Context) error {
+				log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
+				time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+				return nil
+			}),
 			chromedp.Navigate(generatedURL),
+			chromedp.ActionFunc(func(context.Context) error {
+				log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
+				time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+				return nil
+			}),
 			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),

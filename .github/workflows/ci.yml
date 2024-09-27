@@ -36,7 +36,7 @@ jobs:
         with:
           args: ./...
 
-      - name: Branch name
+      - name: Get BRANCH, NAME, TAG
         id: branch_name
         run: |
           echo "SOURCE_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
@@ -61,7 +61,7 @@ jobs:
         env:
           PR: ${{ steps.findPr.outputs.pr }}
         with:
-          name: grafana-kiosk-${{env.PR}}.zip
+          name: grafana-kiosk-pr-${{env.PR}}
           path: bin
           overwrite: true
           retention-days: 7

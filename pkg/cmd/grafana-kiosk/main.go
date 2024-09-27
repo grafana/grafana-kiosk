@@ -35,6 +35,7 @@ type Args struct {
 	LoginMethod             string
 	URL                     string
 	Username                string
+	PageLoadDelayMS         int64
 	Password                string
 	UsernameField           string
 	PasswordField           string
@@ -58,6 +59,7 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.StringVar(&processedArgs.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
 	flagSettings.StringVar(&processedArgs.WindowSize, "window-size", "", "Size of Kiosk in pixels (width,height)")
 	flagSettings.StringVar(&processedArgs.ScaleFactor, "scale-factor", "1.0", "Scale factor, sort of zoom")
+	flagSettings.Int64Var(&processedArgs.PageLoadDelayMS, "page-load-delay-ms", 2000, "Delay in milliseconds before navigating to URL")
 	flagSettings.BoolVar(&processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
 	flagSettings.BoolVar(&processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
 	flagSettings.BoolVar(&processedArgs.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
@@ -125,6 +127,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("WindowPosition:", cfg.General.WindowPosition)
 	log.Println("WindowSize:", cfg.General.WindowSize)
 	log.Println("ScaleFactor:", cfg.General.ScaleFactor)
+	log.Println("PageLoadDelayMS:", cfg.General.PageLoadDelayMS)
 	// target
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
@@ -186,6 +189,7 @@ func main() {
 		cfg.General.WindowPosition = args.WindowPosition
 		cfg.General.WindowSize = args.WindowSize
 		cfg.General.ScaleFactor = args.ScaleFactor
+		cfg.General.PageLoadDelayMS = args.PageLoadDelayMS
 		//
 		cfg.GoAuth.AutoLogin = args.OauthAutoLogin
 		cfg.GoAuth.UsernameField = args.UsernameField

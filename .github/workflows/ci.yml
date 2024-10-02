@@ -25,19 +25,18 @@ jobs:
         run: go get .
 
       - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
           version: latest
           args: --exclude-use-default
           skip-cache: true
-          skip-pkg-cache: true
 
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
           args: ./...
 
-      - name: Branch name
+      - name: Get BRANCH, NAME, TAG
         id: branch_name
         run: |
           echo "SOURCE_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
@@ -50,8 +49,25 @@ jobs:
           version: latest
           args: -v build:ci
 
+      - name: Get PR
+        uses: jwalton/gh-find-current-pr@master
+        id: findPr
+        with:
+          state: open
+
+      - name: Archive Build
+        uses: actions/upload-artifact@v4
+        if: success() && steps.findPr.outputs.number
+        env:
+          PR: ${{ steps.findPr.outputs.pr }}
+        with:
+          name: grafana-kiosk-pr-${{env.PR}}
+          path: bin
+          overwrite: true
+          retention-days: 7
+
       - name: Upload Code Climate Report
-        uses: paambaati/codeclimate-action@v5.0.0
+        uses: paambaati/codeclimate-action@v9
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
         with:
@@ -95,7 +111,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: startsWith(github.ref, 'refs/tags/v')
         with:
-          draft: true
+          prerelease: true
           generate_release_notes: true
           files: |
             ./grafana-kiosk-v*/**

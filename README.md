@@ -177,6 +177,10 @@ They can also be used instead of a configuration file.
       Username html input name value
   KIOSK_GOAUTH_FIELD_PASSWORD string
       Password html input name value
+  KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD
+      Wait for the password field to be visible
+  KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD_CLASS
+      Class to ignore for the Password Field to be visible
   KIOSK_IDTOKEN_KEYFILE string
       JSON Credentials for idtoken (default "key.json")
   KIOSK_IDTOKEN_AUDIENCE string

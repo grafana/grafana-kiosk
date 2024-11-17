@@ -33,9 +33,11 @@ type Target struct {
 
 // GoAuth OAuth
 type GoAuth struct {
-	AutoLogin     bool   `yaml:"auto-login" env:"KIOSK_GOAUTH_AUTO_LOGIN" env-description:"[false|true]"`
-	UsernameField string `yaml:"fieldname-username" env:"KIOSK_GOAUTH_FIELD_USER" env-description:"Username html input name value"`
-	PasswordField string `yaml:"fieldname-password" env:"KIOSK_GOAUTH_FIELD_PASSWORD" env-description:"Password html input name value"`
+	AutoLogin                       bool   `yaml:"auto-login" env:"KIOSK_GOAUTH_AUTO_LOGIN" env-description:"[false|true]"`
+	UsernameField                   string `yaml:"fieldname-username" env:"KIOSK_GOAUTH_FIELD_USER" env-description:"Username html input name value"`
+	PasswordField                   string `yaml:"fieldname-password" env:"KIOSK_GOAUTH_FIELD_PASSWORD" env-description:"Password html input name value"`
+	WaitForPasswordField            bool   `yaml:"wait-for-password-field" env:"KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD" env-description:"Indicate that it's necessary to wait for the password field"`
+	WaitForPasswordFieldIgnoreClass string `yaml:"wait-for-password-field-class" env:"KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD_CLASS" env-description:"Ignore this password field when waiting for it being visible"`
 }
 
 // IDToken token based login

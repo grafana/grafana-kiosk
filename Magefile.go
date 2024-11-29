@@ -196,10 +196,9 @@ func (Build) All(ctx context.Context) {
 	)
 }
 
-func (Build) DockerArm64(ctx context.Context) error {
-	// docker build --build-arg TARGET_PLATFORM=linux/arm64 --build-arg COMPILE_GOARCH=arm64 -t slimbean/grafana-kiosk:2022-01-07v2 -f build/Dockerfile .
+func (Build) DockerArm64(ctx context.Context, image string) error {
 	log.Printf("Building docker...")
-	return sh.RunV("docker", "build", "--build-arg", "TARGET_PLATFORM=linux/arm64", "--build-arg", "COMPILE_GOARCH=arm64", "-t", "slimbean/grafana-kiosk:2023-11-01", "-f", "build/Dockerfile", ".")
+	return sh.RunV("docker", "build", "--build-arg", "TARGET_PLATFORM=linux/arm64", "--build-arg", "COMPILE_GOARCH=arm64", "-t", image, "-f", "build/Dockerfile", ".")
 }
 
 // Lint Run linter against codebase

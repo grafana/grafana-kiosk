@@ -196,6 +196,7 @@ func (Build) All(ctx context.Context) {
 	)
 }
 
+// Build a docker image, call with image name as an argument: mage -v build:dockerArm64 "slimbean/grafana-kiosk:2024-11-29"
 func (Build) DockerArm64(ctx context.Context, image string) error {
 	log.Printf("Building docker...")
 	return sh.RunV("docker", "build", "--build-arg", "TARGET_PLATFORM=linux/arm64", "--build-arg", "COMPILE_GOARCH=arm64", "-t", image, "-f", "build/Dockerfile", ".")

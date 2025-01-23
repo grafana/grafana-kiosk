@@ -117,13 +117,13 @@ func buildCommand(command string, arch string) error {
 		return err
 	}
 
-	// intentionally igores errors
+	// intentionally ignores errors
 	sh.RunV("chmod", "+x", outDir)
 	return nil
 }
 
 func kioskCmd() error {
-	return buildCommand("grafana-kiosk", "darwin_amd64")
+	return buildCommand("grafana-kiosk", runtime.GOOS+"_"+runtime.GOARCH)
 }
 
 func buildCmdAll() error {
@@ -236,7 +236,7 @@ func (Run) Local() error {
 	mg.Deps(Build.Local)
 	return sh.RunV(
 		"./bin/"+runtime.GOOS+"_"+runtime.GOARCH+"/grafana-kiosk",
-		"-config",
+		"-c",
 		"config-example.yaml",
 	)
 }

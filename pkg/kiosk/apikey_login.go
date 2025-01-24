@@ -2,11 +2,13 @@ package kiosk
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
-	"github.com/chromedp/cdproto/network"
+	"github.com/chromedp/cdproto/fetch"
 	"github.com/chromedp/chromedp"
 )
 
@@ -46,11 +48,29 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 	/*
 		Launch chrome and look for main-view element
 	*/
-	headers := map[string]interface{}{
-		"Authorization": "Bearer " + cfg.APIKey.APIKey,
+	u, err := url.Parse(cfg.Target.URL)
+	if err != nil {
+		panic(fmt.Errorf("url.Parse: %w", err))
 	}
-	if err := chromedp.Run(taskCtx,
-		network.SetExtraHTTPHeaders(network.Headers(headers)),
+	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
+		switch ev := ev.(type) {
+		case *fetch.EventRequestPaused:
+			go func() {
+				fetchReq := fetch.ContinueRequest(ev.RequestID)
+				fetchReq.Headers = append(
+					fetchReq.Headers,
+					&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
+				)
+				err = fetchReq.Do(GetExecutor(taskCtx))
+				if err != nil {
+					panic(fmt.Errorf("apikey fetchReq error: %w", err))
+				}
+			}()
+		}
+	})
+	if err := chromedp.Run(
+		taskCtx,
+		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
 	); err != nil {
@@ -60,7 +80,6 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 	for {
 		messageFromChrome := <-messages
 		if err := chromedp.Run(taskCtx,
-			network.SetExtraHTTPHeaders(network.Headers(headers)),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)

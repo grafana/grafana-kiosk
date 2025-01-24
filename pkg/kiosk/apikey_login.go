@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/chromedp/cdproto/fetch"
@@ -57,10 +58,25 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 		case *fetch.EventRequestPaused:
 			go func() {
 				fetchReq := fetch.ContinueRequest(ev.RequestID)
-				fetchReq.Headers = append(
-					fetchReq.Headers,
-					&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
-				)
+				requestURL, err := url.Parse(ev.Request.URL)
+				if err != nil {
+					panic(fmt.Errorf("url.Parse: %w", err))
+				}
+				if strings.HasPrefix(ev.Request.URL, u.Scheme+"://"+u.Host+"/api/ds/query") {
+					log.Println("Appending Content-Type Header for Metric Query")
+					fetchReq.Headers = append(
+						fetchReq.Headers,
+						&fetch.HeaderEntry{Name: "content-type", Value: "application/json"},
+					)
+				}
+				// if they match, append the Bearer token
+				if requestURL.Host == u.Host {
+					log.Println("Appending Header Authorization: Bearer REDACTED")
+					fetchReq.Headers = append(
+						fetchReq.Headers,
+						&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
+					)
+				}
 				err = fetchReq.Do(GetExecutor(taskCtx))
 				if err != nil {
 					panic(fmt.Errorf("apikey fetchReq error: %w", err))

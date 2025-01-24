@@ -62,7 +62,9 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 				if err != nil {
 					panic(fmt.Errorf("url.Parse: %w", err))
 				}
-				if strings.HasPrefix(ev.Request.URL, u.Scheme+"://"+u.Host+"/api/ds/query") {
+				// handle both scheme/host, and subpath with query
+				if strings.HasPrefix(ev.Request.URL, u.Scheme+"://"+u.Host) &&
+					strings.Contains(ev.Request.URL, "/api/ds/query?") {
 					log.Println("Appending Content-Type Header for Metric Query")
 					fetchReq.Headers = append(
 						fetchReq.Headers,

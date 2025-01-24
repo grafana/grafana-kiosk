@@ -20,28 +20,30 @@ var (
 
 // Args command-line parameters.
 type Args struct {
-	AutoFit                 bool
-	IgnoreCertificateErrors bool
-	IsPlayList              bool
-	OauthAutoLogin          bool
-	LXDEEnabled             bool
-	UseMFA                  bool
-	Audience                string
-	KeyFile                 string
-	APIKey                  string
-	LXDEHome                string
-	ConfigPath              string
-	Mode                    string
-	LoginMethod             string
-	URL                     string
-	Username                string
-	PageLoadDelayMS         int64
-	Password                string
-	UsernameField           string
-	PasswordField           string
-	WindowPosition          string
-	WindowSize              string
-	ScaleFactor             string
+	AutoFit                              bool
+	IgnoreCertificateErrors              bool
+	IsPlayList                           bool
+	OauthAutoLogin                       bool
+	OauthWaitForPasswordField            bool
+	OauthWaitForPasswordFieldIgnoreClass string
+	LXDEEnabled                          bool
+	UseMFA                               bool
+	Audience                             string
+	KeyFile                              string
+	APIKey                               string
+	LXDEHome                             string
+	ConfigPath                           string
+	Mode                                 string
+	LoginMethod                          string
+	URL                                  string
+	Username                             string
+	PageLoadDelayMS                      int64
+	Password                             string
+	UsernameField                        string
+	PasswordField                        string
+	WindowPosition                       string
+	WindowSize                           string
+	ScaleFactor                          string
 }
 
 // ProcessArgs processes and handles CLI arguments.
@@ -66,6 +68,8 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.StringVar(&processedArgs.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
 	flagSettings.BoolVar(&processedArgs.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
 	flagSettings.BoolVar(&processedArgs.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
+	flagSettings.BoolVar(&processedArgs.OauthWaitForPasswordField, "wait-for-password-field", false, "oauth_auto_login is enabled in grafana config")
+	flagSettings.StringVar(&processedArgs.OauthWaitForPasswordFieldIgnoreClass, "wait-for-password-field-class", "", "oauth_auto_login is enabled in grafana config")
 	flagSettings.StringVar(&processedArgs.UsernameField, "field-username", "username", "Fieldname for the username")
 	flagSettings.StringVar(&processedArgs.PasswordField, "field-password", "password", "Fieldname for the password")
 	flagSettings.StringVar(&processedArgs.Audience, "audience", "", "idtoken audience")

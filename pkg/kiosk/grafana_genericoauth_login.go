@@ -69,12 +69,24 @@ func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 
 	// Fill out OAUTH login page
-	if err := chromedp.Run(taskCtx,
-		chromedp.WaitVisible(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, chromedp.BySearch),
-		chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, cfg.Target.Username, chromedp.BySearch),
-		chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-	); err != nil {
-		panic(err)
+
+	if cfg.GoAuth.WaitForPasswordField {
+		if err := chromedp.Run(taskCtx,
+			chromedp.WaitVisible(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, chromedp.BySearch),
+			chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, cfg.Target.Username+kb.Enter, chromedp.BySearch),
+			chromedp.WaitVisible(`//input[@name="`+cfg.GoAuth.PasswordField+`" and not(@class="`+cfg.GoAuth.WaitForPasswordFieldIgnoreClass+`")]`, chromedp.BySearch),
+			chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+		); err != nil {
+			panic(err)
+		}
+	} else {
+		if err := chromedp.Run(taskCtx,
+			chromedp.WaitVisible(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, chromedp.BySearch),
+			chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, cfg.Target.Username, chromedp.BySearch),
+			chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
+		); err != nil {
+			panic(err)
+		}
 	}
 	// blocking wait
 	for {

@@ -2,3 +2,4 @@ bin/
 coverage/
 coverage.out
 coverage.html
+.idea

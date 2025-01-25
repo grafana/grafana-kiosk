@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.0.9
+
+- Fix for issue [[#159](https://github.com/grafana/grafana-kiosk/issues/159)]
+- Fix for issue [[#160](https://github.com/grafana/grafana-kiosk/issues/160)]
+- Updates go packages
+- Please note: When using a service account token, you may need to increase the delay in your configuration for playlists depending on the device being used (10000 ms for RPi4b appears stable)
+
 ## 1.0.8
 
 - Fix for issue [#137](https://github.com/grafana/grafana-kiosk/issues/137) How to get rid of "Choose your search engine" window

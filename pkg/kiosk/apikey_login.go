@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/chromedp/cdproto/fetch"
@@ -57,10 +58,31 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 		case *fetch.EventRequestPaused:
 			go func() {
 				fetchReq := fetch.ContinueRequest(ev.RequestID)
-				fetchReq.Headers = append(
-					fetchReq.Headers,
-					&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
-				)
+				requestURL, err := url.Parse(ev.Request.URL)
+				if err != nil {
+					panic(fmt.Errorf("url.Parse: %w", err))
+				}
+				// handle both scheme/host, and subpath with query
+				if strings.HasPrefix(ev.Request.URL, u.Scheme+"://"+u.Host) &&
+					strings.Contains(ev.Request.URL, "/api/ds/query?") {
+					if cfg.General.DebugEnabled {
+						log.Println("Appending Content-Type Header for Metric Query")
+					}
+					fetchReq.Headers = append(
+						fetchReq.Headers,
+						&fetch.HeaderEntry{Name: "content-type", Value: "application/json"},
+					)
+				}
+				// if they match, append the Bearer token
+				if requestURL.Host == u.Host {
+					if cfg.General.DebugEnabled {
+						log.Println("Appending Header Authorization: Bearer REDACTED")
+					}
+					fetchReq.Headers = append(
+						fetchReq.Headers,
+						&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
+					)
+				}
 				err = fetchReq.Do(GetExecutor(taskCtx))
 				if err != nil {
 					panic(fmt.Errorf("apikey fetchReq error: %w", err))
@@ -72,6 +94,11 @@ func GrafanaKioskAPIKey(cfg *Config, messages chan string) {
 		taskCtx,
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
 		chromedp.Navigate(generatedURL),
+		chromedp.ActionFunc(func(context.Context) error {
+			log.Printf("Sleeping %d MS before continuing", cfg.General.PageLoadDelayMS)
+			time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+			return nil
+		}),
 		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
 	); err != nil {
 		panic(err)

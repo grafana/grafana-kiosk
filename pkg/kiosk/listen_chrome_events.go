@@ -3,6 +3,7 @@ package kiosk
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/chromedp/cdproto/inspector"
 	"github.com/chromedp/cdproto/runtime"
@@ -24,6 +25,15 @@ func listenChromeEvents(taskCtx context.Context, cfg *Config, events chromeEvent
 				log.Printf("console.%s call:", ev.Type)
 				for _, arg := range ev.Args {
 					log.Printf("	%s - %s", arg.Type, arg.Value)
+					if strings.Contains(string(arg.Value), "not correct url correcting") {
+						log.Printf("playlist may be broken, restart!")
+					}
+				}
+			}
+			if ev.StackTrace != nil {
+				log.Printf("console.%s stacktrace:", ev.Type)
+				for _, arg := range ev.StackTrace.CallFrames {
+					log.Printf("(%s:%d): %s", arg.URL, arg.LineNumber, arg.FunctionName)
 				}
 			}
 		case *inspector.EventTargetCrashed:

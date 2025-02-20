@@ -206,7 +206,7 @@ This will login to a Hosted Grafana instance and take the browser to a specific 
 This will login to a Hosted Grafana instance and take the browser to a playlist in fullscreen kiosk mode, and autofit the panels to fill the display.
 
 ```bash
-./bin/grafana-kiosk -URL=https://bkgann3.grafana.net/playlists/play/1 -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -playlists -autofit=true
+./bin/grafana-kiosk -URL=https://bkgann3.grafana.net/playlists/play/1 -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -playlist -autofit=true
 ```
 
 ### Grafana Server with Local Accounts
@@ -358,7 +358,7 @@ ExecStartPre=xset s off
 ExecStartPre=xset -dpms
 ExecStartPre=xset s noblank
 
-ExecStart=/usr/bin/grafana-kiosk -URL=<url> -login-method=local -username=<username> -password=<password> -playlists=true
+ExecStart=/usr/bin/grafana-kiosk -URL=<url> -login-method=local -username=<username> -password=<password> -playlist=true
 
 [Install]
 WantedBy=graphical.target

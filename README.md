@@ -135,6 +135,10 @@ target:
   playlist: false
   URL: https://play.grafana.org
   ignore-certificate-errors: false
+
+# API Authentication
+#apikey:
+#  apikey: <grafana apikey>
 ```
 
 ```BASH

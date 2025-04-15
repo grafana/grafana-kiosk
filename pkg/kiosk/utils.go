@@ -11,11 +11,11 @@ import (
 )
 
 // GenerateURL constructs URL with appropriate parameters for kiosk mode.
-func GenerateURL(anURL string, kioskMode string, autoFit bool, isPlayList bool) string {
-	parsedURI, _ := url.ParseRequestURI(anURL)
+func GenerateURL(cfg *Config) string {
+	parsedURI, _ := url.ParseRequestURI(cfg.Target.URL)
 	parsedQuery, _ := url.ParseQuery(parsedURI.RawQuery)
 
-	switch kioskMode {
+	switch cfg.General.Mode {
 	case "tv": // TV
 		parsedQuery.Set("kiosk", "tv") // no sidebar, topnav without buttons
 		log.Printf("KioskMode: TV")
@@ -28,13 +28,22 @@ func GenerateURL(anURL string, kioskMode string, autoFit bool, isPlayList bool) 
 		parsedQuery.Set("kiosk", "1") // sidebar and topnav always shown
 		log.Printf("KioskMode: Fullscreen")
 	}
+	if cfg.General.HideLinks {
+		parsedQuery.Set("_dash.hideLinks", "")
+	}
+	if cfg.General.HideTimePicker {
+		parsedQuery.Set("_dash.hideTimePicker", "")
+	}
+	if cfg.General.HideVariables {
+		parsedQuery.Set("_dash.hideVariables", "")
+	}
 	// a playlist should also go inactive immediately
-	if isPlayList {
+	if cfg.Target.IsPlayList {
 		parsedQuery.Set("inactive", "1")
 	}
 	parsedURI.RawQuery = parsedQuery.Encode()
 	// grafana is not parsing autofitpanels that uses an equals sign, so leave it out
-	if autoFit {
+	if cfg.General.AutoFit {
 		if len(parsedQuery) > 0 {
 			parsedURI.RawQuery += "&autofitpanels"
 		} else {

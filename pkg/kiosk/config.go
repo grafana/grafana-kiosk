@@ -38,6 +38,7 @@ type GoAuth struct {
 	PasswordField                   string `yaml:"fieldname-password" env:"KIOSK_GOAUTH_FIELD_PASSWORD" env-description:"Password html input name value"`
 	WaitForPasswordField            bool   `yaml:"wait-for-password-field" env:"KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD" env-description:"Indicate that it's necessary to wait for the password field"`
 	WaitForPasswordFieldIgnoreClass string `yaml:"wait-for-password-field-class" env:"KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD_CLASS" env-description:"Ignore this password field when waiting for it being visible"`
+	WaitForStaySignedInPrompt       bool   `yaml:"wait-for-stay-signed-in-prompt" env:"KIOSK_GOAUTH_WAIT_FOR_STAY_SIGNED_IN_PROMPT" env-description:"Indicate that it's necessary to wait for the stay signed in prompt, and will then click yes"`
 }
 
 // IDToken token based login

@@ -88,6 +88,14 @@ func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 			panic(err)
 		}
 	}
+	if cfg.GoAuth.WaitForStaySignedInPrompt {
+		if err := chromedp.Run(taskCtx,
+			chromedp.WaitVisible(`//input[@type="submit" and @value="Yes"]`, chromedp.BySearch),
+			chromedp.Click(`//input[@type="submit" and @value="Yes"]`, chromedp.BySearch),
+		); err != nil {
+			panic(err)
+		}
+	}
 	// blocking wait
 	for {
 		messageFromChrome := <-messages

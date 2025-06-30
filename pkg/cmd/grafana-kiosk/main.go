@@ -26,6 +26,7 @@ type Args struct {
 	OauthAutoLogin                       bool
 	OauthWaitForPasswordField            bool
 	OauthWaitForPasswordFieldIgnoreClass string
+	OauthWaitForStaySignedInPrompt       bool
 	LXDEEnabled                          bool
 	UseMFA                               bool
 	Audience                             string
@@ -76,6 +77,7 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.BoolVar(&processedArgs.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
 	flagSettings.BoolVar(&processedArgs.OauthWaitForPasswordField, "wait-for-password-field", false, "oauth_auto_login is enabled in grafana config")
 	flagSettings.StringVar(&processedArgs.OauthWaitForPasswordFieldIgnoreClass, "wait-for-password-field-class", "", "oauth_auto_login is enabled in grafana config")
+	flagSettings.BoolVar(&processedArgs.OauthWaitForStaySignedInPrompt, "wait-for-stay-signed-in-prompt", false, "oauth_auto_login is enabled in grafana config")
 	flagSettings.StringVar(&processedArgs.UsernameField, "field-username", "username", "Fieldname for the username")
 	flagSettings.StringVar(&processedArgs.PasswordField, "field-password", "password", "Fieldname for the password")
 	flagSettings.StringVar(&processedArgs.Audience, "audience", "", "idtoken audience")
@@ -207,6 +209,9 @@ func main() {
 		cfg.GoAuth.AutoLogin = args.OauthAutoLogin
 		cfg.GoAuth.UsernameField = args.UsernameField
 		cfg.GoAuth.PasswordField = args.PasswordField
+		cfg.GoAuth.WaitForPasswordField = args.OauthWaitForPasswordField
+		cfg.GoAuth.WaitForPasswordFieldIgnoreClass = args.OauthWaitForPasswordFieldIgnoreClass
+		cfg.GoAuth.WaitForStaySignedInPrompt = args.OauthWaitForStaySignedInPrompt
 
 		cfg.IDToken.Audience = args.Audience
 		cfg.IDToken.KeyFile = args.KeyFile

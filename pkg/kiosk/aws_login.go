@@ -49,6 +49,8 @@ func GrafanaKioskAWSLogin(cfg *Config, messages chan string) {
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible(`//a[contains(@href,'login/sso')]`, chromedp.BySearch),
+		chromedp.WaitVisible(`div#awsccc-cb-buttons`, chromedp.BySearch),
+		chromedp.Click(`//button[contains(@data-id,'awsccc-cb-btn-accept')]`, chromedp.BySearch),
 		chromedp.Click(`//a[contains(@href,'login/sso')]`, chromedp.BySearch),
 		chromedp.WaitVisible(`input#awsui-input-0`, chromedp.BySearch),
 		chromedp.SendKeys(`input#awsui-input-0`, cfg.Target.Username+kb.Enter, chromedp.BySearch),

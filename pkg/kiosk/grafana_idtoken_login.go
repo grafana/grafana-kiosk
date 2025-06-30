@@ -45,7 +45,7 @@ func GrafanaKioskIDToken(cfg *Config, messages chan string) {
 	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
 	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 
-	var generatedURL = GenerateURL(cfg.Target.URL, cfg.General.Mode, cfg.General.AutoFit, cfg.Target.IsPlayList)
+	var generatedURL = GenerateURL(cfg)
 
 	log.Println("Navigating to ", generatedURL)
 

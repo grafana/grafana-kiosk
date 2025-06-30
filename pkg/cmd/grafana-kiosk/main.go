@@ -44,6 +44,9 @@ type Args struct {
 	WindowPosition                       string
 	WindowSize                           string
 	ScaleFactor                          string
+	HideLinks                            bool
+	HideTimePicker                       bool
+	HideVariables                        bool
 }
 
 // ProcessArgs processes and handles CLI arguments.
@@ -64,6 +67,9 @@ func ProcessArgs(cfg interface{}) Args {
 	flagSettings.Int64Var(&processedArgs.PageLoadDelayMS, "page-load-delay-ms", 2000, "Delay in milliseconds before navigating to URL")
 	flagSettings.BoolVar(&processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
 	flagSettings.BoolVar(&processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
+	flagSettings.BoolVar(&processedArgs.HideLinks, "hide-links", false, "Hide links in the top nav bar")
+	flagSettings.BoolVar(&processedArgs.HideTimePicker, "hide-time-picker", false, "Hide time picker in the top nav bar")
+	flagSettings.BoolVar(&processedArgs.HideVariables, "hide-variables", false, "Hide variables in the top nav bar")
 	flagSettings.BoolVar(&processedArgs.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
 	flagSettings.StringVar(&processedArgs.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
 	flagSettings.BoolVar(&processedArgs.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
@@ -194,6 +200,9 @@ func main() {
 		cfg.General.WindowSize = args.WindowSize
 		cfg.General.ScaleFactor = args.ScaleFactor
 		cfg.General.PageLoadDelayMS = args.PageLoadDelayMS
+		cfg.General.HideLinks = args.HideLinks
+		cfg.General.HideTimePicker = args.HideTimePicker
+		cfg.General.HideVariables = args.HideVariables
 		//
 		cfg.GoAuth.AutoLogin = args.OauthAutoLogin
 		cfg.GoAuth.UsernameField = args.UsernameField

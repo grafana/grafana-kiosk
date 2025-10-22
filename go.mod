@@ -3,7 +3,7 @@ module github.com/grafana/grafana-kiosk
 go 1.23
 
 require (
-	github.com/chromedp/cdproto v0.0.0-20250120090109-d38428e4d9c8
+	github.com/chromedp/cdproto v0.0.0-20250803210736-d308e07a266d
 	github.com/chromedp/chromedp v0.12.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/magefile/mage v1.15.0
@@ -31,6 +31,7 @@ require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/chromedp/sysutil v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
+	github.com/go-json-experiment/json v0.0.0-20250211171154-1ae217ad3535 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect

@@ -1,7 +1,7 @@
 ARG BUILD_PLATFORM=linux/amd64
 ARG TARGET_PLATFORM=linux/amd64
 
-FROM --platform=${BUILD_PLATFORM} golang:1.25-alpine AS builder
+FROM --platform=${BUILD_PLATFORM} golang:1.25-alpine@sha256:aee43c3ccbf24fdffb7295693b6e33b21e01baec1b2a55acc351fde345e9ec34 AS builder
 ARG COMPILE_GOOS=linux
 ARG COMPILE_GOARCH=amd64
 ARG COMPILE_GOARM=""
@@ -10,7 +10,7 @@ WORKDIR /build
 RUN CGO_ENABLED=0 GOOS=${COMPILE_GOOS} GOARCH=${COMPILE_GOARCH} GOARM=${COMPILE_GOARM} go build -ldflags '-extldflags "-static"' -o grafana-kiosk ./pkg/cmd/grafana-kiosk/main.go
 RUN mv /build/grafana-kiosk /
 
-FROM --platform=${TARGET_PLATFORM} dtcooper/raspberrypi-os:latest
+FROM --platform=${TARGET_PLATFORM} dtcooper/raspberrypi-os:latest@sha256:bc3c17c84cb4f20b17c3c776866115d9fa76c99702edb16b9c9c088458676145
 RUN apt-get update && \
   apt-get install -qy \
   tzdata ca-certificates chromium-browser

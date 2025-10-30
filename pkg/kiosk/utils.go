@@ -75,6 +75,7 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 		chromedp.Flag("autoplay-policy", "no-user-gesture-required"),
 		chromedp.Flag("bwsi", true),
 		chromedp.Flag("check-for-update-interval", "31536000"),
+		chromedp.Flag("password-store", "basic"), // prevent key store popup
 		chromedp.Flag("disable-features", "Translate"),
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),

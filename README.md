@@ -72,7 +72,7 @@ NOTE: Flags with parameters should use an "equals"
       idtoken audience
   -auto-login
       oauth_auto_login is enabled in grafana config
-			(set this flag along with the "local" login-method to bypass OAuth via the /login/local url and use a local grafana user/pass before continuing to the target URL)
+          (set this flag along with the "local" login-method to bypass OAuth via the /login/local url and use a local grafana user/pass before continuing to the target URL)
   -autofit
       Fit panels to screen (default true)
   -c string

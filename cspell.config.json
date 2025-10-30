@@ -1,0 +1,6 @@
+{
+  "ignorePaths": ["go.mod", "go.sum"],
+  "words": [
+  ],
+  "ignoreRegExpList": ["@[\\w]+"]
+}

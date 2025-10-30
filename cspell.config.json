@@ -1,6 +1,19 @@
 {
-  "ignorePaths": ["go.mod", "go.sum"],
-  "words": [
+  "ignorePaths": [
+    "go.mod",
+    "go.sum",
+    ".github"
   ],
-  "ignoreRegExpList": ["@[\\w]+"]
+  "words": [
+    "apikey",
+    "armv",
+    "autofit",
+    "chromedp",
+    "clientid",
+    "gcom",
+    "golangci"
+  ],
+  "ignoreRegExpList": [
+    "@[\\w]+"
+  ]
 }

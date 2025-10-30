@@ -182,7 +182,7 @@ They can also be used instead of a configuration file.
   KIOSK_IDTOKEN_KEYFILE string
       JSON Credentials for idtoken (default "key.json")
   KIOSK_IDTOKEN_AUDIENCE string
-      Audience for idtoken, tpyically your oauth client id
+      Audience for idtoken, typically your oauth client id
   KIOSK_APIKEY_APIKEY string
       APIKEY Generated in Grafana Server
 ```
@@ -251,13 +251,13 @@ This will take the browser to the default dashboard on play.grafana.org in fulls
 
 ### Grafana Server with Generic Oauth
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used.
+This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabled. As Oauth provider is Keycloak used.
 
 ```bash
 go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1  -login-method=goauth -username=test -password=test
 ```
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used and also the login and password html input name is set.
+This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabled. As Oauth provider is Keycloak used and also the login and password html input name is set.
 
 ```bash
 go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1 -login-method=goauth -username=test -password=test -field-username=username -field-password=password

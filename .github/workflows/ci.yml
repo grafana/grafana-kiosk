@@ -43,13 +43,13 @@ jobs:
           echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build with Mage
-        uses: magefile/mage-action@6f50bbb
+        uses: magefile/mage-action@6f50bbb8ea47d56e62dee92392788acbc8192d0b
         with:
           version: latest
           args: -v build:ci
 
       - name: Get PR
-        uses: jwalton/gh-find-current-pr@89ee579
+        uses: jwalton/gh-find-current-pr@89ee5799558265a1e0e31fab792ebb4ee91c016b
         id: findPr
         with:
           state: open
@@ -95,7 +95,7 @@ jobs:
           path: grafana-kiosk-v*/**
 
       - name: Release
-        uses: softprops/action-gh-release@6da8fa9
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: startsWith(github.ref, 'refs/tags/v')

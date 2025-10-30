@@ -25,7 +25,7 @@ jobs:
         run: go get .
 
       - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@latest
+        uses: golangci/golangci-lint-action@v8
         with:
           skip-cache: true
 

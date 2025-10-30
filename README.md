@@ -346,7 +346,7 @@ Exec=screen -d -m bash -c /usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.ne
 Description=Grafana Kiosk
 Documentation=https://github.com/grafana/grafana-kiosk
 Documentation=https://grafana.com/blog/2019/05/02/grafana-tutorial-how-to-create-kiosks-to-display-dashboards-on-a-tv
-After=network.target
+After=network-online.target
 
 [Service]
 User=pi

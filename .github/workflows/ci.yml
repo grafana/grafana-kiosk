@@ -31,7 +31,7 @@ jobs:
           skip-cache: true
 
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
+        uses: securego/gosec@6be2b51
         with:
           args: ./...
 
@@ -43,13 +43,13 @@ jobs:
           echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build with Mage
-        uses: magefile/mage-action@v3
+        uses: magefile/mage-action@6f50bbb
         with:
           version: latest
           args: -v build:ci
 
       - name: Get PR
-        uses: jwalton/gh-find-current-pr@master
+        uses: jwalton/gh-find-current-pr@89ee579
         id: findPr
         with:
           state: open

@@ -23,8 +23,11 @@ func GrafanaKioskIDToken(cfg *Config, messages chan string) {
 		panic(err)
 	}
 
-	defer os.RemoveAll(dir)
-
+	defer func() {
+		if err := os.RemoveAll(dir); err != nil {
+			log.Printf("Error cleaning temporary directory: %v", err)
+		}
+	}()
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)

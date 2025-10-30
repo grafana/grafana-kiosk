@@ -31,7 +31,7 @@ jobs:
           skip-cache: true
 
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@6be2b51
+        uses: securego/gosec@6be2b51fd78feca86af91f5186b7964d76cb1256
         with:
           args: ./...
 
@@ -95,7 +95,7 @@ jobs:
           path: grafana-kiosk-v*/**
 
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@6da8fa9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: startsWith(github.ref, 'refs/tags/v')

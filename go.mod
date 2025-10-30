@@ -1,6 +1,6 @@
 module github.com/grafana/grafana-kiosk
 
-go 1.23
+go 1.23.0
 
 require (
 	github.com/chromedp/cdproto v0.0.0-20250120090109-d38428e4d9c8
@@ -18,7 +18,7 @@ require (
 	github.com/smarty/assertions v1.16.0 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/oauth2 v0.25.0 // indirect
+	golang.org/x/oauth2 v0.27.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250122153221-138b5a5a4fd4 // indirect
 	google.golang.org/grpc v1.70.0 // indirect

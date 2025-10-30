@@ -26,12 +26,12 @@ jobs:
         run: go get .
 
       - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9
+        uses: golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9 # v8.0.0
         with:
           skip-cache: true
 
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@6be2b51fd78feca86af91f5186b7964d76cb1256
+        uses: securego/gosec@6be2b51fd78feca86af91f5186b7964d76cb1256 # v2.22.10
         with:
           args: ./...
 
@@ -43,13 +43,13 @@ jobs:
           echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build with Mage
-        uses: magefile/mage-action@6f50bbb8ea47d56e62dee92392788acbc8192d0b
+        uses: magefile/mage-action@6f50bbb8ea47d56e62dee92392788acbc8192d0b # v3.1.0
         with:
           version: latest
           args: -v build:ci
 
       - name: Get PR
-        uses: jwalton/gh-find-current-pr@89ee5799558265a1e0e31fab792ebb4ee91c016b
+        uses: jwalton/gh-find-current-pr@89ee5799558265a1e0e31fab792ebb4ee91c016b # v1.3.3
         id: findPr
         with:
           state: open
@@ -95,7 +95,7 @@ jobs:
           path: grafana-kiosk-v*/**
 
       - name: Release
-        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090 # v2.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: startsWith(github.ref, 'refs/tags/v')

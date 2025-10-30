@@ -28,7 +28,6 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           version: latest
-          args: --exclude-use-default
           skip-cache: true
 
       - name: Run Gosec Security Scanner

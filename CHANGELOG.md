@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.10
+
+- Fix for issue [[[#187](https://github.com/grafana/grafana-kiosk/issues/187)]]
+- Updates go packages
+
 ## 1.0.9
 
 - Fix for issue [[#159](https://github.com/grafana/grafana-kiosk/issues/159)]

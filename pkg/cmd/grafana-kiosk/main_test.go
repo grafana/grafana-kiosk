@@ -69,7 +69,10 @@ func TestMain(t *testing.T) {
 				oldArgs := os.Args
 				defer func() { os.Args = oldArgs }()
 				os.Args = []string{"grafana-kiosk", ""}
-				os.Setenv("KIOSK_AUTOFIT", "false")
+				err := os.Setenv("KIOSK_AUTOFIT", "false")
+				if err != nil {
+					log.Println("Error setting environment KIOSK_AUTOFIT", err)
+				}
 				cfg := kiosk.Config{}
 				if err := cleanenv.ReadEnv(&cfg); err != nil {
 					log.Println("Error reading config from environment", err)

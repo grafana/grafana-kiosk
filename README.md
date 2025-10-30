@@ -2,8 +2,6 @@
 
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgrafana%2Fgrafana-kiosk%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/grafana/grafana-kiosk/goto?ref=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana-kiosk)](https://goreportcard.com/report/github.com/grafana/grafana-kiosk)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/maintainability)](https://codeclimate.com/github/grafana/grafana-kiosk/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/8cdc385a20fe3d480455/test_coverage)](https://codeclimate.com/github/grafana/grafana-kiosk/test_coverage)
 
 A very useful feature of Grafana is the ability to display dashboards and playlists on a large TV.
 
@@ -74,7 +72,7 @@ NOTE: Flags with parameters should use an "equals"
       idtoken audience
   -auto-login
       oauth_auto_login is enabled in grafana config
-			(set this flag along with the "local" login-method to bypass OAuth via the /login/local url and use a local grafana user/pass before continuing to the target URL)
+          (set this flag along with the "local" login-method to bypass OAuth via the /login/local url and use a local grafana user/pass before continuing to the target URL)
   -autofit
       Fit panels to screen (default true)
   -c string
@@ -184,7 +182,7 @@ They can also be used instead of a configuration file.
   KIOSK_IDTOKEN_KEYFILE string
       JSON Credentials for idtoken (default "key.json")
   KIOSK_IDTOKEN_AUDIENCE string
-      Audience for idtoken, tpyically your oauth client id
+      Audience for idtoken, typically your oauth client id
   KIOSK_APIKEY_APIKEY string
       APIKEY Generated in Grafana Server
 ```
@@ -253,13 +251,13 @@ This will take the browser to the default dashboard on play.grafana.org in fulls
 
 ### Grafana Server with Generic Oauth
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used.
+This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabled. As Oauth provider is Keycloak used.
 
 ```bash
 go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1  -login-method=goauth -username=test -password=test
 ```
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabeld. As Oauth provider is Keycloak used and also the login and password html input name is set.
+This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabled. As Oauth provider is Keycloak used and also the login and password html input name is set.
 
 ```bash
 go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1 -login-method=goauth -username=test -password=test -field-username=username -field-password=password

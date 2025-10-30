@@ -90,8 +90,8 @@ func ProcessArgs(cfg interface{}) Args {
 
 		envHelp, _ := cleanenv.GetDescription(cfg, nil)
 
-		fmt.Fprintln(flagSettings.Output())
-		fmt.Fprintln(flagSettings.Output(), envHelp)
+		_, _ = fmt.Fprintln(flagSettings.Output())
+		_, _ = fmt.Fprintln(flagSettings.Output(), envHelp)
 	}
 
 	err := flagSettings.Parse(os.Args[1:])

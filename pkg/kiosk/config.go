@@ -5,7 +5,7 @@ type BuildInfo struct {
 	Version string `yaml:"version,omitempty"`
 }
 
-// General non-site specific configuations
+// General non-site specific configurations
 type General struct {
 	AutoFit         bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
 	HideVariables   bool   `yaml:"hide-variables" env:"KIOSK_HIDE_VARIABLES" env-default:"false" env-description:"Hide variables in the top nav bar"`
@@ -47,7 +47,7 @@ type GoAuth struct {
 // IDToken token based login
 type IDToken struct {
 	KeyFile  string `yaml:"idtoken-keyfile" env:"KIOSK_IDTOKEN_KEYFILE" env-default:"key.json" env-description:"JSON Credentials for idtoken"`
-	Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, tpyically your oauth client id"`
+	Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, typically your oauth client id"`
 }
 
 // APIKey APIKey for login

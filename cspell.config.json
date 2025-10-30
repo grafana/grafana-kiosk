@@ -1,0 +1,50 @@
+{
+  "ignorePaths": [
+    "go.mod",
+    "go.sum",
+    ".github",
+    "build/**"
+  ],
+  "words": [
+    "apikey",
+    "armv",
+    "autofit",
+    "autofitpanels",
+    "autoplay",
+    "autosetting",
+    "awsccc",
+    "awsui",
+    "bkgann",
+    "bwsi",
+    "changeme",
+    "chromedp",
+    "clientid",
+    "dpms",
+    "gcom",
+    "goauth",
+    "golangci",
+    "googleusercontent",
+    "Heylin",
+    "idtoken",
+    "journalctl",
+    "KHTML",
+    "lxpanel",
+    "lxsession",
+    "Magefile",
+    "myoauthid",
+    "noerrdialogs",
+    "Pasqualone",
+    "pcmanfm",
+    "pcmanfs",
+    "Ramberg",
+    "Ronan",
+    "scrollbars",
+    "Stäheli",
+    "TOPNAV",
+    "XAUTHORITY",
+    "xset"
+  ],
+  "ignoreRegExpList": [
+    "@[\\w]+"
+  ]
+}

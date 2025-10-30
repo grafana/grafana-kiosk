@@ -1,3 +1,5 @@
+# Grafana Kiosk in Containers
+
 If you would like to run Grafana Kiosk from a docker container, this is possible and I do so in my kubernetes cluster!
 
 ## Note
@@ -5,11 +7,12 @@ If you would like to run Grafana Kiosk from a docker container, this is possible
 This only works for Raspberry Pi as it uses the Raspberry Pi OS as the base image. (See Debugging)
 
 Your raspberry pi must be running X, newer versions run wayland by default so you have to change this:
-  * sudo raspi-config
-  * Advanced Options
-  * Wayland
-  * Select `W1 X11`
-  * OK -> Reboot
+
+* sudo raspi-config
+* Advanced Options
+* Wayland
+* Select `W1 X11`
+* OK -> Reboot
 
 ## Build
 
@@ -48,8 +51,8 @@ tolerations:
     operator: Equal
     value: grafana-kiosk
 ```
-Toleration syntax is confusing to me, but what this says is that this pod "tolerates" the taint `role=grafana-kiosk` with the value `grafana-kiosk` and the effect `NoSchedule`.
 
+Toleration syntax is confusing to me, but what this says is that this pod "tolerates" the taint `role=grafana-kiosk` with the value `grafana-kiosk` and the effect `NoSchedule`.
 
 Full YAML:
 
@@ -203,9 +206,7 @@ spec:
           serviceAccountName: kiosk-cron
   schedule: 00 07 * * *
 status: {}
-
 ```
-
 
 ## Debugging
 
@@ -217,6 +218,7 @@ You can enable `KIOSK_DEBUG=true` env var but this will only help so much.
 Instead I modified the docker container to sleep forever so I could run chromium exec'd into it:
 
 using:
+
 ```dockerfile
 #ENTRYPOINT [ "/kiosk/grafana-kiosk" ]
 CMD sleep infinity
@@ -229,6 +231,7 @@ chromium --autoplay-policy=no-user-gesture-required --bwsi --check-for-update-in
 ```
 
 for debian bookworm it seemed like i made progress adding:
+
 ```bash
 --no-zygote --no-sandbox
 ```

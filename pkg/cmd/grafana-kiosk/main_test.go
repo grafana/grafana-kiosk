@@ -54,14 +54,14 @@ func TestMain(t *testing.T) {
 				defer func() { os.Args = oldArgs }()
 				os.Args = []string{"grafana-kiosk", ""}
 				// starts out default true
-				result := ProcessArgs(cfg)
+				result, _ := ProcessArgs(cfg)
 				So(result.AutoFit, ShouldBeTrue)
 				// flag to set it false
 				os.Args = []string{
 					"grafana-kiosk",
 					"--autofit=false",
 				}
-				result = ProcessArgs(cfg)
+				result, _ = ProcessArgs(cfg)
 				So(result.AutoFit, ShouldBeFalse)
 			})
 
@@ -86,7 +86,7 @@ func TestMain(t *testing.T) {
 			oldArgs := os.Args
 			defer func() { os.Args = oldArgs }()
 			os.Args = []string{"grafana-kiosk", ""}
-			result := ProcessArgs(cfg)
+			result, _ := ProcessArgs(cfg)
 			So(result.LoginMethod, ShouldEqual, "anon")
 			So(result.URL, ShouldEqual, "https://play.grafana.org")
 			So(result.AutoFit, ShouldBeTrue)
@@ -95,7 +95,7 @@ func TestMain(t *testing.T) {
 			oldArgs := os.Args
 			defer func() { os.Args = oldArgs }()
 			os.Args = []string{"grafana-kiosk", "-login-method", "local"}
-			result := ProcessArgs(cfg)
+			result, _ := ProcessArgs(cfg)
 			So(result.LoginMethod, ShouldEqual, "local")
 			So(result.URL, ShouldEqual, "https://play.grafana.org")
 			So(result.AutoFit, ShouldBeTrue)

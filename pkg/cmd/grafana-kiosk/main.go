@@ -51,7 +51,7 @@ type Args struct {
 }
 
 // ProcessArgs processes and handles CLI arguments.
-func ProcessArgs(cfg interface{}) Args {
+func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
 	var processedArgs Args
 
 	flagSettings := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
@@ -99,7 +99,7 @@ func ProcessArgs(cfg interface{}) Args {
 		os.Exit(-1)
 	}
 
-	return processedArgs
+	return processedArgs, flagSettings
 }
 
 func setEnvironment() {
@@ -161,7 +161,7 @@ func main() {
 	cfg.BuildInfo.Version = Version
 
 	// override
-	args := ProcessArgs(&cfg)
+	args, fs := ProcessArgs(&cfg)
 
 	// validate auth methods
 	switch args.LoginMethod {
@@ -186,37 +186,46 @@ func main() {
 		if err := cleanenv.ReadEnv(&cfg); err != nil {
 			log.Println("Error reading config from environment", err)
 		}
-		cfg.Target.URL = args.URL
-		cfg.Target.LoginMethod = args.LoginMethod
-		cfg.Target.Username = args.Username
-		cfg.Target.Password = args.Password
-		cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors
-		cfg.Target.IsPlayList = args.IsPlayList
-		cfg.Target.UseMFA = args.UseMFA
-		//
-		cfg.General.AutoFit = args.AutoFit
-		cfg.General.LXDEEnabled = args.LXDEEnabled
-		cfg.General.LXDEHome = args.LXDEHome
-		cfg.General.Mode = args.Mode
-		cfg.General.WindowPosition = args.WindowPosition
-		cfg.General.WindowSize = args.WindowSize
-		cfg.General.ScaleFactor = args.ScaleFactor
-		cfg.General.PageLoadDelayMS = args.PageLoadDelayMS
-		cfg.General.HideLinks = args.HideLinks
-		cfg.General.HideTimePicker = args.HideTimePicker
-		cfg.General.HideVariables = args.HideVariables
-		//
-		cfg.GoAuth.AutoLogin = args.OauthAutoLogin
-		cfg.GoAuth.UsernameField = args.UsernameField
-		cfg.GoAuth.PasswordField = args.PasswordField
-		cfg.GoAuth.WaitForPasswordField = args.OauthWaitForPasswordField
-		cfg.GoAuth.WaitForPasswordFieldIgnoreClass = args.OauthWaitForPasswordFieldIgnoreClass
-		cfg.GoAuth.WaitForStaySignedInPrompt = args.OauthWaitForStaySignedInPrompt
 
-		cfg.IDToken.Audience = args.Audience
-		cfg.IDToken.KeyFile = args.KeyFile
+		update := map[string]func(){
+			"URL":                       func() { cfg.Target.URL = args.URL },
+			"login-method":              func() { cfg.Target.LoginMethod = args.LoginMethod },
+			"username":                  func() { cfg.Target.Username = args.Username },
+			"password":                  func() { cfg.Target.Password = args.Password },
+			"ignore-certificate-errors": func() { cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors },
+			"playlists":                 func() { cfg.Target.IsPlayList = args.IsPlayList },
+			"use-mfa":                   func() { cfg.Target.UseMFA = args.UseMFA },
+			//
+			"autofit":            func() { cfg.General.AutoFit = args.AutoFit },
+			"lxde":               func() { cfg.General.LXDEEnabled = args.LXDEEnabled },
+			"lxde-home":          func() { cfg.General.LXDEHome = args.LXDEHome },
+			"kiosk-mode":         func() { cfg.General.Mode = args.Mode },
+			"window-position":    func() { cfg.General.WindowPosition = args.WindowPosition },
+			"window-size":        func() { cfg.General.WindowSize = args.WindowSize },
+			"scale-factor":       func() { cfg.General.ScaleFactor = args.ScaleFactor },
+			"page-load-delay-ms": func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
+			"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
+			"hide-time-picker":   func() { cfg.General.HideTimePicker = args.HideTimePicker },
+			"hide-variables":     func() { cfg.General.HideVariables = args.HideVariables },
+			//
+			"auto-login":                     func() { cfg.GoAuth.AutoLogin = args.OauthAutoLogin },
+			"field-username":                 func() { cfg.GoAuth.UsernameField = args.UsernameField },
+			"field-password":                 func() { cfg.GoAuth.PasswordField = args.PasswordField },
+			"wait-for-password-field":        func() { cfg.GoAuth.WaitForPasswordField = args.OauthWaitForPasswordField },
+			"wait-for-password-field-class":  func() { cfg.GoAuth.WaitForPasswordFieldIgnoreClass = args.OauthWaitForPasswordFieldIgnoreClass },
+			"wait-for-stay-signed-in-prompt": func() { cfg.GoAuth.WaitForStaySignedInPrompt = args.OauthWaitForStaySignedInPrompt },
 
-		cfg.APIKey.APIKey = args.APIKey
+			"audience": func() { cfg.IDToken.Audience = args.Audience },
+			"keyfile":  func() { cfg.IDToken.KeyFile = args.KeyFile },
+
+			"apikey": func() { cfg.APIKey.APIKey = args.APIKey },
+		}
+
+		fs.Visit(func(f *flag.Flag) {
+			if do, ok := update[f.Name]; ok {
+				do()
+			}
+		})
 	}
 
 	// make sure the url has content

@@ -56,7 +56,7 @@ func ProcessArgs(cfg interface{}) Args {
 
 	flagSettings := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
 	flagSettings.StringVar(&processedArgs.ConfigPath, "c", "", "Path to configuration file (config.yaml)")
-	flagSettings.StringVar(&processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken|apikey|aws]")
+	flagSettings.StringVar(&processedArgs.LoginMethod, "login-method", "anon", "[anon|local|gcom|goauth|idtoken|apikey|aws|azuread]")
 	flagSettings.StringVar(&processedArgs.Username, "username", "guest", "username")
 	flagSettings.StringVar(&processedArgs.Password, "password", "guest", "password")
 	flagSettings.BoolVar(&processedArgs.UseMFA, "use-mfa", false, "password")
@@ -165,7 +165,7 @@ func main() {
 
 	// validate auth methods
 	switch args.LoginMethod {
-	case "goauth", "anon", "local", "gcom", "idtoken", "apikey", "aws":
+	case "goauth", "anon", "local", "gcom", "idtoken", "apikey", "aws", "azuread":
 	default:
 		log.Println("Invalid auth method", args.LoginMethod)
 		os.Exit(-1)
@@ -259,6 +259,9 @@ func main() {
 	case "aws":
 		log.Printf("Launching AWS SSO kiosk")
 		kiosk.GrafanaKioskAWSLogin(&cfg, messages)
+	case "azuread":
+		log.Printf("Launching AzureAD login kiosk")
+		kiosk.GrafanaKioskAzureAD(&cfg, messages)
 	default:
 		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(&cfg, messages)

@@ -106,6 +106,10 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	if cfg.General.WindowSize != "" {
 		execAllocatorOption = append(
 			execAllocatorOption,
+			chromedp.Flag("kiosk", false),
+			chromedp.Flag("start-fullscreen", false),
+			// force app mode (no address bar and controls)
+			chromedp.Flag("app", "data:text/html,<title>Grafana</title>"),
 			chromedp.Flag("window-size", cfg.General.WindowSize))
 	}
 	if cfg.General.ScaleFactor != "" {

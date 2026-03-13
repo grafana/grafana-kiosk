@@ -3,7 +3,6 @@ package kiosk
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"github.com/chromedp/chromedp"
@@ -11,21 +10,10 @@ import (
 )
 
 // GrafanaKioskGenericOauth creates a chrome-based kiosk using a oauth2 authenticated account.
-func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
-	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
-	if err != nil {
-		panic(err)
-	}
-
-	log.Println("Using temp dir:", dir)
-	defer func() {
-		if err := os.RemoveAll(dir); err != nil {
-			log.Printf("Error cleaning temporary directory: %v", err)
-		}
-	}()
+func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
-	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
 	defer cancel()
 
 	// also set up a custom logger
@@ -99,14 +87,18 @@ func GrafanaKioskGenericOauth(cfg *Config, messages chan string) {
 			panic(err)
 		}
 	}
-	// blocking wait
+	// blocking wait until context is cancelled or a message triggers a reload
 	for {
-		messageFromChrome := <-messages
-		if err := chromedp.Run(taskCtx,
-			chromedp.Navigate(generatedURL),
-		); err != nil {
-			panic(err)
+		select {
+		case <-ctx.Done():
+			return
+		case messageFromChrome := <-messages:
+			if err := chromedp.Run(taskCtx,
+				chromedp.Navigate(generatedURL),
+			); err != nil {
+				return
+			}
+			log.Println("Chromium output:", messageFromChrome)
 		}
-		log.Println("Chromium output:", messageFromChrome)
 	}
 }

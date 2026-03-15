@@ -10,7 +10,7 @@ WORKDIR /build
 RUN CGO_ENABLED=0 GOOS=${COMPILE_GOOS} GOARCH=${COMPILE_GOARCH} GOARM=${COMPILE_GOARM} go build -ldflags '-extldflags "-static"' -o grafana-kiosk ./pkg/cmd/grafana-kiosk/main.go
 RUN mv /build/grafana-kiosk /
 
-FROM --platform=${TARGET_PLATFORM} dtcooper/raspberrypi-os:latest@sha256:bc3c17c84cb4f20b17c3c776866115d9fa76c99702edb16b9c9c088458676145
+FROM --platform=${TARGET_PLATFORM} dtcooper/raspberrypi-os:latest@sha256:8e710ae87812a1c3dfe20e48470130f74e57cdd66d9d08e8d292fcf42d447243
 RUN apt-get update && \
   apt-get install -qy \
   tzdata ca-certificates chromium-browser

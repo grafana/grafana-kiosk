@@ -52,15 +52,6 @@ jobs:
           version: latest
           args: -v build:ci
 
-      - name: Upload Code Climate Report
-        uses: paambaati/codeclimate-action@v9.0.0
-        env:
-          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-        with:
-          prefix: github.com/grafana/grafana-kiosk
-          coverageLocations: |
-            ${{github.workspace}}/coverage.out:gocov
-
       - name: Package Release
         id: package-release
         if: startsWith(github.ref, 'refs/tags/v')

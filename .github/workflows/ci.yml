@@ -31,7 +31,7 @@ jobs:
           skip-cache: true
 
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@v2
+        uses: securego/gosec@master
         with:
           args: ./...
 

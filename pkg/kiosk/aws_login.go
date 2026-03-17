@@ -18,7 +18,7 @@ func GrafanaKioskAWSLogin(cfg *Config, messages chan string) {
 	}
 
 	log.Println("Using temp dir:", dir)
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	opts := generateExecutorOptions(dir, cfg)
 

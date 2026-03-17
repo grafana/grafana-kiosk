@@ -83,8 +83,9 @@ gosec ./...
 There is no `.golangci.yml` config file. CI runs golangci-lint v2 and gosec
 with default settings.
 
-**IMPORTANT**: Always run `golangci-lint run --timeout 5m ./pkg/...` before
-committing and fix any issues. CI will reject code with lint violations.
+**IMPORTANT**: Always run `golangci-lint run --timeout 5m ./pkg/...` and
+`gosec ./...` before committing and fix any issues. CI will reject code
+with lint or security violations.
 
 ## Code Style Guidelines
 

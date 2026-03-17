@@ -6,12 +6,20 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/ilyakaznacheev/cleanenv"
 
 	"github.com/grafana/grafana-kiosk/pkg/initialize"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 )
+
+// sanitize removes newlines and carriage returns to prevent log injection
+func sanitize(s string) string {
+	s = strings.ReplaceAll(s, "\n", "")
+	s = strings.ReplaceAll(s, "\r", "")
+	return s
+}
 
 var (
 	// Version this is set during build time using git tags
@@ -101,7 +109,7 @@ func setEnvironment() {
 		displayEnv = os.Getenv("DISPLAY")
 	}
 
-	log.Println("DISPLAY=", displayEnv)
+	log.Println("DISPLAY=", sanitize(displayEnv)) // #nosec G706 -- sanitized before logging
 
 	var xAuthorityEnv = os.Getenv("XAUTHORITY")
 	if xAuthorityEnv == "" {
@@ -110,12 +118,12 @@ func setEnvironment() {
 		var homeEnv = os.Getenv("HOME")
 
 		if err := os.Setenv("XAUTHORITY", homeEnv+"/.Xauthority"); err != nil {
-			log.Println("Error setting XAUTHORITY", err.Error())
+			log.Println("Error setting XAUTHORITY", sanitize(err.Error())) // #nosec G706 -- sanitized before logging
 		}
 		xAuthorityEnv = os.Getenv("XAUTHORITY")
 	}
 
-	log.Println("XAUTHORITY=", xAuthorityEnv)
+	log.Println("XAUTHORITY=", sanitize(xAuthorityEnv)) // #nosec G706 -- sanitized before logging
 }
 
 func summary(cfg *kiosk.Config) {

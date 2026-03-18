@@ -3,6 +3,14 @@
 ## 1.0.11
 
 - Add AzureAD authentication support for kiosk mode ([#211](https://github.com/grafana/grafana-kiosk/pull/211))
+- Fix gosec security violations: add command allowlist in LXDE init, sanitize log inputs ([#219](https://github.com/grafana/grafana-kiosk/pull/219))
+- Update all Go module dependencies to latest versions ([#214](https://github.com/grafana/grafana-kiosk/pull/214))
+- Disable kiosk/fullscreen when explicit window size is requested ([#194](https://github.com/grafana/grafana-kiosk/pull/194))
+- Fix environment variables not working with command-line arguments ([#199](https://github.com/grafana/grafana-kiosk/pull/199))
+- Fix temp dir cleanup not running when process receives a signal ([#212](https://github.com/grafana/grafana-kiosk/pull/212))
+- Add Content-Type header to host requests ([#208](https://github.com/grafana/grafana-kiosk/pull/208))
+- Upgrade Go version to 1.26.1
+- Add AGENTS.md with build, test, lint, and code style guidelines
 
 ## 1.0.10
 

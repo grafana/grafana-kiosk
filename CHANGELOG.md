@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.11
+
+- Add AzureAD authentication support for kiosk mode ([#211](https://github.com/grafana/grafana-kiosk/pull/211))
+
 ## 1.0.10
 
 - Fix for issue [[[#187](https://github.com/grafana/grafana-kiosk/issues/187)]]

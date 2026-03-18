@@ -61,17 +61,18 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 					}
 					fetchReq.Headers = append(
 						fetchReq.Headers,
-						&fetch.HeaderEntry{Name: "content-type", Value: "application/json"},
+						&fetch.HeaderEntry{Name: "Content-Type", Value: "application/json"},
 					)
 				}
 				// if they match, append the Bearer token
 				if requestURL.Host == u.Host {
 					if cfg.General.DebugEnabled {
-						log.Println("Appending Header Authorization: Bearer REDACTED")
+						log.Println("Appending Header Authorization: Bearer REDACTED and Content-Type: application/json")
 					}
 					fetchReq.Headers = append(
 						fetchReq.Headers,
 						&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
+						&fetch.HeaderEntry{Name: "Content-Type", Value: "application/json"},
 					)
 				}
 				err = fetchReq.Do(GetExecutor(taskCtx))

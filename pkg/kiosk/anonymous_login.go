@@ -33,15 +33,15 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, message
 	var generatedURL = GenerateURL(cfg)
 
 	log.Println("Navigating to ", generatedURL)
-	/*
-		Launch chrome and look for main-view element
-	*/
+
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
-		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
 	); err != nil {
 		panic(err)
 	}
+	// Give browser time to fully render the dashboard
+	log.Printf("Sleeping %d MS before continuing", cfg.General.PageLoadDelayMS)
+	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {

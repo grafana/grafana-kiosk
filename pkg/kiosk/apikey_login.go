@@ -86,6 +86,31 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 		taskCtx,
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
 		chromedp.Navigate(generatedURL),
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			log.Println("Injecting CSS to hide AWS cookie banner...")
+			chromedp.Run(ctx,
+				chromedp.Evaluate(`
+					(function() {
+						var style = document.createElement('style');
+						style.id = 'grafana-kiosk-hide-cookie-banner';
+						style.textContent = [
+							'[id^="awsccc"]',
+							'[class^="awsccc"]',
+							'[class*="awsccc"]',
+							'[data-id^="awsccc"]',
+							'#onetrust-consent-sdk',
+							'[class*="cookie-consent"]',
+							'[class*="cookie-banner"]',
+							'[id*="cookie-consent"]',
+							'[id*="cookie-banner"]'
+						].join(', ') + ' { display: none !important; visibility: hidden !important; pointer-events: none !important; }';
+						document.head.appendChild(style);
+						return 'CSS injected';
+					})()
+				`, nil),
+			)
+			return nil
+		}),
 		chromedp.ActionFunc(func(context.Context) error {
 			log.Printf("Sleeping %d MS before continuing", cfg.General.PageLoadDelayMS)
 			time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)

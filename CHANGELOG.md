@@ -1,5 +1,18 @@
 # Change Log
 
+## 1.1.1
+
+- Update all Go module dependencies to latest versions
+- Update Go version to 1.26
+- Upgrade GitHub Actions to latest major versions (checkout v6, setup-go v6, upload-artifact v5, stale v10)
+- Update golangci-lint to v2 and fix lint flag syntax in Magefile
+- Fix errcheck violations for unchecked return values across codebase
+- Fix staticcheck violation: replace deprecated `idtoken.WithCredentialsFile` with `idtoken.WithAuthCredentialsFile`
+- Fix gosec security violations: add command allowlist in LXDE init, sanitize log inputs
+- Remove deprecated CodeClimate coverage upload step
+- Add CI concurrency to cancel in-progress runs on new pushes
+- Add AGENTS.md with build, test, lint, and code style guidelines
+
 ## 1.1.0
 
 NOTICE: BREAKING CHANGES!

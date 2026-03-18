@@ -37,9 +37,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 	var generatedURL = GenerateURL(cfg)
 
 	log.Println("Navigating to ", generatedURL)
-	/*
-		Launch chrome and look for main-view element
-	*/
+
 	u, err := url.Parse(cfg.Target.URL)
 	if err != nil {
 		panic(fmt.Errorf("url.Parse: %w", err))
@@ -53,7 +51,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 				if err != nil {
 					panic(fmt.Errorf("url.Parse: %w", err))
 				}
-				// handle both scheme/host, and subpath with query
+				// Add Content-Type header only for datasource query API calls
 				if strings.HasPrefix(ev.Request.URL, u.Scheme+"://"+u.Host) &&
 					strings.Contains(ev.Request.URL, "/api/ds/query?") {
 					if cfg.General.DebugEnabled {
@@ -64,15 +62,14 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 						&fetch.HeaderEntry{Name: "Content-Type", Value: "application/json"},
 					)
 				}
-				// if they match, append the Bearer token
+				// Append Bearer token to all requests matching the target host
 				if requestURL.Host == u.Host {
 					if cfg.General.DebugEnabled {
-						log.Println("Appending Header Authorization: Bearer REDACTED and Content-Type: application/json")
+						log.Println("Appending Header Authorization: Bearer REDACTED")
 					}
 					fetchReq.Headers = append(
 						fetchReq.Headers,
 						&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
-						&fetch.HeaderEntry{Name: "Content-Type", Value: "application/json"},
 					)
 				}
 				err = fetchReq.Do(GetExecutor(taskCtx))
@@ -86,15 +83,12 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 		taskCtx,
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
 		chromedp.Navigate(generatedURL),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Printf("Sleeping %d MS before continuing", cfg.General.PageLoadDelayMS)
-			time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
-			return nil
-		}),
-		chromedp.WaitVisible(`//div[@class="main-view"]`, chromedp.BySearch),
 	); err != nil {
 		panic(err)
 	}
+	// Give browser time to fully render the dashboard
+	log.Printf("Sleeping %d MS before continuing", cfg.General.PageLoadDelayMS)
+	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {

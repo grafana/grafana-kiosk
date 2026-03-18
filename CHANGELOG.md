@@ -11,6 +11,8 @@
 - Fix gosec security violations: add command allowlist in LXDE init, sanitize log inputs
 - Remove deprecated CodeClimate coverage upload step
 - Add CI concurrency to cancel in-progress runs on new pushes
+- Pin all GitHub Actions to commit SHAs for zizmor compliance
+- Disable default caching in setup-go to prevent cache poisoning
 - Add AGENTS.md with build, test, lint, and code style guidelines
 
 ## 1.1.0

@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/url"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/ilyakaznacheev/cleanenv"
 
@@ -239,28 +242,51 @@ func main() {
 	setEnvironment()
 	log.Println("method ", cfg.Target.LoginMethod)
 
+	dir, err := os.MkdirTemp(os.TempDir(), "chromedp-kiosk")
+	if err != nil {
+		log.Fatal("Error creating temp dir:", err)
+	}
+	log.Println("Using temp dir:", dir)
+	defer func() {
+		log.Println("Cleaning up temp dir:", dir)
+		if err := os.RemoveAll(dir); err != nil {
+			log.Printf("Error cleaning temporary directory: %v", err)
+		}
+	}()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	go func() {
+		<-sigs
+		log.Println("Received signal, shutting down...")
+		cancel()
+	}()
+
 	messages := make(chan string)
 	switch cfg.Target.LoginMethod {
 	case "local":
 		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(&cfg, messages)
+		kiosk.GrafanaKioskLocal(ctx, &cfg, dir, messages)
 	case "gcom":
 		log.Printf("Launching GCOM login kiosk")
-		kiosk.GrafanaKioskGCOM(&cfg, messages)
+		kiosk.GrafanaKioskGCOM(ctx, &cfg, dir, messages)
 	case "goauth":
 		log.Printf("Launching Generic Oauth login kiosk")
-		kiosk.GrafanaKioskGenericOauth(&cfg, messages)
+		kiosk.GrafanaKioskGenericOauth(ctx, &cfg, dir, messages)
 	case "idtoken":
 		log.Printf("Launching idtoken oauth kiosk")
-		kiosk.GrafanaKioskIDToken(&cfg, messages)
+		kiosk.GrafanaKioskIDToken(ctx, &cfg, dir, messages)
 	case "apikey":
 		log.Printf("Launching apikey kiosk")
-		kiosk.GrafanaKioskAPIKey(&cfg, messages)
+		kiosk.GrafanaKioskAPIKey(ctx, &cfg, dir, messages)
 	case "aws":
 		log.Printf("Launching AWS SSO kiosk")
-		kiosk.GrafanaKioskAWSLogin(&cfg, messages)
+		kiosk.GrafanaKioskAWSLogin(ctx, &cfg, dir, messages)
 	default:
 		log.Printf("Launching ANON login kiosk")
-		kiosk.GrafanaKioskAnonymous(&cfg, messages)
+		kiosk.GrafanaKioskAnonymous(ctx, &cfg, dir, messages)
 	}
 }

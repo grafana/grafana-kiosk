@@ -12,6 +12,8 @@ permissions:
   security-events: write
   # Only need to read contents
   contents: read
+  # Required by the reusable workflow
+  actions: read
 
 jobs:
   scan-pr:

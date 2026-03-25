@@ -9,7 +9,7 @@ OS/arch targets. The build system uses [Mage](https://magefile.org/).
 
 ## Repository Layout
 
-```
+```text
 pkg/
   cmd/
     grafana-kiosk/    # Main kiosk binary entrypoint
@@ -87,12 +87,17 @@ with default settings.
 `gosec ./...` before committing and fix any issues. CI will reject code
 with lint or security violations.
 
+**IMPORTANT**: If `go.mod` or `go.sum` changes, always run `mage -v` to
+verify the project builds successfully before committing.
+
 ## Code Style Guidelines
 
 ### Formatting
 
 - Use `gofmt` for all formatting. Run `mage -v build:format` before committing.
 - No `.editorconfig` exists; rely on `gofmt` defaults (tabs for indentation).
+- Always run `npx markdownlint-cli <file>` when updating `.md` files and fix
+  any issues before committing.
 
 ### Import Grouping
 
@@ -157,6 +162,7 @@ This codebase uses an aggressive error handling style:
 - Use the standard library `log` package exclusively (`log.Println`, `log.Printf`).
 - Do not introduce third-party logging libraries.
 - No structured logging. No log levels beyond debug checks:
+
   ```go
   if cfg.ChromeDPFlags.DebugEnabled {
       log.Printf("debug info: %+v", data)
@@ -177,6 +183,7 @@ This codebase uses an aggressive error handling style:
 - **Framework**: [GoConvey](https://github.com/smartystreets/goconvey) with
   dot-import (`import . "github.com/smartystreets/goconvey/convey"`).
 - **Style**: BDD-style nested `Convey` blocks with `So`/`Should*` assertions:
+
   ```go
   func TestExample(t *testing.T) {
       Convey("Given some precondition", t, func() {
@@ -187,6 +194,7 @@ This codebase uses an aggressive error handling style:
       })
   }
   ```
+
 - **Test data**: Place YAML fixtures in the `testdata/` directory at the repo
   root. Reference them via relative paths from the test file.
 - Do not use `testify`, table-driven tests, or `t.Run()` subtests — this
@@ -214,7 +222,7 @@ All actions are pinned to commit SHAs with version comments (required by
 zizmor). Current versions:
 
 | Action | Version |
-|---|---|
+| --- | --- |
 | `actions/checkout` | v6 |
 | `actions/setup-go` | v6 (cache disabled) |
 | `golangci/golangci-lint-action` | v9.2.0 |
@@ -227,9 +235,18 @@ zizmor). Current versions:
 | `google/osv-scanner-action` | v2.3.3 |
 
 When updating actions, always pin to full commit SHA with a version comment:
+
 ```yaml
 uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 ```
+
+## Branching Policy
+
+- **Never commit directly to `main`**. Always create a new branch for changes.
+- Use descriptive branch names (e.g., `feat/add-feature`, `fix/bug-description`).
+- When pushing new commits to a PR, always update the PR summary to reflect all
+  changes.
+- **Do not push automatically**. Only push when explicitly asked.
 
 ## Environment Notes
 

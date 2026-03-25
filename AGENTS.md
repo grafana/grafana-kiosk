@@ -237,6 +237,7 @@ uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 - Use descriptive branch names (e.g., `feat/add-feature`, `fix/bug-description`).
 - When pushing new commits to a PR, always update the PR summary to reflect all
   changes.
+- **Do not push automatically**. Only push when explicitly asked.
 
 ## Environment Notes
 

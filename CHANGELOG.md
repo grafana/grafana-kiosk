@@ -3,7 +3,9 @@
 ## 1.0.11
 
 - Add AzureAD authentication support for kiosk mode ([#211](https://github.com/grafana/grafana-kiosk/pull/211))
-- Fix gosec security violations: add command allowlist in LXDE init, sanitize log inputs ([#219](https://github.com/grafana/grafana-kiosk/pull/219))
+- Fix gosec security violations: add command allowlist in LXDE
+  init, sanitize log inputs
+  ([#219](https://github.com/grafana/grafana-kiosk/pull/219))
 - Update all Go module dependencies to latest versions ([#214](https://github.com/grafana/grafana-kiosk/pull/214))
 - Disable kiosk/fullscreen when explicit window size is requested ([#194](https://github.com/grafana/grafana-kiosk/pull/194))
 - Fix environment variables not working with command-line arguments ([#199](https://github.com/grafana/grafana-kiosk/pull/199))
@@ -13,7 +15,9 @@
 - Add AGENTS.md with build, test, lint, and code style guidelines
 - Add branching policy and contribution guidelines to AGENTS.md ([#231](https://github.com/grafana/grafana-kiosk/pull/231))
 - Update chromedp to v0.15.1 to fix build compatibility ([#231](https://github.com/grafana/grafana-kiosk/pull/231))
-- Replace deprecated `idtoken.WithCredentialsFile` with `option.WithAuthCredentialsFile` ([#231](https://github.com/grafana/grafana-kiosk/pull/231))
+- Replace deprecated `idtoken.WithCredentialsFile` with
+  `option.WithAuthCredentialsFile`
+  ([#231](https://github.com/grafana/grafana-kiosk/pull/231))
 
 ## 1.0.10
 
@@ -25,11 +29,16 @@
 - Fix for issue [[#159](https://github.com/grafana/grafana-kiosk/issues/159)]
 - Fix for issue [[#160](https://github.com/grafana/grafana-kiosk/issues/160)]
 - Updates go packages
-- Please note: When using a service account token, you may need to increase the delay in your configuration for playlists depending on the device being used (10000 ms for RPi4b appears stable)
+- Please note: When using a service account token, you may need
+  to increase the delay in your configuration for playlists
+  depending on the device being used
+  (10000 ms for RPi4b appears stable)
 
 ## 1.0.8
 
-- Fix for issue [#137](https://github.com/grafana/grafana-kiosk/issues/137) How to get rid of "Choose your search engine" window
+- Fix for issue
+  [#137](https://github.com/grafana/grafana-kiosk/issues/137)
+  How to get rid of "Choose your search engine" window
 - Fix for scale-factor parameter [#142](https://github.com/grafana/grafana-kiosk/pull/142)
 
 ## 1.0.7
@@ -64,7 +73,8 @@
 - Fix Grafana Cloud login
 - Updated modules
 - Added "window-position" option, allows running kiosk on different displays
-- Added `--check-for-update-interval=31536000` to default flags sent to chromium to workaround update popup
+- Added `--check-for-update-interval=31536000` to default flags
+  sent to chromium to workaround update popup
 
 ## 1.0.2
 

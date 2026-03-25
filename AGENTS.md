@@ -231,6 +231,11 @@ When updating actions, always pin to full commit SHA with a version comment:
 uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 ```
 
+## Branching Policy
+
+- **Never commit directly to `main`**. Always create a new branch for changes.
+- Use descriptive branch names (e.g., `feat/add-feature`, `fix/bug-description`).
+
 ## Environment Notes
 
 - `CGO_ENABLED=0` is set for all builds and tests.

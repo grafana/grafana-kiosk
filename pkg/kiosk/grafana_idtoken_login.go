@@ -12,6 +12,7 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"google.golang.org/api/idtoken"
+	"google.golang.org/api/option"
 )
 
 // GrafanaKioskIDToken creates a chrome-based kiosk using a oauth2 authenticated account.
@@ -41,7 +42,7 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 	log.Println("Navigating to ", generatedURL)
 
 	log.Printf("Token is using audience %s and reading from %s", cfg.IDToken.Audience, cfg.IDToken.KeyFile)
-	tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IDToken.Audience, idtoken.WithCredentialsFile(cfg.IDToken.KeyFile))
+	tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IDToken.Audience, option.WithAuthCredentialsFile(option.ServiceAccount, cfg.IDToken.KeyFile))
 
 	if err != nil {
 		panic(err)

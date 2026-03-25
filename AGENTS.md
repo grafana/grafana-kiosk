@@ -235,6 +235,8 @@ uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
 - **Never commit directly to `main`**. Always create a new branch for changes.
 - Use descriptive branch names (e.g., `feat/add-feature`, `fix/bug-description`).
+- When pushing new commits to a PR, always update the PR summary to reflect all
+  changes.
 
 ## Environment Notes
 

@@ -87,6 +87,9 @@ with default settings.
 `gosec ./...` before committing and fix any issues. CI will reject code
 with lint or security violations.
 
+**IMPORTANT**: If `go.mod` or `go.sum` changes, always run `mage -v` to
+verify the project builds successfully before committing.
+
 ## Code Style Guidelines
 
 ### Formatting

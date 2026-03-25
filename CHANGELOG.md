@@ -11,6 +11,9 @@
 - Add Content-Type header to host requests ([#208](https://github.com/grafana/grafana-kiosk/pull/208))
 - Upgrade Go version to 1.26.1
 - Add AGENTS.md with build, test, lint, and code style guidelines
+- Add branching policy and contribution guidelines to AGENTS.md ([#231](https://github.com/grafana/grafana-kiosk/pull/231))
+- Update chromedp to v0.15.1 to fix build compatibility ([#231](https://github.com/grafana/grafana-kiosk/pull/231))
+- Replace deprecated `idtoken.WithCredentialsFile` with `option.WithAuthCredentialsFile` ([#231](https://github.com/grafana/grafana-kiosk/pull/231))
 
 ## 1.0.10
 

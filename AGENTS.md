@@ -208,6 +208,14 @@ This codebase uses an aggressive error handling style:
   `KIOSK_TARGET_URL`, `KIOSK_GRAFANA_AUTOFIT`).
 - Provide `env-default` values in struct tags for all config fields.
 
+## README Review Policy
+
+**When any code changes are made, check if `README.md` needs to be updated.**
+This includes changes to CLI flags, environment variables, configuration
+options, default values, login methods, build targets, or any user-facing
+behavior. If the change does not affect user-facing behavior (e.g., tests,
+internal refactoring, CI-only changes), no README update is needed.
+
 ## Updating README Usage Documentation
 
 When CLI flags or environment variables change (e.g., new flags added, defaults

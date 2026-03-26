@@ -271,6 +271,36 @@ When updating actions, always pin to full commit SHA with a version comment:
 uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 ```
 
+### Checking for Action Updates
+
+Follow this procedure to check for and apply GitHub Actions updates:
+
+1. **List all actions** — Extract every `uses:` line from the workflow files
+   in `.github/workflows/`.
+
+2. **Check latest releases** — For each action, run:
+
+   ```sh
+   gh api repos/<owner>/<repo>/releases/latest --jq '.tag_name'
+   ```
+
+3. **Compare SHAs** — If a newer version exists, get its commit SHA:
+
+   ```sh
+   gh api repos/<owner>/<repo>/git/ref/tags/<tag> --jq '.object.sha'
+   ```
+
+   Compare against the SHA currently pinned in the workflow file.
+
+4. **Update the workflow file** — Replace the old SHA and version comment
+   with the new SHA and version tag. Always use the full 40-character
+   commit SHA, never a tag reference.
+
+5. **Update the version table** — Update the action version table in
+   this file (AGENTS.md) to reflect the new version.
+
+6. **Update the changelog** — Add an entry to `CHANGELOG.md`.
+
 ## Changelog Policy
 
 **Always update `CHANGELOG.md` when making changes.** Every commit that

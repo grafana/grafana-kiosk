@@ -34,6 +34,8 @@
 - Add GitHub Actions update procedure to AGENTS.md
   ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
 - Add `workflow_dispatch` trigger to Build CI workflow
+- Add release process documentation to AGENTS.md
+- Add explicit markdownlint requirement for AGENTS.md to formatting guidelines
 
 ## 1.0.10
 

@@ -18,6 +18,21 @@
 - Replace deprecated `idtoken.WithCredentialsFile` with
   `option.WithAuthCredentialsFile`
   ([#231](https://github.com/grafana/grafana-kiosk/pull/231))
+- Update mage to v1.17.0 and google.golang.org/api to v0.273.0
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
+- Fix `KIOSK_LOGIN_METHOD` env-description to include `aws`
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
+- Update README usage documentation (CLI flags and environment
+  variables) from actual `--help` output
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
+- Add README update procedure to AGENTS.md
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
+- Add changelog policy to AGENTS.md
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
+- Update `actions/setup-go` from v6 to v6.3.0 in CI workflow
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
+- Add GitHub Actions update procedure to AGENTS.md
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
 
 ## 1.0.10
 

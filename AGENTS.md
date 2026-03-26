@@ -208,6 +208,37 @@ This codebase uses an aggressive error handling style:
   `KIOSK_TARGET_URL`, `KIOSK_GRAFANA_AUTOFIT`).
 - Provide `env-default` values in struct tags for all config fields.
 
+## Updating README Usage Documentation
+
+When CLI flags or environment variables change (e.g., new flags added, defaults
+changed, descriptions updated), the README must be updated to match. Follow
+this procedure:
+
+1. **Fix source first** — Ensure the `env-description` tags in
+   `pkg/kiosk/config.go` and the flag definitions in
+   `pkg/cmd/grafana-kiosk/main.go` are accurate and consistent with each other.
+   For example, if `-login-method` lists `aws` as an option, the corresponding
+   `KIOSK_LOGIN_METHOD` env-description must also list `aws`.
+
+2. **Build the binary** — Run `mage -v` to produce a fresh local binary.
+
+3. **Capture the help output** — Run
+   `./bin/<os>_<arch>/grafana-kiosk --help` and capture the full output.
+
+4. **Update the CLI flags section** — Replace the code block under the
+   `## Usage` heading in `README.md` with the flags portion of the `--help`
+   output (everything from the first flag up to the `Environment variables:`
+   line).
+
+5. **Update the environment variables section** — Replace the code block under
+   the "Environment variables can be set..." paragraph in `README.md` with the
+   environment variables portion of the `--help` output.
+
+6. **Lint the README** — Run `npx markdownlint-cli README.md` and fix any
+   issues before committing.
+
+7. **Run tests** — Run `mage -v test:default` to confirm no regressions.
+
 ## CI Pipeline
 
 GitHub Actions workflows (`.github/workflows/`):
@@ -224,7 +255,7 @@ zizmor). Current versions:
 | Action | Version |
 | --- | --- |
 | `actions/checkout` | v6 |
-| `actions/setup-go` | v6 (cache disabled) |
+| `actions/setup-go` | v6.3.0 (cache disabled) |
 | `golangci/golangci-lint-action` | v9.2.0 |
 | `securego/gosec` | v2.24.7 |
 | `magefile/mage-action` | v3.1.0 |
@@ -239,6 +270,44 @@ When updating actions, always pin to full commit SHA with a version comment:
 ```yaml
 uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 ```
+
+### Checking for Action Updates
+
+Follow this procedure to check for and apply GitHub Actions updates:
+
+1. **List all actions** — Extract every `uses:` line from the workflow files
+   in `.github/workflows/`.
+
+2. **Check latest releases** — For each action, run:
+
+   ```sh
+   gh api repos/<owner>/<repo>/releases/latest --jq '.tag_name'
+   ```
+
+3. **Compare SHAs** — If a newer version exists, get its commit SHA:
+
+   ```sh
+   gh api repos/<owner>/<repo>/git/ref/tags/<tag> --jq '.object.sha'
+   ```
+
+   Compare against the SHA currently pinned in the workflow file.
+
+4. **Update the workflow file** — Replace the old SHA and version comment
+   with the new SHA and version tag. Always use the full 40-character
+   commit SHA, never a tag reference.
+
+5. **Update the version table** — Update the action version table in
+   this file (AGENTS.md) to reflect the new version.
+
+6. **Update the changelog** — Add an entry to `CHANGELOG.md`.
+
+## Changelog Policy
+
+**Always update `CHANGELOG.md` when making changes.** Every commit that
+modifies code, documentation, dependencies, or configuration must have a
+corresponding entry in the changelog under the current unreleased version
+section. Add entries as part of the same commit or as a follow-up commit
+before pushing.
 
 ## Branching Policy
 

@@ -72,7 +72,6 @@ NOTE: Flags with parameters should use an "equals"
       idtoken audience
   -auto-login
       oauth_auto_login is enabled in grafana config
-          (set this flag along with the "local" login-method to bypass OAuth via the /login/local url and use a local grafana user/pass before continuing to the target URL)
   -autofit
       Fit panels to screen (default true)
   -c string
@@ -81,36 +80,50 @@ NOTE: Flags with parameters should use an "equals"
       Fieldname for the password (default "password")
   -field-username string
       Fieldname for the username (default "username")
+  -hide-links
+      Hide links in the top nav bar
+  -hide-time-picker
+      Hide time picker in the top nav bar
+  -hide-variables
+      Hide variables in the top nav bar
   -ignore-certificate-errors
       Ignore SSL/TLS certificate error
   -keyfile string
       idtoken json credentials (default "key.json")
   -kiosk-mode string
       Kiosk Display Mode [full|tv|disabled]
-        full = No TOPNAV and No SIDEBAR
-        tv = No SIDEBAR
-        disabled = omit option
-        (default "full")
+      full = No TOPNAV and No SIDEBAR
+      tv = No SIDEBAR
+      disabled = omit option
+       (default "full")
   -login-method string
-      [anon|local|gcom|goauth|idtoken|apikey|aws] (default "anon")
+      [anon|local|gcom|goauth|idtoken|apikey|aws|azuread] (default "anon")
   -lxde
       Initialize LXDE for kiosk mode
   -lxde-home string
       Path to home directory of LXDE user running X Server (default "/home/pi")
+  -page-load-delay-ms int
+      Delay in milliseconds before navigating to URL (default 2000)
   -password string
       password (default "guest")
   -playlists
       URL is a playlist
+  -scale-factor string
+      Scale factor, sort of zoom (default "1.0")
+  -use-mfa
+      password
   -username string
       username (default "guest")
-  -use-mfa
-      MFA is enabled for given account (default false)
+  -wait-for-password-field
+      oauth_auto_login is enabled in grafana config
+  -wait-for-password-field-class string
+      oauth_auto_login is enabled in grafana config
+  -wait-for-stay-signed-in-prompt
+      oauth_auto_login is enabled in grafana config
   -window-position string
       Top Left Position of Kiosk (default "0,0")
   -window-size string
-      Size of Kiosk in pixels (e.g. "1920,1080")
-  -scale-factor string
-      Scale factor of Kiosk. This is sort of like zoom. (default: "1")
+      Size of Kiosk in pixels (width,height)
 ```
 
 ### Using a configuration file
@@ -143,48 +156,67 @@ Environment variables can be set and will override the configuration file.
 They can also be used instead of a configuration file.
 
 ```TEXT
+  KIOSK_APIKEY_APIKEY string
+      APIKEY
   KIOSK_AUTOFIT bool
       fit panels to screen (default "true")
+  KIOSK_DEBUG bool
+      enables debug output (default "false")
+  KIOSK_GOAUTH_AUTO_LOGIN bool
+      [false|true]
+  KIOSK_GOAUTH_FIELD_PASSWORD string
+      Password html input name value
+  KIOSK_GOAUTH_FIELD_USER string
+      Username html input name value
+  KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD bool
+      Indicate that it's necessary to wait for the password field
+  KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD_CLASS string
+      Ignore this password field when waiting for it being visible
+  KIOSK_GOAUTH_WAIT_FOR_STAY_SIGNED_IN_PROMPT bool
+      Indicate that it's necessary to wait for the stay signed in prompt,
+      and will then click yes
+  KIOSK_GPU_ENABLED bool
+      disable GPU support (default "false")
+  KIOSK_HIDE_LINKS bool
+      Hide links in the top nav bar (default "false")
+  KIOSK_HIDE_TIME_PICKER bool
+      Hide time picker in the top nav bar (default "false")
+  KIOSK_HIDE_VARIABLES bool
+      Hide variables in the top nav bar (default "false")
+  KIOSK_IDTOKEN_AUDIENCE string
+      Audience for idtoken, typically your oauth client id
+  KIOSK_IDTOKEN_KEYFILE string
+      JSON Credentials for idtoken (default "key.json")
+  KIOSK_IGNORE_CERTIFICATE_ERRORS bool
+      ignore SSL/TLS certificate errors (default "false")
+  KIOSK_IS_PLAYLIST bool
+      URL is a playlist (default "false")
+  KIOSK_LOGIN_METHOD string
+      [anon|local|gcom|goauth|idtoken|apikey|aws|azuread] (default "anon")
+  KIOSK_LOGIN_PASSWORD string
+      password (default "guest")
+  KIOSK_LOGIN_USER string
+      username (default "guest")
   KIOSK_LXDE_ENABLED bool
       initialize LXDE for kiosk mode (default "false")
   KIOSK_LXDE_HOME string
       path to home directory of LXDE user running X Server (default "/home/pi")
   KIOSK_MODE string
       [full|tv|disabled] (default "full")
+  KIOSK_OZONE_PLATFORM string
+      Set ozone-platform option (wayland|cast|drm|wayland|x11) (default "")
+  KIOSK_PAGE_LOAD_DELAY_MS int64
+      milliseconds to wait before expecting page load (default "2000")
+  KIOSK_SCALE_FACTOR string
+      Scale factor, like zoom (default "1.0")
+  KIOSK_URL string
+      URL to Grafana server (default "https://play.grafana.org")
+  KIOSK_USE_MFA bool
+      MFA is enabled for given account (default "false")
   KIOSK_WINDOW_POSITION string
       Top Left Position of Kiosk (default "0,0")
   KIOSK_WINDOW_SIZE string
-      Size of Kiosk in pixels (e.g. "1920,1080")
-  KIOSK_SCALE_FACTOR string
-      Scale factor, like zoom
-  KIOSK_IGNORE_CERTIFICATE_ERRORS bool
-      Ignore SSL/TLS certificate errors (default "false")
-  KIOSK_IS_PLAYLIST bool
-      URL is a playlist (default "false")
-  KIOSK_LOGIN_METHOD string
-      [anon|local|gcom|goauth|idtoken|apikey|aws] (default "anon")
-  KIOSK_LOGIN_PASSWORD string
-      password (default "guest")
-  KIOSK_URL string
-      URL to Grafana server (default "https://play.grafana.org")
-  KIOSK_LOGIN_USER string
-      username (default "guest")
-  KIOSK_GOAUTH_AUTO_LOGIN bool
-      [false|true]
-  KIOSK_GOAUTH_FIELD_USER string
-      Username html input name value
-  KIOSK_GOAUTH_FIELD_PASSWORD string
-      Password html input name value
-  KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD
-      Wait for the password field to be visible
-  KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD_CLASS
-      Class to ignore for the Password Field to be visible
-  KIOSK_IDTOKEN_KEYFILE string
-      JSON Credentials for idtoken (default "key.json")
-  KIOSK_IDTOKEN_AUDIENCE string
-      Audience for idtoken, typically your oauth client id
-  KIOSK_APIKEY_APIKEY string
-      APIKEY Generated in Grafana Server
+      Size of Kiosk in pixels (width,height) (default "")
 ```
 
 ### Hosted Grafana using grafana.com authentication

@@ -27,6 +27,8 @@
   ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
 - Add README update procedure to AGENTS.md
   ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
+- Add changelog policy to AGENTS.md
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
 
 ## 1.0.10
 

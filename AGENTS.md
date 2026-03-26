@@ -271,6 +271,14 @@ When updating actions, always pin to full commit SHA with a version comment:
 uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 ```
 
+## Changelog Policy
+
+**Always update `CHANGELOG.md` when making changes.** Every commit that
+modifies code, documentation, dependencies, or configuration must have a
+corresponding entry in the changelog under the current unreleased version
+section. Add entries as part of the same commit or as a follow-up commit
+before pushing.
+
 ## Branching Policy
 
 - **Never commit directly to `main`**. Always create a new branch for changes.

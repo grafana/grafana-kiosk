@@ -33,6 +33,7 @@
   ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
 - Add GitHub Actions update procedure to AGENTS.md
   ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
+- Add `workflow_dispatch` trigger to Build CI workflow
 
 ## 1.0.10
 

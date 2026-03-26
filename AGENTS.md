@@ -255,7 +255,7 @@ zizmor). Current versions:
 | Action | Version |
 | --- | --- |
 | `actions/checkout` | v6 |
-| `actions/setup-go` | v6 (cache disabled) |
+| `actions/setup-go` | v6.3.0 (cache disabled) |
 | `golangci/golangci-lint-action` | v9.2.0 |
 | `securego/gosec` | v2.24.7 |
 | `magefile/mage-action` | v3.1.0 |

@@ -29,6 +29,8 @@
   ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
 - Add changelog policy to AGENTS.md
   ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
+- Update `actions/setup-go` from v6 to v6.3.0 in CI workflow
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
 
 ## 1.0.10
 

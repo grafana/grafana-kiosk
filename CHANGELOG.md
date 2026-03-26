@@ -36,6 +36,13 @@
 - Add `workflow_dispatch` trigger to Build CI workflow
 - Add release process documentation to AGENTS.md
 - Add explicit markdownlint requirement for AGENTS.md to formatting guidelines
+- Add tests for `generateExecutorOptions` in utils.go
+  ([#234](https://github.com/grafana/grafana-kiosk/pull/234))
+- Add README review policy to AGENTS.md
+  ([#234](https://github.com/grafana/grafana-kiosk/pull/234))
+- Fix apikey login for Grafana Cloud: remove stale WaitVisible
+  and incorrect Content-Type
+  ([#222](https://github.com/grafana/grafana-kiosk/pull/222))
 
 ## 1.0.10
 

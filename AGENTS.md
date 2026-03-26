@@ -97,7 +97,8 @@ verify the project builds successfully before committing.
 - Use `gofmt` for all formatting. Run `mage -v build:format` before committing.
 - No `.editorconfig` exists; rely on `gofmt` defaults (tabs for indentation).
 - Always run `npx markdownlint-cli <file>` when updating `.md` files and fix
-  any issues before committing.
+  any issues before committing. This includes `AGENTS.md`, `README.md`, and
+  `CHANGELOG.md`.
 
 ### Import Grouping
 

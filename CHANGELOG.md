@@ -18,6 +18,8 @@
 - Replace deprecated `idtoken.WithCredentialsFile` with
   `option.WithAuthCredentialsFile`
   ([#231](https://github.com/grafana/grafana-kiosk/pull/231))
+- Update mage to v1.17.0 and google.golang.org/api to v0.273.0
+  ([#232](https://github.com/grafana/grafana-kiosk/pull/232))
 
 ## 1.0.10
 

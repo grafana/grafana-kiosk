@@ -6,7 +6,7 @@ require (
 	github.com/chromedp/cdproto v0.0.0-20260321001828-e3e3800016bc
 	github.com/chromedp/chromedp v0.15.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/magefile/mage v1.17.0
+	github.com/magefile/mage v1.17.1
 	github.com/smartystreets/goconvey v1.8.1
 	google.golang.org/api v0.273.0
 )

@@ -3,7 +3,7 @@ module github.com/grafana/grafana-kiosk
 go 1.26
 
 require (
-	github.com/chromedp/cdproto v0.0.0-20260321001828-e3e3800016bc
+	github.com/chromedp/cdproto v0.0.0-20260405000525-47a8ff65b46a
 	github.com/chromedp/chromedp v0.15.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/magefile/mage v1.17.0

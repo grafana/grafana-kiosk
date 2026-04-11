@@ -1,5 +1,25 @@
 # Change Log
 
+All notable changes to this project will be documented in this file.
+
+The format is based on
+[Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+- Update Go module dependencies: chromedp/cdproto, magefile/mage v1.17.1,
+  google.golang.org/api v0.275.0, golang.org/x/{crypto,net,sys,text},
+  google.golang.org/grpc v1.80.0, go.opentelemetry.io/otel v1.43.0,
+  cloud.google.com/go/auth v0.20.0
+- Add CLAUDE.md referencing AGENTS.md
+- Update Docker base images: golang 1.26.2-alpine,
+  dtcooper/raspberrypi-os latest digest
+- Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
+- Fix long lines in README.md for markdownlint compliance
+- Add missing technical terms to cspell config
+
 ## 1.0.11
 
 - Add AzureAD authentication support for kiosk mode ([#211](https://github.com/grafana/grafana-kiosk/pull/211))

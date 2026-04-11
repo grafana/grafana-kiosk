@@ -42,7 +42,7 @@ The release file includes pre-built binaries. See table below for the types avai
 
 Extract the zip or tar file, and copy the appropriate binary to /usr/bin/grafana-kiosk:
 
-```BASH
+```bash
 # sudo cp -p grafana-kiosk.linux.armv7 /usr/bin/grafana-kiosk
 # sudo chmod 755 /usr/bin/grafana-kiosk
 ```
@@ -148,7 +148,7 @@ target:
   ignore-certificate-errors: false
 ```
 
-```BASH
+```bash
 grafana-kiosk -c config.yaml
 ```
 
@@ -224,19 +224,31 @@ They can also be used instead of a configuration file.
 This will login to a Hosted Grafana instance and take the browser to the default dashboard in fullscreen kiosk mode:
 
 ```bash
-./bin/grafana-kiosk -URL=https://bkgann3.grafana.net -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full
+./bin/grafana-kiosk \
+  -URL=https://bkgann3.grafana.net \
+  -login-method=gcom -username=bkgann -password=abc123 \
+  -kiosk-mode=full
 ```
 
-This will login to a Hosted Grafana instance and take the browser to a specific dashboard in tv kiosk mode:
+This will login to a Hosted Grafana instance and take the browser to a
+specific dashboard in tv kiosk mode:
 
 ```bash
-./bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode tv
+./bin/grafana-kiosk \
+  -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary \
+  -login-method=gcom -username=bkgann -password=abc123 \
+  -kiosk-mode tv
 ```
 
-This will login to a Hosted Grafana instance and take the browser to a playlist in fullscreen kiosk mode, and autofit the panels to fill the display.
+This will login to a Hosted Grafana instance and take the browser to a
+playlist in fullscreen kiosk mode, and autofit the panels to fill the
+display.
 
 ```bash
-./bin/grafana-kiosk -URL=https://bkgann3.grafana.net/playlists/play/1 -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -playlist -autofit=true
+./bin/grafana-kiosk \
+  -URL=https://bkgann3.grafana.net/playlists/play/1 \
+  -login-method=gcom -username=bkgann -password=abc123 \
+  -kiosk-mode=full -playlist -autofit=true
 ```
 
 ### Grafana Server with Local Accounts
@@ -244,19 +256,30 @@ This will login to a Hosted Grafana instance and take the browser to a playlist 
 This will login to a grafana server that uses local accounts:
 
 ```bash
-./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -kiosk-mode=tv
+./bin/grafana-kiosk \
+  -URL=https://localhost:3000 -login-method=local \
+  -username=admin -password=admin -kiosk-mode=tv
 ```
 
-If you are using a self-signed certificate, you can remove the certificate error with `-ignore-certificate-errors`
+If you are using a self-signed certificate, you can remove the
+certificate error with `-ignore-certificate-errors`
 
 ```bash
-./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -kiosk-mode=tv -ignore-certificate-errors
+./bin/grafana-kiosk \
+  -URL=https://localhost:3000 -login-method=local \
+  -username=admin -password=admin \
+  -kiosk-mode=tv -ignore-certificate-errors
 ```
 
-This will login to a grafana server, configured for AzureAD OAuth and has Oauth_auto_login is enabled, bypassing OAuth and using a manually setup local username and password.
+This will login to a grafana server, configured for AzureAD OAuth and
+has Oauth_auto_login is enabled, bypassing OAuth and using a manually
+setup local username and password.
 
 ```bash
-./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -auto-login=true -kiosk-mode=tv
+./bin/grafana-kiosk \
+  -URL=https://localhost:3000 -login-method=local \
+  -username=admin -password=admin \
+  -auto-login=true -kiosk-mode=tv
 ```
 
 ### Grafana Server with Anonymous access enabled
@@ -278,35 +301,58 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 This will take the browser to the default dashboard on play.grafana.org in fullscreen kiosk mode:
 
 ```bash
-./bin/grafana-kiosk -URL=https://play.grafana.org -login-method apikey --apikey "xxxxxxxxxxxxxxx" -kiosk-mode=tv
+./bin/grafana-kiosk \
+  -URL=https://play.grafana.org -login-method apikey \
+  --apikey "xxxxxxxxxxxxxxx" -kiosk-mode=tv
 ```
 
 ### Grafana Server with Generic Oauth
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabled. As Oauth provider is Keycloak used.
+This will login to a Generic Oauth service, configured on Grafana.
+Oauth_auto_login is disabled. As Oauth provider is Keycloak used.
 
 ```bash
-go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1  -login-method=goauth -username=test -password=test
+go run pkg/cmd/grafana-kiosk/main.go \
+  -URL=https://my.grafana.oauth/playlists/play/1 \
+  -login-method=goauth -username=test -password=test
 ```
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is disabled. As Oauth provider is Keycloak used and also the login and password html input name is set.
+This will login to a Generic Oauth service, configured on Grafana.
+Oauth_auto_login is disabled. As Oauth provider is Keycloak used and
+also the login and password html input name is set.
 
 ```bash
-go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1 -login-method=goauth -username=test -password=test -field-username=username -field-password=password
+go run pkg/cmd/grafana-kiosk/main.go \
+  -URL=https://my.grafana.oauth/playlists/play/1 \
+  -login-method=goauth -username=test -password=test \
+  -field-username=username -field-password=password
 ```
 
-This will login to a Generic Oauth service, configured on Grafana. Oauth_auto_login is enabled. As Oauth provider is Keycloak used and also the login and password html input name is set.
+This will login to a Generic Oauth service, configured on Grafana.
+Oauth_auto_login is enabled. As Oauth provider is Keycloak used and
+also the login and password html input name is set.
 
 ```bash
-go run pkg/cmd/grafana-kiosk/main.go -URL=https://my.grafana.oauth/playlists/play/1 -login-method=goauth -username=test -password=test -field-username=username -field-password=password -auto-login=true
+go run pkg/cmd/grafana-kiosk/main.go \
+  -URL=https://my.grafana.oauth/playlists/play/1 \
+  -login-method=goauth -username=test -password=test \
+  -field-username=username -field-password=password \
+  -auto-login=true
 ```
 
 ### Google Idtoken authentication
 
-This allows you to log in through Google Identity Aware Proxy using a service account through injecting authorization headers with bearer tokens into each request. the idtoken library will generate new tokens as needed on expiry, allowing grafana kiosk mode without exposing a fully privileged google user on your kiosk device.
+This allows you to log in through Google Identity Aware Proxy using a
+service account through injecting authorization headers with bearer
+tokens into each request. The idtoken library will generate new tokens
+as needed on expiry, allowing grafana kiosk mode without exposing a
+fully privileged google user on your kiosk device.
 
 ```bash
-./bin/grafana-kiosk -URL=https://play.grafana.org/playlists/play/1 -login-method=idtoken -keyfile /tmp/foo.json -audience myoauthid.apps.googleusercontent.com
+./bin/grafana-kiosk \
+  -URL=https://play.grafana.org/playlists/play/1 \
+  -login-method=idtoken -keyfile /tmp/foo.json \
+  -audience myoauthid.apps.googleusercontent.com
 ```
 
 ## LXDE Options
@@ -332,25 +378,32 @@ LXDE can start the kiosk automatically by creating this file:
 
 Create/edit the file: `/home/pi/.config/lxsession/LXDE-pi/autostart`
 
-```BASH
-/usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -lxde
+```bash
+/usr/bin/grafana-kiosk \
+  -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary \
+  -login-method=gcom -username=bkgann -password=abc123 \
+  -kiosk-mode=full -lxde
 ```
 
 #### Session with disconnected "screen"
 
-Alternatively you can run grafana-kiosk under screen, which can very useful for debugging.
+Alternatively you can run grafana-kiosk under screen, which can be
+very useful for debugging.
 
 Create/edit the file: `/home/pi/.config/lxsession/LXDE-pi/autostart`
 
-```BASH
-screen -d -m bash -c "/usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -lxde"
+```bash
+screen -d -m bash -c "/usr/bin/grafana-kiosk \
+  -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary \
+  -login-method=gcom -username=bkgann -password=abc123 \
+  -kiosk-mode=full -lxde"
 ```
 
 ### Desktop Link
 
 Create/edit the file: `/home/pi/.config/autostart/grafana-kiosk.desktop`
 
-```INI
+```ini
 [Desktop Entry]
 Type=Application
 Exec=/usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -lxde
@@ -358,7 +411,7 @@ Exec=/usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-
 
 #### Desktop Link with disconnected "screen"
 
-```INI
+```ini
 [Desktop Entry]
 Type=Application
 Exec=screen -d -m bash -c /usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.net/dashboard/db/sensu-summary -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full -lxde
@@ -366,12 +419,12 @@ Exec=screen -d -m bash -c /usr/bin/grafana-kiosk -URL=https://bkgann3.grafana.ne
 
 ## Systemd startup
 
-```BASH
+```bash
 # sudo touch /etc/systemd/system/grafana-kiosk.service
 # sudo chmod 664 /etc/systemd/system/grafana-kiosk.service
 ```
 
-```INI
+```ini
 [Unit]
 Description=Grafana Kiosk
 Documentation=https://github.com/grafana/grafana-kiosk
@@ -396,13 +449,13 @@ WantedBy=graphical.target
 
 Reload systemd:
 
-```BASH
+```bash
 # sudo systemctl daemon-reload
 ```
 
 Enable, Start, Get Status, and logs:
 
-```BASH
+```bash
 # sudo systemctl enable grafana-kiosk
 # sudo systemctl start grafana-kiosk
 # sudo systemctl status grafana-kiosk
@@ -410,7 +463,7 @@ Enable, Start, Get Status, and logs:
 
 Logs:
 
-```BASH
+```bash
 journalctl -u grafana-kiosk
 ```
 
@@ -418,14 +471,14 @@ journalctl -u grafana-kiosk
 
 ### Timeout Launching
 
-```LOG
+```log
 2020/08/24 10:18:41 Launching local login kiosk
 panic: websocket url timeout reached
 ```
 
 Often this is due to lack of entropy, for linux you would need to install `rng-tools` (or an equivalent).
 
-```BASH
+```bash
 apt install rng-tools
 ```
 
@@ -441,7 +494,7 @@ This will generate executables in "bin" that can be run on a variety of platform
 
 For full build and testing options use:
 
-```BASH
+```bash
 mage -l
 ```
 

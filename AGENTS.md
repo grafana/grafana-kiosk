@@ -96,7 +96,7 @@ verify the project builds successfully before committing.
 
 - Use `gofmt` for all formatting. Run `mage -v build:format` before committing.
 - No `.editorconfig` exists; rely on `gofmt` defaults (tabs for indentation).
-- Always run `npx markdownlint-cli <file>` when updating `.md` files and fix
+- Always run `npx markdownlint-cli2 <file>` when updating `.md` files and fix
   any issues before committing. This includes `AGENTS.md`, `README.md`, and
   `CHANGELOG.md`.
 
@@ -243,7 +243,7 @@ this procedure:
    the "Environment variables can be set..." paragraph in `README.md` with the
    environment variables portion of the `--help` output.
 
-6. **Lint the README** — Run `npx markdownlint-cli README.md` and fix any
+6. **Lint the README** — Run `npx markdownlint-cli2 README.md` and fix any
    issues before committing.
 
 7. **Run tests** — Run `mage -v test:default` to confirm no regressions.
@@ -373,7 +373,7 @@ packaging, and publishing releases automatically when a version tag is pushed.
 5. **Lint the changelog**:
 
    ```sh
-   npx markdownlint-cli CHANGELOG.md
+   npx markdownlint-cli2 CHANGELOG.md
    ```
 
 ### Tagging and Pushing
@@ -411,7 +411,9 @@ Pushing a `v*` tag triggers the CI workflow which:
 - **Never commit directly to `main`**. Always create a new branch for changes.
 - Use descriptive branch names (e.g., `feat/add-feature`, `fix/bug-description`).
 - When pushing new commits to a PR, always update the PR summary to reflect all
-  changes.
+  changes. Categorize by type with Bug fixes listed first (e.g., Bug fixes,
+  Dependencies, Tests, Documentation & tooling).
+- **Do not commit automatically**. Only commit when explicitly asked.
 - **Do not push automatically**. Only push when explicitly asked.
 
 ## Environment Notes

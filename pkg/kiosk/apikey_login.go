@@ -12,6 +12,28 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
+// IsDataSourceQueryRequest checks if the request URL is a datasource query API
+// call to the target host, matching scheme://host and /api/ds/query? path.
+func IsDataSourceQueryRequest(requestURL, targetScheme, targetHost string) bool {
+	prefix := targetScheme + "://" + targetHost
+	if !strings.HasPrefix(requestURL, prefix) {
+		return false
+	}
+	// Ensure the prefix is followed by "/" or end of string to prevent
+	// matching against hosts that share a prefix (e.g., example.com.evil.com)
+	rest := requestURL[len(prefix):]
+	if len(rest) > 0 && rest[0] != '/' {
+		return false
+	}
+
+	return strings.Contains(requestURL, "/api/ds/query?")
+}
+
+// IsTargetHostRequest checks if the request URL host matches the target host.
+func IsTargetHostRequest(requestHost, targetHost string) bool {
+	return requestHost == targetHost
+}
+
 // GrafanaKioskAPIKey creates a chrome-based kiosk using a grafana api key.
 func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
@@ -52,8 +74,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 					panic(fmt.Errorf("url.Parse: %w", err))
 				}
 				// Add Content-Type header only for datasource query API calls
-				if strings.HasPrefix(ev.Request.URL, u.Scheme+"://"+u.Host) &&
-					strings.Contains(ev.Request.URL, "/api/ds/query?") {
+				if IsDataSourceQueryRequest(ev.Request.URL, u.Scheme, u.Host) {
 					if cfg.General.DebugEnabled {
 						log.Println("Appending Content-Type Header for Metric Query")
 					}
@@ -63,7 +84,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 					)
 				}
 				// Append Bearer token to all requests matching the target host
-				if requestURL.Host == u.Host {
+				if IsTargetHostRequest(requestURL.Host, u.Host) {
 					if cfg.General.DebugEnabled {
 						log.Println("Appending Header Authorization: Bearer REDACTED")
 					}

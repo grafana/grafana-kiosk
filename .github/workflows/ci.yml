@@ -49,6 +49,10 @@ jobs:
           version: latest
           args: -v build:ci
 
+      - name: Report coverage
+        uses: k1LoW/octocov-action@73d561f65d59e66899ed5c87e4621a913b5d5c20 # v1.5.0
+        if: github.event_name == 'push'
+
       - name: Get PR
         uses: jwalton/gh-find-current-pr@f3d61b485d2801773f7a07b2aaa3306bd8f8e653 # v1.3.5
         id: findPr

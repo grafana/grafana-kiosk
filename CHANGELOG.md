@@ -28,6 +28,7 @@ and this project adheres to
 - Add tests for command allowlist in initialize package
 - Update `actions/upload-artifact` from v7 to v7.0.1 in CI workflow
 - Update AGENTS.md action version table to match current CI pinned versions
+- Add octocov-action to CI for test coverage reporting on PRs
 
 ## 1.0.11
 

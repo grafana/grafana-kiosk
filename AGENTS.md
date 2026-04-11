@@ -272,6 +272,7 @@ zizmor). Current versions:
 | `actions/upload-artifact` | v7.0.1 |
 | `softprops/action-gh-release` | v2.6.1 |
 | `actions/stale` | v10.2.0 |
+| `k1LoW/octocov-action` | v1.5.0 |
 | `google/osv-scanner-action` | v2.3.5 |
 
 When updating actions, always pin to full commit SHA with a version comment:

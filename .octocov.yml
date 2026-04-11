@@ -4,10 +4,7 @@ coverage:
   paths:
     - coverage.out
 comment:
-  enable: true
-  hideFooterLink: false
-  updatePrevious: true
-  message: "Full coverage report available in the **coverage-report** artifact (Actions → Artifacts)."
+  enable: false
 codeToTestRatio:
   badge:
     path: docs/ratio.svg

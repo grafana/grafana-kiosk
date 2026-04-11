@@ -38,6 +38,7 @@ and this project adheres to
 - Restrict CI workflow permissions: global `permissions: {}` with
   job-level `contents: write` and `pull-requests: write`
 - Add `actionlint` job to CI for GitHub Actions workflow linting
+- Fix shellcheck warnings in CI workflow: quote variables, group redirects
 
 ## 1.0.11
 

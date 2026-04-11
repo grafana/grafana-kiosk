@@ -52,9 +52,11 @@ jobs:
       - name: Get BRANCH, NAME, TAG
         id: branch_name
         run: |
-          echo "SOURCE_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
-          echo "SOURCE_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-          echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          {
+            echo "SOURCE_NAME=${GITHUB_REF#refs/*/}"
+            echo "SOURCE_BRANCH=${GITHUB_REF#refs/heads/}"
+            echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build with Mage
         uses: magefile/mage-action@a662bd8c29d8106879588cfff83b2faf6e6f59db # v4.0.0
@@ -119,22 +121,22 @@ jobs:
         env:
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
         run: |
-          export RELEASE_TARGET_DIR=grafana-kiosk-$SOURCE_TAG
-          mkdir $RELEASE_TARGET_DIR
-          cp -p bin/darwin_amd64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.darwin.amd64
-          cp -p bin/darwin_arm64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.darwin.arm64
-          cp -p bin/linux_386/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.386
-          cp -p bin/linux_amd64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.amd64
-          cp -p bin/linux_arm64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.arm64
-          cp -p bin/linux_armv5/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.armv5
-          cp -p bin/linux_armv6/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.armv6
-          cp -p bin/linux_armv7/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.armv7
-          cp -p bin/windows_amd64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.windows.amd64.exe
-          zip -r grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
-          tar cf grafana-kiosk-$SOURCE_TAG.tar $RELEASE_TARGET_DIR
-          gzip grafana-kiosk-$SOURCE_TAG.tar
-          mv grafana-kiosk-$SOURCE_TAG.tar.gz $RELEASE_TARGET_DIR
-          mv grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
+          export RELEASE_TARGET_DIR="grafana-kiosk-${SOURCE_TAG}"
+          mkdir "$RELEASE_TARGET_DIR"
+          cp -p bin/darwin_amd64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.darwin.amd64"
+          cp -p bin/darwin_arm64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.darwin.arm64"
+          cp -p bin/linux_386/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.386"
+          cp -p bin/linux_amd64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.amd64"
+          cp -p bin/linux_arm64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.arm64"
+          cp -p bin/linux_armv5/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.armv5"
+          cp -p bin/linux_armv6/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.armv6"
+          cp -p bin/linux_armv7/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.armv7"
+          cp -p bin/windows_amd64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.windows.amd64.exe"
+          zip -r "grafana-kiosk-${SOURCE_TAG}.zip" "$RELEASE_TARGET_DIR"
+          tar cf "grafana-kiosk-${SOURCE_TAG}.tar" "$RELEASE_TARGET_DIR"
+          gzip "grafana-kiosk-${SOURCE_TAG}.tar"
+          mv "grafana-kiosk-${SOURCE_TAG}.tar.gz" "$RELEASE_TARGET_DIR"
+          mv "grafana-kiosk-${SOURCE_TAG}.zip" "$RELEASE_TARGET_DIR"
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

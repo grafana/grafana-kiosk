@@ -274,6 +274,7 @@ zizmor). Current versions:
 | `actions/stale` | v10.2.0 |
 | `k1LoW/octocov-action` | v1.5.0 |
 | `google/osv-scanner-action` | v2.3.5 |
+| `rhysd/actionlint` | v1.7.12 |
 
 When updating actions, always pin to full commit SHA with a version comment:
 

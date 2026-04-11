@@ -18,6 +18,7 @@ and this project adheres to
   dtcooper/raspberrypi-os latest digest
 - Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
 - Fix long lines in README.md for markdownlint compliance
+- Add missing technical terms to cspell config
 
 ## 1.0.11
 

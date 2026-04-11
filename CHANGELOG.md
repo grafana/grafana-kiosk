@@ -30,6 +30,7 @@ and this project adheres to
 - Update AGENTS.md action version table to match current CI pinned versions
 - Add octocov-action to CI for test coverage reporting on PRs
 - Add `pull_request` trigger to Build CI workflow
+- Save coverage report as CI artifact
 
 ## 1.0.11
 

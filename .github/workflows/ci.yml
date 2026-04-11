@@ -67,26 +67,31 @@ jobs:
       - name: Report coverage
         uses: k1LoW/octocov-action@73d561f65d59e66899ed5c87e4621a913b5d5c20 # v1.5.0
 
-      - name: Push coverage badges
+      - name: Push coverage badge endpoint
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          # Save generated badges before switching branches
+          # Extract coverage percentage
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%')
+          # Pick color based on coverage
+          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then COLOR="brightgreen"
+          elif (( $(echo "$COVERAGE >= 60" | bc -l) )); then COLOR="yellow"
+          else COLOR="red"; fi
+          # Build shields.io endpoint JSON
           mkdir -p /tmp/badges
-          cp docs/coverage.svg docs/ratio.svg docs/time.svg /tmp/badges/
-          # Set up git for the push
+          cat > /tmp/badges/coverage.json <<BADGE
+          {"schemaVersion":1,"label":"coverage","message":"${COVERAGE}%","color":"${COLOR}"}
+          BADGE
+          # Push to badges branch
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Create or switch to orphan badges branch
           git checkout --orphan badges
           git rm -rf .
-          # Restore badges
-          mkdir -p docs
-          cp /tmp/badges/*.svg docs/
-          git add docs/
-          git commit -m "Update coverage badges"
+          mkdir -p badges
+          cp /tmp/badges/coverage.json badges/
+          git add badges/
+          git commit -m "Update coverage badge"
           git push origin badges --force
-          # Return to original ref for subsequent steps
-          git checkout ${{ github.sha }}
+          git checkout "${{ github.sha }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

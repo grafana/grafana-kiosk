@@ -1,0 +1,6 @@
+config:
+  line-length:
+    line_length: 120
+    code_blocks: false
+  no-duplicate-heading:
+    siblings_only: true

@@ -14,6 +14,8 @@ and this project adheres to
   google.golang.org/grpc v1.80.0, go.opentelemetry.io/otel v1.43.0,
   cloud.google.com/go/auth v0.20.0
 - Add CLAUDE.md referencing AGENTS.md
+- Update Docker base images: golang 1.26.2-alpine,
+  dtcooper/raspberrypi-os latest digest
 - Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
 - Fix long lines in README.md for markdownlint compliance
 

@@ -23,6 +23,9 @@ and this project adheres to
   to hosts sharing a prefix with the target
 - Add tests for `IsDataSourceQueryRequest` and `IsTargetHostRequest`
   in apikey login
+- Add tests for `sanitize` in main and initialize packages
+- Add tests for `GenerateURL` playlist mode
+- Add tests for command allowlist in initialize package
 
 ## 1.0.11
 

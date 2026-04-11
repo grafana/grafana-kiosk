@@ -43,6 +43,11 @@
 - Fix apikey login for Grafana Cloud: remove stale WaitVisible
   and incorrect Content-Type
   ([#222](https://github.com/grafana/grafana-kiosk/pull/222))
+- Update Go module dependencies: chromedp/cdproto, magefile/mage v1.17.1,
+  google.golang.org/api v0.275.0, golang.org/x/{crypto,net,sys,text},
+  google.golang.org/grpc v1.80.0, go.opentelemetry.io/otel v1.43.0,
+  cloud.google.com/go/auth v0.20.0
+- Add CLAUDE.md referencing AGENTS.md
 
 ## 1.0.10
 

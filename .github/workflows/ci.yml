@@ -3,9 +3,10 @@ name: Build
 on:
   push:
     branches:
-      - '*'
+      - main
     tags:
       - 'v*'
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -49,6 +50,18 @@ jobs:
           version: latest
           args: -v build:ci
 
+      - name: Report coverage
+        uses: k1LoW/octocov-action@73d561f65d59e66899ed5c87e4621a913b5d5c20 # v1.5.0
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-report
+          path: |
+            coverage.html
+            coverage.out
+          retention-days: 14
+
       - name: Get PR
         uses: jwalton/gh-find-current-pr@f3d61b485d2801773f7a07b2aaa3306bd8f8e653 # v1.3.5
         id: findPr
@@ -56,7 +69,7 @@ jobs:
           state: open
 
       - name: Archive Build
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: success() && steps.findPr.outputs.number
         env:
           PR: ${{ steps.findPr.outputs.pr }}
@@ -89,7 +102,7 @@ jobs:
           mv grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
 
       - name: Upload Release Artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: upload-release-artifacts

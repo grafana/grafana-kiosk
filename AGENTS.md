@@ -263,21 +263,22 @@ zizmor). Current versions:
 
 | Action | Version |
 | --- | --- |
-| `actions/checkout` | v6 |
-| `actions/setup-go` | v6.3.0 (cache disabled) |
+| `actions/checkout` | v6.0.2 |
+| `actions/setup-go` | v6.4.0 (cache disabled) |
 | `golangci/golangci-lint-action` | v9.2.0 |
-| `securego/gosec` | v2.24.7 |
-| `magefile/mage-action` | v3.1.0 |
+| `securego/gosec` | v2.25.0 |
+| `magefile/mage-action` | v4.0.0 |
 | `jwalton/gh-find-current-pr` | v1.3.5 |
-| `actions/upload-artifact` | v7 |
-| `softprops/action-gh-release` | v2.4.1 |
-| `actions/stale` | v10 |
-| `google/osv-scanner-action` | v2.3.3 |
+| `actions/upload-artifact` | v7.0.1 |
+| `softprops/action-gh-release` | v2.6.1 |
+| `actions/stale` | v10.2.0 |
+| `k1LoW/octocov-action` | v1.5.0 |
+| `google/osv-scanner-action` | v2.3.5 |
 
 When updating actions, always pin to full commit SHA with a version comment:
 
 ```yaml
-uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 ```
 
 ### Checking for Action Updates

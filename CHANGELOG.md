@@ -19,6 +19,18 @@ and this project adheres to
 - Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
 - Fix long lines in README.md for markdownlint compliance
 - Add missing technical terms to cspell config
+- Fix API key host prefix matching to prevent auth header leakage
+  to hosts sharing a prefix with the target
+- Add tests for `IsDataSourceQueryRequest` and `IsTargetHostRequest`
+  in apikey login
+- Add tests for `sanitize` in main and initialize packages
+- Add tests for `GenerateURL` playlist mode
+- Add tests for command allowlist in initialize package
+- Update `actions/upload-artifact` from v7 to v7.0.1 in CI workflow
+- Update AGENTS.md action version table to match current CI pinned versions
+- Add octocov-action to CI for test coverage reporting on PRs
+- Add `pull_request` trigger to Build CI workflow
+- Save coverage report as CI artifact
 
 ## 1.0.11
 

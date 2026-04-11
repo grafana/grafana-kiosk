@@ -10,6 +10,35 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+func TestSanitize(t *testing.T) {
+	Convey("Given a string to sanitize", t, func() {
+		Convey("When string contains newlines", func() {
+			result := sanitize("hello\nworld")
+			So(result, ShouldEqual, "helloworld")
+		})
+
+		Convey("When string contains carriage returns", func() {
+			result := sanitize("hello\rworld")
+			So(result, ShouldEqual, "helloworld")
+		})
+
+		Convey("When string contains both newlines and carriage returns", func() {
+			result := sanitize("line1\r\nline2\nline3\r")
+			So(result, ShouldEqual, "line1line2line3")
+		})
+
+		Convey("When string has no control characters", func() {
+			result := sanitize("clean string")
+			So(result, ShouldEqual, "clean string")
+		})
+
+		Convey("When string is empty", func() {
+			result := sanitize("")
+			So(result, ShouldEqual, "")
+		})
+	})
+}
+
 // TestKiosk checks kiosk command.
 func TestMain(t *testing.T) {
 	Convey("Given Default Configuration", t, func() {

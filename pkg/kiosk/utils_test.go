@@ -60,6 +60,21 @@ func TestGenerateURL(t *testing.T) {
 			anURL := GenerateURL(&conf)
 			So(anURL, ShouldEqual, "https://play.grafana/com?_dash.hideLinks=&_dash.hideTimePicker=&_dash.hideVariables=&kiosk=1&autofitpanels")
 		})
+		Convey("Playlist mode adds inactive parameter", func() {
+			conf := GetConfig()
+			conf.General.Mode = "full"
+			conf.Target.IsPlayList = true
+			anURL := GenerateURL(&conf)
+			So(anURL, ShouldEqual, "https://play.grafana/com?inactive=1&kiosk=1&autofitpanels")
+		})
+		Convey("Playlist mode without autofit", func() {
+			conf := GetConfig()
+			conf.General.Mode = "tv"
+			conf.General.AutoFit = false
+			conf.Target.IsPlayList = true
+			anURL := GenerateURL(&conf)
+			So(anURL, ShouldEqual, "https://play.grafana/com?inactive=1&kiosk=tv")
+		})
 	})
 }
 

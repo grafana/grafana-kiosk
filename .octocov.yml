@@ -1,0 +1,26 @@
+coverage:
+  badge:
+    path: docs/coverage.svg
+  paths:
+    - coverage.out
+comment:
+  enable: true
+  hideFooterLink: false
+  updatePrevious: true
+  message: "Full coverage report available in the **coverage-report** artifact (Actions → Artifacts)."
+codeToTestRatio:
+  badge:
+    path: docs/ratio.svg
+  code:
+    - '**/*.go'
+    - '!**/*_test.go'
+  test:
+    - '**/*_test.go'
+testExecutionTime:
+  if: is_pull_request
+  badge:
+    path: docs/time.svg
+body:
+  enable: true
+summary:
+  if: true

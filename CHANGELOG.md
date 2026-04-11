@@ -19,6 +19,10 @@ and this project adheres to
 - Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
 - Fix long lines in README.md for markdownlint compliance
 - Add missing technical terms to cspell config
+- Fix API key host prefix matching to prevent auth header leakage
+  to hosts sharing a prefix with the target
+- Add tests for `IsDataSourceQueryRequest` and `IsTargetHostRequest`
+  in apikey login
 
 ## 1.0.11
 

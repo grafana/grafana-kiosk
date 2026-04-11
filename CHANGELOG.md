@@ -31,6 +31,8 @@ and this project adheres to
 - Add octocov-action to CI for test coverage reporting on PRs
 - Add `pull_request` trigger to Build CI workflow
 - Save coverage report as CI artifact
+- Disable octocov PR comment, use PR body insertion only
+- Add octocov coverage badges to README
 
 ## 1.0.11
 

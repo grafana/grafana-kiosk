@@ -26,6 +26,8 @@ and this project adheres to
 - Add tests for `sanitize` in main and initialize packages
 - Add tests for `GenerateURL` playlist mode
 - Add tests for command allowlist in initialize package
+- Update `actions/upload-artifact` from v7 to v7.0.1 in CI workflow
+- Update AGENTS.md action version table to match current CI pinned versions
 
 ## 1.0.11
 

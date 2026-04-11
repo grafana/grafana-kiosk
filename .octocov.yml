@@ -20,5 +20,7 @@ testExecutionTime:
   if: is_pull_request
   badge:
     path: docs/time.svg
+body:
+  enable: true
 summary:
   if: true

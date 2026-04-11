@@ -33,6 +33,12 @@ and this project adheres to
 - Save coverage report as CI artifact
 - Disable octocov PR comment, use PR body insertion only
 - Add octocov coverage badges to README
+- Fix broken badge images: push shields.io JSON endpoint to `badges`
+  branch from CI, use shields.io dynamic badge in README
+- Restrict CI workflow permissions: global `permissions: {}` with
+  job-level `contents: write` and `pull-requests: write`
+- Add `actionlint` job to CI for GitHub Actions workflow linting
+- Fix shellcheck warnings in CI workflow: quote variables, group redirects
 
 ## 1.0.11
 

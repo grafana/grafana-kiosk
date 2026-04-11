@@ -9,9 +9,21 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: rhysd/actionlint@914e7df21a07ef503a81201c76d2b11c789d3fca # v1.7.12
+
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write      # badge branch push, releases
+      pull-requests: write # octocov PR body insertion
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -40,9 +52,11 @@ jobs:
       - name: Get BRANCH, NAME, TAG
         id: branch_name
         run: |
-          echo "SOURCE_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
-          echo "SOURCE_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-          echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          {
+            echo "SOURCE_NAME=${GITHUB_REF#refs/*/}"
+            echo "SOURCE_BRANCH=${GITHUB_REF#refs/heads/}"
+            echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build with Mage
         uses: magefile/mage-action@a662bd8c29d8106879588cfff83b2faf6e6f59db # v4.0.0
@@ -52,6 +66,34 @@ jobs:
 
       - name: Report coverage
         uses: k1LoW/octocov-action@73d561f65d59e66899ed5c87e4621a913b5d5c20 # v1.5.0
+
+      - name: Push coverage badge endpoint
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          # Extract coverage percentage
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%')
+          # Pick color based on coverage
+          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then COLOR="brightgreen"
+          elif (( $(echo "$COVERAGE >= 60" | bc -l) )); then COLOR="yellow"
+          else COLOR="red"; fi
+          # Build shields.io endpoint JSON
+          mkdir -p /tmp/badges
+          cat > /tmp/badges/coverage.json <<BADGE
+          {"schemaVersion":1,"label":"coverage","message":"${COVERAGE}%","color":"${COLOR}"}
+          BADGE
+          # Push to badges branch
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan badges
+          git rm -rf .
+          mkdir -p badges
+          cp /tmp/badges/coverage.json badges/
+          git add badges/
+          git commit -m "Update coverage badge"
+          git push origin badges --force
+          git checkout "${{ github.sha }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload coverage report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -84,22 +126,22 @@ jobs:
         env:
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
         run: |
-          export RELEASE_TARGET_DIR=grafana-kiosk-$SOURCE_TAG
-          mkdir $RELEASE_TARGET_DIR
-          cp -p bin/darwin_amd64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.darwin.amd64
-          cp -p bin/darwin_arm64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.darwin.arm64
-          cp -p bin/linux_386/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.386
-          cp -p bin/linux_amd64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.amd64
-          cp -p bin/linux_arm64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.arm64
-          cp -p bin/linux_armv5/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.armv5
-          cp -p bin/linux_armv6/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.armv6
-          cp -p bin/linux_armv7/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.linux.armv7
-          cp -p bin/windows_amd64/grafana-kiosk $RELEASE_TARGET_DIR/grafana-kiosk.windows.amd64.exe
-          zip -r grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
-          tar cf grafana-kiosk-$SOURCE_TAG.tar $RELEASE_TARGET_DIR
-          gzip grafana-kiosk-$SOURCE_TAG.tar
-          mv grafana-kiosk-$SOURCE_TAG.tar.gz $RELEASE_TARGET_DIR
-          mv grafana-kiosk-$SOURCE_TAG.zip $RELEASE_TARGET_DIR
+          export RELEASE_TARGET_DIR="grafana-kiosk-${SOURCE_TAG}"
+          mkdir "$RELEASE_TARGET_DIR"
+          cp -p bin/darwin_amd64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.darwin.amd64"
+          cp -p bin/darwin_arm64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.darwin.arm64"
+          cp -p bin/linux_386/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.386"
+          cp -p bin/linux_amd64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.amd64"
+          cp -p bin/linux_arm64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.arm64"
+          cp -p bin/linux_armv5/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.armv5"
+          cp -p bin/linux_armv6/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.armv6"
+          cp -p bin/linux_armv7/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.armv7"
+          cp -p bin/windows_amd64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.windows.amd64.exe"
+          zip -r "grafana-kiosk-${SOURCE_TAG}.zip" "$RELEASE_TARGET_DIR"
+          tar cf "grafana-kiosk-${SOURCE_TAG}.tar" "$RELEASE_TARGET_DIR"
+          gzip "grafana-kiosk-${SOURCE_TAG}.tar"
+          mv "grafana-kiosk-${SOURCE_TAG}.tar.gz" "$RELEASE_TARGET_DIR"
+          mv "grafana-kiosk-${SOURCE_TAG}.zip" "$RELEASE_TARGET_DIR"
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

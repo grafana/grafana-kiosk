@@ -274,6 +274,7 @@ zizmor). Current versions:
 | `actions/stale` | v10.2.0 |
 | `k1LoW/octocov-action` | v1.5.0 |
 | `google/osv-scanner-action` | v2.3.5 |
+| `rhysd/actionlint` | v1.7.12 |
 
 When updating actions, always pin to full commit SHA with a version comment:
 
@@ -412,8 +413,9 @@ Pushing a `v*` tag triggers the CI workflow which:
 - **Never commit directly to `main`**. Always create a new branch for changes.
 - Use descriptive branch names (e.g., `feat/add-feature`, `fix/bug-description`).
 - When pushing new commits to a PR, always update the PR summary to reflect all
-  changes. Categorize by type with Bug fixes listed first (e.g., Bug fixes,
-  Dependencies, Tests, Documentation & tooling).
+  changes. Categorize by type using H3 headings (`### Category`) with Bug Fixes
+  listed first. Common categories: Bug Fixes, CI/CD, Dependencies, Tests,
+  Chores, Documentation.
 - **Do not commit automatically**. Only commit when explicitly asked.
 - **Do not push automatically**. Only push when explicitly asked.
 

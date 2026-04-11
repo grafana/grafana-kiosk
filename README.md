@@ -2,7 +2,9 @@
 
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgrafana%2Fgrafana-kiosk%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/grafana/grafana-kiosk/goto?ref=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/grafana/grafana-kiosk)](https://goreportcard.com/report/github.com/grafana/grafana-kiosk)
-![coverage](docs/coverage.svg) ![coverage](docs/ratio.svg) ![coverage](docs/time.svg)
+![coverage](https://raw.githubusercontent.com/grafana/grafana-kiosk/badges/docs/coverage.svg)
+![code to test ratio](https://raw.githubusercontent.com/grafana/grafana-kiosk/badges/docs/ratio.svg)
+![test time](https://raw.githubusercontent.com/grafana/grafana-kiosk/badges/docs/time.svg)
 
 A very useful feature of Grafana is the ability to display dashboards and playlists on a large TV.
 

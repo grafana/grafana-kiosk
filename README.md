@@ -224,7 +224,10 @@ They can also be used instead of a configuration file.
 This will login to a Hosted Grafana instance and take the browser to the default dashboard in fullscreen kiosk mode:
 
 ```bash
-./bin/grafana-kiosk -URL=https://bkgann3.grafana.net -login-method=gcom -username=bkgann -password=abc123 -kiosk-mode=full
+./bin/grafana-kiosk \
+  -URL=https://bkgann3.grafana.net \
+  -login-method=gcom -username=bkgann -password=abc123 \
+  -kiosk-mode=full
 ```
 
 This will login to a Hosted Grafana instance and take the browser to a
@@ -253,7 +256,9 @@ display.
 This will login to a grafana server that uses local accounts:
 
 ```bash
-./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -kiosk-mode=tv
+./bin/grafana-kiosk \
+  -URL=https://localhost:3000 -login-method=local \
+  -username=admin -password=admin -kiosk-mode=tv
 ```
 
 If you are using a self-signed certificate, you can remove the
@@ -271,7 +276,10 @@ has Oauth_auto_login is enabled, bypassing OAuth and using a manually
 setup local username and password.
 
 ```bash
-./bin/grafana-kiosk -URL=https://localhost:3000 -login-method=local -username=admin -password=admin -auto-login=true -kiosk-mode=tv
+./bin/grafana-kiosk \
+  -URL=https://localhost:3000 -login-method=local \
+  -username=admin -password=admin \
+  -auto-login=true -kiosk-mode=tv
 ```
 
 ### Grafana Server with Anonymous access enabled

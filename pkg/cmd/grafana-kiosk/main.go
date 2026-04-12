@@ -221,7 +221,7 @@ func main() {
 			"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
 			"hide-time-picker":   func() { cfg.General.HideTimePicker = args.HideTimePicker },
 			"hide-variables":     func() { cfg.General.HideVariables = args.HideVariables },
-			"incognito":         func() { cfg.General.Incognito = args.Incognito },
+			"incognito":          func() { cfg.General.Incognito = args.Incognito },
 			//
 			"auto-login":                     func() { cfg.GoAuth.AutoLogin = args.OauthAutoLogin },
 			"field-username":                 func() { cfg.GoAuth.UsernameField = args.UsernameField },

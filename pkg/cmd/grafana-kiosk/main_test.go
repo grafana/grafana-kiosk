@@ -56,10 +56,10 @@ general:
 `
 		tmpFile, err := os.CreateTemp("", "kiosk-test-*.yaml")
 		So(err, ShouldBeNil)
-		defer os.Remove(tmpFile.Name())
+		defer func() { _ = os.Remove(tmpFile.Name()) }()
 		_, err = tmpFile.WriteString(configContent)
 		So(err, ShouldBeNil)
-		tmpFile.Close()
+		_ = tmpFile.Close()
 
 		Convey("CLI flag should override config file value", func() {
 			oldArgs := os.Args

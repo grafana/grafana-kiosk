@@ -208,12 +208,12 @@ func TestGenerateExecutorOptions(t *testing.T) {
 			opts := generateExecutorOptions("/tmp/test", cfg)
 			flags := applyOptions(opts)
 
-			Convey("Should override kiosk to false", func() {
-				So(flags["kiosk"], ShouldEqual, false)
+			Convey("Should keep kiosk as true", func() {
+				So(flags["kiosk"], ShouldEqual, true)
 			})
 
-			Convey("Should override start-fullscreen to false", func() {
-				So(flags["start-fullscreen"], ShouldEqual, false)
+			Convey("Should keep start-fullscreen as true", func() {
+				So(flags["start-fullscreen"], ShouldEqual, true)
 			})
 
 			Convey("Should set app mode", func() {
@@ -221,6 +221,31 @@ func TestGenerateExecutorOptions(t *testing.T) {
 			})
 
 			Convey("Should set window-size flag", func() {
+				So(flags["window-size"], ShouldEqual, "1920,1080")
+			})
+		})
+
+		Convey("When window size is set with tv mode", func() {
+			cfg := &Config{
+				BuildInfo: BuildInfo{Version: "v1.0.0"},
+				General: General{
+					WindowSize:     "1920,1080",
+					WindowPosition: "0,0",
+					Mode:           "tv",
+				},
+			}
+			opts := generateExecutorOptions("/tmp/test", cfg)
+			flags := applyOptions(opts)
+
+			Convey("Should set kiosk to false", func() {
+				So(flags["kiosk"], ShouldEqual, false)
+			})
+
+			Convey("Should set start-fullscreen to false", func() {
+				So(flags["start-fullscreen"], ShouldEqual, false)
+			})
+
+			Convey("Should still set window-size flag", func() {
 				So(flags["window-size"], ShouldEqual, "1920,1080")
 			})
 		})
@@ -384,9 +409,9 @@ func TestGenerateExecutorOptions(t *testing.T) {
 				So(flags["ozone-platform"], ShouldEqual, "x11")
 			})
 
-			Convey("Should override kiosk and fullscreen for window size", func() {
-				So(flags["kiosk"], ShouldEqual, false)
-				So(flags["start-fullscreen"], ShouldEqual, false)
+			Convey("Should keep kiosk and fullscreen for window size", func() {
+				So(flags["kiosk"], ShouldEqual, true)
+				So(flags["start-fullscreen"], ShouldEqual, true)
 				So(flags["app"], ShouldEqual, "data:text/html,<title>Grafana</title>")
 				So(flags["window-size"], ShouldEqual, "800,600")
 			})

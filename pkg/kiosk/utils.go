@@ -116,10 +116,11 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 			chromedp.Flag("ozone-platform", cfg.General.OzonePlatform))
 	}
 	if cfg.General.WindowSize != "" {
+		fullscreen := cfg.General.Mode == "full" || cfg.General.Mode == ""
 		execAllocatorOption = append(
 			execAllocatorOption,
-			chromedp.Flag("kiosk", false),
-			chromedp.Flag("start-fullscreen", false),
+			chromedp.Flag("kiosk", fullscreen),
+			chromedp.Flag("start-fullscreen", fullscreen),
 			// force app mode (no address bar and controls)
 			chromedp.Flag("app", "data:text/html,<title>Grafana</title>"),
 			chromedp.Flag("window-size", cfg.General.WindowSize))
@@ -161,8 +162,8 @@ func cycleWindowState(cfg *Config) chromedp.ActionFunc {
 	})
 }
 
-// cycleWindowToSize cycles the window from minimized to normal with the
-// specified dimensions to force Chrome to register the correct viewport.
+// cycleWindowToSize sets the window to the specified dimensions, then
+// cycles to fullscreen to force Chrome to register the correct viewport.
 func cycleWindowToSize(windowID browser.WindowID, windowSize string, ctx context.Context) error {
 	parts := strings.SplitN(windowSize, ",", 2)
 	if len(parts) != 2 {
@@ -177,16 +178,17 @@ func cycleWindowToSize(windowID browser.WindowID, windowSize string, ctx context
 		return fmt.Errorf("parse window height: %w", err)
 	}
 	err = browser.SetWindowBounds(windowID, &browser.Bounds{
-		WindowState: browser.WindowStateMinimized,
+		Width:  width,
+		Height: height,
 	}).Do(ctx)
 	if err != nil {
-		return fmt.Errorf("set window minimized: %w", err)
+		return fmt.Errorf("set window size: %w", err)
 	}
+
 	time.Sleep(100 * time.Millisecond)
+
 	return browser.SetWindowBounds(windowID, &browser.Bounds{
-		WindowState: browser.WindowStateNormal,
-		Width:       width,
-		Height:      height,
+		WindowState: browser.WindowStateFullscreen,
 	}).Do(ctx)
 }
 

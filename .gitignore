@@ -3,3 +3,5 @@ coverage/
 coverage.out
 coverage.html
 .idea
+.claude/
+docs/superpowers/

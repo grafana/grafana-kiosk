@@ -11,6 +11,7 @@ type General struct {
 	HideVariables   bool   `yaml:"hide-variables" env:"KIOSK_HIDE_VARIABLES" env-default:"false" env-description:"Hide variables in the top nav bar"`
 	HideLinks       bool   `yaml:"hide-links" env:"KIOSK_HIDE_LINKS" env-default:"false" env-description:"Hide links in the top nav bar"`
 	HideTimePicker  bool   `yaml:"hide-time-picker" env:"KIOSK_HIDE_TIME_PICKER" env-default:"false" env-description:"Hide time picker in the top nav bar"`
+	Incognito       bool   `yaml:"incognito" env:"KIOSK_INCOGNITO" env-default:"true" env-description:"use incognito mode"`
 	DebugEnabled    bool   `yaml:"debug" env:"KIOSK_DEBUG" env-default:"false" env-description:"enables debug output"`
 	GPUEnabled      bool   `yaml:"gpu-enabled" env:"KIOSK_GPU_ENABLED" env-default:"false" env-description:"disable GPU support"`
 	LXDEEnabled     bool   `yaml:"lxde" env:"KIOSK_LXDE_ENABLED" env-default:"false" env-description:"initialize LXDE for kiosk mode"`

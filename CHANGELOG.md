@@ -39,6 +39,8 @@ and this project adheres to
   job-level `contents: write` and `pull-requests: write`
 - Add `actionlint` job to CI for GitHub Actions workflow linting
 - Fix shellcheck warnings in CI workflow: quote variables, group redirects
+- Add `--incognito` flag to optionally disable Chrome incognito mode
+  ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
 
 ## 1.0.11
 

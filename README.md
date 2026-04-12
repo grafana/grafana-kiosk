@@ -89,6 +89,8 @@ NOTE: Flags with parameters should use an "equals"
       Hide variables in the top nav bar
   -ignore-certificate-errors
       Ignore SSL/TLS certificate error
+  -incognito
+      Use incognito mode (default true)
   -keyfile string
       idtoken json credentials (default "key.json")
   -kiosk-mode string
@@ -136,6 +138,7 @@ When using this option, all other arguments passed are ignored.
 general:
   kiosk-mode: full
   autofit: true
+  incognito: true
   lxde: true
   lxde-home: /home/pi
   scale-factor: 1.0
@@ -190,6 +193,8 @@ They can also be used instead of a configuration file.
       JSON Credentials for idtoken (default "key.json")
   KIOSK_IGNORE_CERTIFICATE_ERRORS bool
       ignore SSL/TLS certificate errors (default "false")
+  KIOSK_INCOGNITO bool
+      use incognito mode (default "true")
   KIOSK_IS_PLAYLIST bool
       URL is a playlist (default "false")
   KIOSK_LOGIN_METHOD string

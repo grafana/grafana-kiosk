@@ -103,6 +103,7 @@ func TestGenerateExecutorOptions(t *testing.T) {
 			cfg := &Config{
 				BuildInfo: BuildInfo{Version: "v1.0.0"},
 				General: General{
+					Incognito:      true,
 					WindowPosition: "0,0",
 				},
 				Target: Target{
@@ -434,6 +435,22 @@ func TestGenerateExecutorOptions(t *testing.T) {
 				userAgent := flags["user-agent"].(string)
 				So(userAgent, ShouldContainSubstring, "GrafanaKiosk/1.0.0-31-gabcdef")
 				So(strings.Contains(userAgent, "GrafanaKiosk/v"), ShouldBeFalse)
+			})
+		})
+
+		Convey("When incognito is disabled", func() {
+			cfg := &Config{
+				BuildInfo: BuildInfo{Version: "v1.0.0"},
+				General: General{
+					Incognito:      false,
+					WindowPosition: "0,0",
+				},
+			}
+			opts := generateExecutorOptions("/tmp/test", cfg)
+			flags := applyOptions(opts)
+
+			Convey("Should set incognito to false", func() {
+				So(flags["incognito"], ShouldEqual, false)
 			})
 		})
 	})

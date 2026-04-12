@@ -161,6 +161,9 @@ func resetWindowState(cfg *Config) chromedp.ActionFunc {
 // waitForPageLoad pauses to allow the browser to finish loading.
 func waitForPageLoad(cfg *Config) chromedp.ActionFunc {
 	return chromedp.ActionFunc(func(_ context.Context) error {
+		if cfg.General.PageLoadDelayMS <= 0 {
+			return nil
+		}
 		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
 		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 		return nil

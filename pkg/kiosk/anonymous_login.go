@@ -34,6 +34,7 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, message
 	if err := chromedp.Run(taskCtx,
 		resetWindowState(cfg),
 		chromedp.Navigate(generatedURL),
+		waitForPageLoad(cfg),
 	); err != nil {
 		panic(err)
 	}

@@ -3,6 +3,7 @@ package kiosk
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
@@ -61,8 +62,9 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 	); err != nil {
 		panic(err)
 	}
+	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
+	time.Sleep(3000 * time.Millisecond)
 	// Fill out grafana_com login page
-	waitForBrowserStartup(cfg)
 	if err := chromedp.Run(taskCtx,
 		chromedp.WaitVisible(`//input[@name="login"]`, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="login"]`, cfg.Target.Username, chromedp.BySearch),

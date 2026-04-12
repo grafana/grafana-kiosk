@@ -67,7 +67,11 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 		}
 	})
 
-	if err := chromedp.Run(taskCtx, waitForPageLoad(cfg), resetWindowState(cfg), enableFetch(generatedURL)); err != nil {
+	if err := chromedp.Run(taskCtx,
+		waitForPageLoad(cfg),
+		resetWindowState(cfg),
+		enableFetch(generatedURL),
+	); err != nil {
 		panic(err)
 	}
 

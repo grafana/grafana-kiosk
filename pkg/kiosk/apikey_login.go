@@ -102,6 +102,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 		resetWindowState(cfg),
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
 		chromedp.Navigate(generatedURL),
+		waitForPageLoad(cfg),
 	); err != nil {
 		panic(err)
 	}

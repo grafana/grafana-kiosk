@@ -33,6 +33,7 @@ func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, messages
 	log.Println("Navigating to ", generatedURL)
 
 	if err := chromedp.Run(taskCtx,
+		waitForPageLoad(cfg),
 		resetWindowState(cfg),
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible(`//a[contains(@href,'login/sso')]`, chromedp.BySearch),

@@ -225,6 +225,22 @@ They can also be used instead of a configuration file.
       Size of Kiosk in pixels (width,height) (default "")
 ```
 
+### Window size and kiosk mode
+
+By default, the kiosk launches Chrome in fullscreen kiosk mode (`--kiosk --start-fullscreen`). The `-window-size` and
+`-kiosk-mode` flags interact as follows:
+
+| `-window-size` | `-kiosk-mode` | Behavior |
+| --- | --- | --- |
+| not set | `full` (default) | Fullscreen kiosk, panels autofit to screen |
+| not set | `tv` or `disabled` | Fullscreen kiosk, no panel autofit |
+| set (e.g. `1920,1080`) | `full` (default) | App window at specified size, then cycles to fullscreen via CDP |
+| set (e.g. `1920,1080`) | `tv` or `disabled` | App window at specified size, no fullscreen |
+
+When `-window-size` is specified, Chrome launches in app mode (no address bar or controls). Before navigating to the
+dashboard, the kiosk cycles the browser window state via the Chrome DevTools Protocol (CDP) to force Chrome to properly
+register viewport dimensions. This ensures Grafana correctly applies the `autofitpanels` parameter on initial page load.
+
 ### Hosted Grafana using grafana.com authentication
 
 This will login to a Hosted Grafana instance and take the browser to the default dashboard in fullscreen kiosk mode:

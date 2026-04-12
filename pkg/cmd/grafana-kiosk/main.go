@@ -59,6 +59,7 @@ type Args struct {
 	HideLinks                            bool
 	HideTimePicker                       bool
 	HideVariables                        bool
+	Incognito                            bool
 }
 
 // ProcessArgs processes and handles CLI arguments.
@@ -85,6 +86,7 @@ func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
 	flagSettings.BoolVar(&processedArgs.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
 	flagSettings.StringVar(&processedArgs.LXDEHome, "lxde-home", "/home/pi", "Path to home directory of LXDE user running X Server")
 	flagSettings.BoolVar(&processedArgs.IgnoreCertificateErrors, "ignore-certificate-errors", false, "Ignore SSL/TLS certificate error")
+	flagSettings.BoolVar(&processedArgs.Incognito, "incognito", true, "Use incognito mode")
 	flagSettings.BoolVar(&processedArgs.OauthAutoLogin, "auto-login", false, "oauth_auto_login is enabled in grafana config")
 	flagSettings.BoolVar(&processedArgs.OauthWaitForPasswordField, "wait-for-password-field", false, "oauth_auto_login is enabled in grafana config")
 	flagSettings.StringVar(&processedArgs.OauthWaitForPasswordFieldIgnoreClass, "wait-for-password-field-class", "", "oauth_auto_login is enabled in grafana config")
@@ -147,6 +149,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
 	log.Println("LXDEHome:", cfg.General.LXDEHome)
 	log.Println("Mode:", cfg.General.Mode)
+	log.Println("Incognito:", cfg.General.Incognito)
 	log.Println("WindowPosition:", cfg.General.WindowPosition)
 	log.Println("WindowSize:", cfg.General.WindowSize)
 	log.Println("ScaleFactor:", cfg.General.ScaleFactor)
@@ -218,6 +221,7 @@ func main() {
 			"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
 			"hide-time-picker":   func() { cfg.General.HideTimePicker = args.HideTimePicker },
 			"hide-variables":     func() { cfg.General.HideVariables = args.HideVariables },
+			"incognito":         func() { cfg.General.Incognito = args.Incognito },
 			//
 			"auto-login":                     func() { cfg.GoAuth.AutoLogin = args.OauthAutoLogin },
 			"field-username":                 func() { cfg.GoAuth.UsernameField = args.UsernameField },

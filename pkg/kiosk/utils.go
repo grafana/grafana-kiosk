@@ -140,7 +140,7 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 // dimensions so Grafana sees the correct size on initial page load.
 func cycleWindowState(cfg *Config) chromedp.ActionFunc {
 	return chromedp.ActionFunc(func(ctx context.Context) error {
-		log.Println("Resetting window state via CDP")
+		log.Println("Cycling window state via CDP")
 		windowID, _, err := browser.GetWindowForTarget().Do(ctx)
 		if err != nil {
 			return fmt.Errorf("get window for target: %w", err)

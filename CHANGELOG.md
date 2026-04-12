@@ -15,7 +15,7 @@ and this project adheres to
 
 ### Bug Fixes
 
-- Fix Grafana 12+ scenes viewport changes causing kiosk to not autofit or go full screen ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
+- Fix Grafana 12+ scenes viewport changes causing kiosk to not autofit panels ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
 - Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode ([#155](https://github.com/grafana/grafana-kiosk/issues/155))
 - Fix CLI flags not overriding config file values when using `-c` ([#210](https://github.com/grafana/grafana-kiosk/issues/210))
 - Fix API key host prefix matching to prevent auth header leakage to hosts sharing a prefix with the target

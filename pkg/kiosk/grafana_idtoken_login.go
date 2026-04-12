@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/fetch"
@@ -33,9 +32,7 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 		panic(err)
 	}
 
-	// Give browser time to load
-	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+	waitForBrowserStartup(cfg)
 
 	var generatedURL = GenerateURL(cfg)
 
@@ -70,10 +67,7 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 		}
 	})
 
-	if err := chromedp.Run(taskCtx, enableFetch(generatedURL)); err != nil {
-		panic(err)
-	}
-	if err := chromedp.Run(taskCtx, postNavigate(cfg)); err != nil {
+	if err := chromedp.Run(taskCtx, waitForPageLoad(cfg), resetWindowState(cfg), enableFetch(generatedURL)); err != nil {
 		panic(err)
 	}
 
@@ -85,7 +79,6 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
-				postNavigate(cfg),
 			); err != nil {
 				return
 			}

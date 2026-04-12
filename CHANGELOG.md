@@ -16,8 +16,8 @@ and this project adheres to
 
 ### Bug Fixes
 
-- Fix autofit not working on Grafana 12+ by dispatching a resize
-  event after page load (#177)
+- Fix autofit not working on Grafana 12+ by ensuring fullscreen
+  via CDP window state cycle before navigation (#177)
 - Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode (#155)
 - Fix CLI flags not overriding config file values when using `-c`
   (#210)

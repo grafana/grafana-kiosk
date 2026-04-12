@@ -44,6 +44,8 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 		panic(err)
 	}
 
+	waitForBrowserStartup(cfg)
+
 	var generatedURL = GenerateURL(cfg)
 
 	log.Println("Navigating to ", generatedURL)
@@ -53,10 +55,6 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 		name=user, type=text
 		id=inputPassword, type=password, name=password
 	*/
-	// Give browser time to load
-	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
-
 	if cfg.GoAuth.AutoLogin {
 		// if AutoLogin is set, get the base URL and append the local login bypass before navigating to the full url
 		bypassURL := LocalLoginBypassURL(cfg.Target.URL)
@@ -64,6 +62,8 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 		log.Println("Bypassing autoLogin using URL ", bypassURL)
 
 		if err := chromedp.Run(taskCtx,
+			waitForPageLoad(cfg),
+			resetWindowState(cfg),
 			chromedp.Navigate(bypassURL),
 			chromedp.ActionFunc(func(context.Context) error {
 				log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
@@ -85,12 +85,13 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 				return nil
 			}),
 			chromedp.Navigate(generatedURL),
-			postNavigate(cfg),
 		); err != nil {
 			panic(err)
 		}
 	} else {
 		if err := chromedp.Run(taskCtx,
+			waitForPageLoad(cfg),
+			resetWindowState(cfg),
 			chromedp.ActionFunc(func(context.Context) error {
 				log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
 				time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
@@ -105,7 +106,6 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-			postNavigate(cfg),
 		); err != nil {
 			panic(err)
 		}
@@ -119,7 +119,6 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
-				postNavigate(cfg),
 			); err != nil {
 				return
 			}

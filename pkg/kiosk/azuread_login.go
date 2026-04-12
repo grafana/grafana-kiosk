@@ -26,9 +26,7 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, messages 
 		panic(err)
 	}
 
-	// Give browser time to load
-	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+	waitForBrowserStartup(cfg)
 
 	var generatedURL = GenerateURL(cfg)
 
@@ -46,6 +44,8 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, messages 
 
 	// Click the AzureAD login button on the Grafana login page
 	if err := chromedp.Run(taskCtx,
+		waitForPageLoad(cfg),
+		resetWindowState(cfg),
 		chromedp.Navigate(generatedURL),
 		chromedp.ActionFunc(func(context.Context) error {
 			log.Println("waiting for azuread login button")
@@ -107,16 +107,11 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, messages 
 		panic(err)
 	}
 
-	if err := chromedp.Run(taskCtx, postNavigate(cfg)); err != nil {
-		panic(err)
-	}
-
 	// blocking wait for reload messages
 	for {
 		messageFromChrome := <-messages
 		if err := chromedp.Run(taskCtx,
 			chromedp.Navigate(generatedURL),
-			postNavigate(cfg),
 		); err != nil {
 			panic(err)
 		}

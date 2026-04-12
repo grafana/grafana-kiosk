@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chromedp/cdproto/browser"
 	"github.com/chromedp/chromedp"
 )
 
@@ -131,17 +132,46 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	return execAllocatorOption
 }
 
-// postNavigate waits for the page to load, then dispatches a browser resize
-// event to force Grafana to recalculate panel layout. Grafana 12+ may not
-// process the autofitpanels URL parameter on initial page load.
-func postNavigate(cfg *Config) chromedp.ActionFunc {
+// resetWindowState cycles the browser window from normal to fullscreen via
+// CDP before navigation. This forces Chrome to properly register viewport
+// dimensions so Grafana sees the correct size on initial page load.
+func resetWindowState(cfg *Config) chromedp.ActionFunc {
 	return chromedp.ActionFunc(func(ctx context.Context) error {
-		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
-		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
-		if !cfg.General.AutoFit {
+		if cfg.General.WindowSize != "" {
 			return nil
 		}
-		log.Println("Triggering autofit resize event")
-		return chromedp.Evaluate(`window.dispatchEvent(new Event('resize'))`, nil).Do(ctx)
+		log.Println("Resetting window state via CDP")
+		windowID, _, err := browser.GetWindowForTarget().Do(ctx)
+		if err != nil {
+			return fmt.Errorf("get window for target: %w", err)
+		}
+		err = browser.SetWindowBounds(windowID, &browser.Bounds{
+			WindowState: browser.WindowStateNormal,
+		}).Do(ctx)
+		if err != nil {
+			return fmt.Errorf("set window normal: %w", err)
+		}
+		time.Sleep(100 * time.Millisecond)
+		return browser.SetWindowBounds(windowID, &browser.Bounds{
+			WindowState: browser.WindowStateFullscreen,
+		}).Do(ctx)
 	})
+}
+
+// waitForPageLoad pauses to allow the browser to finish loading.
+func waitForPageLoad(cfg *Config) chromedp.ActionFunc {
+	return chromedp.ActionFunc(func(_ context.Context) error {
+		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
+		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+		return nil
+	})
+}
+
+// waitForBrowserStartup pauses to allow the browser process to become idle.
+func waitForBrowserStartup(cfg *Config) {
+	if cfg.General.PageLoadDelayMS <= 0 {
+		return
+	}
+	log.Printf("Sleeping %d MS waiting for browser startup", cfg.General.PageLoadDelayMS)
+	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 }

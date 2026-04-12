@@ -3,7 +3,6 @@ package kiosk
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
@@ -27,6 +26,8 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 		panic(err)
 	}
 
+	waitForBrowserStartup(cfg)
+
 	var generatedURL = GenerateURL(cfg)
 
 	log.Println("Navigating to ", generatedURL)
@@ -41,12 +42,16 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 
 	if cfg.GoAuth.AutoLogin {
 		if err := chromedp.Run(taskCtx,
+			waitForPageLoad(cfg),
+			resetWindowState(cfg),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)
 		}
 	} else {
 		if err := chromedp.Run(taskCtx,
+			waitForPageLoad(cfg),
+			resetWindowState(cfg),
 			chromedp.Navigate(generatedURL),
 			chromedp.WaitVisible(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),
 			chromedp.Click(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),
@@ -55,9 +60,7 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 		}
 	}
 
-	// Give browser time to load
-	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+	waitForBrowserStartup(cfg)
 
 	// Fill out OAUTH login page
 
@@ -87,9 +90,6 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 			panic(err)
 		}
 	}
-	if err := chromedp.Run(taskCtx, postNavigate(cfg)); err != nil {
-		panic(err)
-	}
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {
@@ -98,7 +98,6 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
-				postNavigate(cfg),
 			); err != nil {
 				return
 			}

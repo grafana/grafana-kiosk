@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/chromedp/cdproto/fetch"
 	"github.com/chromedp/chromedp"
@@ -52,9 +51,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 		panic(err)
 	}
 
-	// Give browser time to load
-	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+	waitForBrowserStartup(cfg)
 
 	var generatedURL = GenerateURL(cfg)
 
@@ -102,9 +99,9 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 	})
 	if err := chromedp.Run(
 		taskCtx,
+		resetWindowState(cfg),
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
 		chromedp.Navigate(generatedURL),
-		postNavigate(cfg),
 	); err != nil {
 		panic(err)
 	}
@@ -116,7 +113,6 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
-				postNavigate(cfg),
 			); err != nil {
 				return
 			}

@@ -3,7 +3,6 @@ package kiosk
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
@@ -26,9 +25,8 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 	if err := chromedp.Run(taskCtx); err != nil {
 		panic(err)
 	}
-	// Give browser time to load
-	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+
+	waitForBrowserStartup(cfg)
 
 	var generatedURL = GenerateURL(cfg)
 
@@ -43,6 +41,8 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 
 	// Click the grafana_com login button
 	if err := chromedp.Run(taskCtx,
+		waitForPageLoad(cfg),
+		resetWindowState(cfg),
 		chromedp.Navigate(generatedURL),
 		chromedp.ActionFunc(func(context.Context) error {
 			log.Println("waiting for login dialog")
@@ -61,18 +61,14 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 	); err != nil {
 		panic(err)
 	}
-	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
-	time.Sleep(3000 * time.Millisecond)
 	// Fill out grafana_com login page
+	waitForBrowserStartup(cfg)
 	if err := chromedp.Run(taskCtx,
 		chromedp.WaitVisible(`//input[@name="login"]`, chromedp.BySearch),
 		chromedp.SendKeys(`//input[@name="login"]`, cfg.Target.Username, chromedp.BySearch),
 		chromedp.Click(`#submit`, chromedp.ByID),
 		chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
 	); err != nil {
-		panic(err)
-	}
-	if err := chromedp.Run(taskCtx, postNavigate(cfg)); err != nil {
 		panic(err)
 	}
 	// blocking wait until context is cancelled or a message triggers a reload
@@ -83,7 +79,6 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
-				postNavigate(cfg),
 			); err != nil {
 				return
 			}

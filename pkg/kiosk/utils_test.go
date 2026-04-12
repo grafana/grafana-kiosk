@@ -118,7 +118,7 @@ func TestGenerateExecutorOptions(t *testing.T) {
 				So(flags["bwsi"], ShouldEqual, true)
 				So(flags["check-for-update-interval"], ShouldEqual, "31536000")
 				So(flags["password-store"], ShouldEqual, "basic")
-				So(flags["disable-features"], ShouldEqual, "Translate,HttpsUpgrades")
+				So(flags["disable-features"], ShouldEqual, "Translate")
 				So(flags["disable-notifications"], ShouldEqual, true)
 				So(flags["disable-overlay-scrollbar"], ShouldEqual, true)
 				So(flags["hide-scrollbars"], ShouldEqual, true)
@@ -451,6 +451,42 @@ func TestGenerateExecutorOptions(t *testing.T) {
 
 			Convey("Should set incognito to false", func() {
 				So(flags["incognito"], ShouldEqual, false)
+			})
+		})
+
+		Convey("When target URL uses HTTP", func() {
+			cfg := &Config{
+				BuildInfo: BuildInfo{Version: "v1.0.0"},
+				General: General{
+					WindowPosition: "0,0",
+				},
+				Target: Target{
+					URL: "http://grafana.local:3000/dashboard",
+				},
+			}
+			opts := generateExecutorOptions("/tmp/test", cfg)
+			flags := applyOptions(opts)
+
+			Convey("Should disable HttpsUpgrades feature", func() {
+				So(flags["disable-features"], ShouldEqual, "Translate,HttpsUpgrades")
+			})
+		})
+
+		Convey("When target URL uses HTTPS", func() {
+			cfg := &Config{
+				BuildInfo: BuildInfo{Version: "v1.0.0"},
+				General: General{
+					WindowPosition: "0,0",
+				},
+				Target: Target{
+					URL: "https://grafana.example.com/dashboard",
+				},
+			}
+			opts := generateExecutorOptions("/tmp/test", cfg)
+			flags := applyOptions(opts)
+
+			Convey("Should not disable HttpsUpgrades feature", func() {
+				So(flags["disable-features"], ShouldEqual, "Translate")
 			})
 		})
 	})

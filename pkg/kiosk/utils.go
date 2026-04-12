@@ -69,6 +69,14 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	// --disable-gpu
 	//    Disables GPU hardware acceleration. If software renderer is not in place, then the GPU process won't launch.--disable-gpu
 
+	// Chromium 130+ enables HTTPS-First Mode by default, which blocks
+	// plain HTTP page loads with ERR_BLOCKED_BY_CLIENT. Disable it when
+	// the target URL uses HTTP.
+	disableFeatures := "Translate"
+	if strings.HasPrefix(cfg.Target.URL, "http://") {
+		disableFeatures += ",HttpsUpgrades"
+	}
+
 	execAllocatorOption := []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
 		chromedp.NoDefaultBrowserCheck,
@@ -76,7 +84,7 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 		chromedp.Flag("bwsi", true),
 		chromedp.Flag("check-for-update-interval", "31536000"),
 		chromedp.Flag("password-store", "basic"), // prevent key store popup
-		chromedp.Flag("disable-features", "Translate,HttpsUpgrades"),
+		chromedp.Flag("disable-features", disableFeatures),
 		chromedp.Flag("disable-notifications", true),
 		chromedp.Flag("disable-overlay-scrollbar", true),
 		chromedp.Flag("hide-scrollbars", true),

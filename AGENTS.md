@@ -413,10 +413,12 @@ Pushing a `v*` tag triggers the CI workflow which:
 
 - **Never commit directly to `main`**. Always create a new branch for changes.
 - Use descriptive branch names (e.g., `feat/add-feature`, `fix/bug-description`).
-- When pushing new commits to a PR, always update the PR summary to reflect all
-  changes. Categorize by type using H3 headings (`### Category`) with Bug Fixes
+- Use categorized PR summaries both when creating and when updating PRs.
+  Categorize by type using H3 headings (`### Category`) with Bug Fixes
   listed first. Common categories: Bug Fixes, CI/CD, Dependencies, Tests,
   Chores, Documentation.
+- When pushing new commits to a PR, always update the PR summary to reflect all
+  changes.
 - **Do not commit automatically**. Only commit when explicitly asked.
 - **Do not push automatically**. Only push when explicitly asked.
 

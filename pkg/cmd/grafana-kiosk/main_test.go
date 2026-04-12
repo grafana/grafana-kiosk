@@ -40,6 +40,93 @@ func TestSanitize(t *testing.T) {
 }
 
 // TestKiosk checks kiosk command.
+func TestCLIFlagsOverrideConfigFile(t *testing.T) {
+	Convey("Given a config file with specific values", t, func() {
+		configContent := `
+target:
+  URL: https://example.com
+  login-method: anon
+  ignore-certificate-errors: false
+general:
+  kiosk-mode: full
+  autofit: true
+  incognito: true
+  window-position: "0,0"
+  scale-factor: "1.0"
+`
+		tmpFile, err := os.CreateTemp("", "kiosk-test-*.yaml")
+		So(err, ShouldBeNil)
+		defer func() { _ = os.Remove(tmpFile.Name()) }()
+		_, err = tmpFile.WriteString(configContent)
+		So(err, ShouldBeNil)
+		_ = tmpFile.Close()
+
+		Convey("CLI flag should override config file value", func() {
+			oldArgs := os.Args
+			defer func() { os.Args = oldArgs }()
+			os.Args = []string{
+				"grafana-kiosk",
+				"-c", tmpFile.Name(),
+				"-ignore-certificate-errors",
+			}
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			So(cfg.Target.IgnoreCertificateErrors, ShouldBeTrue)
+		})
+
+		Convey("Config file value should be used when no CLI flag is passed", func() {
+			oldArgs := os.Args
+			defer func() { os.Args = oldArgs }()
+			os.Args = []string{
+				"grafana-kiosk",
+				"-c", tmpFile.Name(),
+			}
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			So(cfg.Target.IgnoreCertificateErrors, ShouldBeFalse)
+		})
+
+		Convey("Multiple CLI flags should override respective config values", func() {
+			oldArgs := os.Args
+			defer func() { os.Args = oldArgs }()
+			os.Args = []string{
+				"grafana-kiosk",
+				"-c", tmpFile.Name(),
+				"-ignore-certificate-errors",
+				"-kiosk-mode", "tv",
+				"-incognito=false",
+			}
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			So(cfg.Target.IgnoreCertificateErrors, ShouldBeTrue)
+			So(cfg.General.Mode, ShouldEqual, "tv")
+			So(cfg.General.Incognito, ShouldBeFalse)
+			// non-overridden values preserved from config file
+			So(cfg.Target.URL, ShouldEqual, "https://example.com")
+			So(cfg.General.AutoFit, ShouldBeTrue)
+		})
+
+		Convey("Invalid config path should return error", func() {
+			oldArgs := os.Args
+			defer func() { os.Args = oldArgs }()
+			os.Args = []string{
+				"grafana-kiosk",
+				"-c", "/nonexistent/config.yaml",
+			}
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldNotBeNil)
+		})
+	})
+}
+
 func TestMain(t *testing.T) {
 	Convey("Given Default Configuration", t, func() {
 		cfg := kiosk.Config{

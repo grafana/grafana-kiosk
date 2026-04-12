@@ -84,8 +84,9 @@ There is no `.golangci.yml` config file. CI runs golangci-lint v2 and gosec
 with default settings.
 
 **IMPORTANT**: Always run `golangci-lint run --timeout 5m ./pkg/...` and
-`gosec ./...` before committing and fix any issues. CI will reject code
-with lint or security violations.
+`gosec ./...` before committing when `.go` files are modified or added.
+Fix any issues before creating the commit. CI will reject code with lint
+or security violations.
 
 **IMPORTANT**: If `go.mod` or `go.sum` changes, always run `mage -v` to
 verify the project builds successfully before committing.
@@ -412,10 +413,12 @@ Pushing a `v*` tag triggers the CI workflow which:
 
 - **Never commit directly to `main`**. Always create a new branch for changes.
 - Use descriptive branch names (e.g., `feat/add-feature`, `fix/bug-description`).
-- When pushing new commits to a PR, always update the PR summary to reflect all
-  changes. Categorize by type using H3 headings (`### Category`) with Bug Fixes
+- Use categorized PR summaries both when creating and when updating PRs.
+  Categorize by type using H3 headings (`### Category`) with Bug Fixes
   listed first. Common categories: Bug Fixes, CI/CD, Dependencies, Tests,
   Chores, Documentation.
+- When pushing new commits to a PR, always update the PR summary to reflect all
+  changes.
 - **Do not commit automatically**. Only commit when explicitly asked.
 - **Do not push automatically**. Only push when explicitly asked.
 

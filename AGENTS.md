@@ -324,6 +324,10 @@ before pushing.
 Categorize entries under H3 headings in this order: Features, Bug Fixes,
 Tests, CI/CD, Dependencies, Chores. Omit empty categories.
 
+Changelog lines may be up to 120 characters before wrapping, matching
+the markdownlint `line-length` config. Do not wrap lines shorter than
+120 characters.
+
 ## Release Process
 
 This project uses [semantic versioning](https://semver.org/) with tags in the

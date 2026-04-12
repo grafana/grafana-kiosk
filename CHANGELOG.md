@@ -11,32 +11,23 @@ and this project adheres to
 
 ### Features
 
-- Add `--incognito` flag to optionally disable Chrome incognito mode
-  ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
+- Add `--incognito` flag to optionally disable Chrome incognito mode ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
 
 ### Bug Fixes
 
-- Fix Grafana 12+ scenes viewport changes causing kiosk to not
-  autofit or go full screen
-  ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
-- Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode
-  ([#155](https://github.com/grafana/grafana-kiosk/issues/155))
-- Fix CLI flags not overriding config file values when using `-c`
-  ([#210](https://github.com/grafana/grafana-kiosk/issues/210))
-- Fix API key host prefix matching to prevent auth header leakage
-  to hosts sharing a prefix with the target
-- Fix broken badge images: push shields.io JSON endpoint to `badges`
-  branch from CI, use shields.io dynamic badge in README
+- Fix Grafana 12+ scenes viewport changes causing kiosk to not autofit or go full screen ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
+- Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode ([#155](https://github.com/grafana/grafana-kiosk/issues/155))
+- Fix CLI flags not overriding config file values when using `-c` ([#210](https://github.com/grafana/grafana-kiosk/issues/210))
+- Fix API key host prefix matching to prevent auth header leakage to hosts sharing a prefix with the target
+- Fix broken badge images: push shields.io JSON endpoint to `badges` branch from CI, use shields.io dynamic badge in README
 
 ### Tests
 
-- Add tests for `IsDataSourceQueryRequest` and `IsTargetHostRequest`
-  in apikey login
+- Add tests for `IsDataSourceQueryRequest` and `IsTargetHostRequest` in apikey login
 - Add tests for `sanitize` in main and initialize packages
 - Add tests for `GenerateURL` playlist mode
 - Add tests for command allowlist in initialize package
-- Add tests for `resetWindowState`, `waitForPageLoad`, and
-  `waitForBrowserStartup` utilities
+- Add tests for `resetWindowState`, `waitForPageLoad`, and `waitForBrowserStartup` utilities
 
 ### CI/CD
 
@@ -46,26 +37,21 @@ and this project adheres to
 - Save coverage report as CI artifact
 - Disable octocov PR comment, use PR body insertion only
 - Add octocov coverage badges to README
-- Restrict CI workflow permissions: global `permissions: {}` with
-  job-level `contents: write` and `pull-requests: write`
+- Restrict CI workflow permissions: global `permissions: {}` with job-level `contents: write` and `pull-requests: write`
 - Add `actionlint` job to CI for GitHub Actions workflow linting
-- Fix shellcheck warnings in CI workflow: quote variables, group
-  redirects
+- Fix shellcheck warnings in CI workflow: quote variables, group redirects
 
 ### Dependencies
 
-- Update Go module dependencies: chromedp/cdproto, magefile/mage
-  v1.17.1, google.golang.org/api v0.275.0,
-  golang.org/x/{crypto,net,sys,text}, google.golang.org/grpc v1.80.0,
-  go.opentelemetry.io/otel v1.43.0, cloud.google.com/go/auth v0.20.0
-- Update Docker base images: golang 1.26.2-alpine,
-  dtcooper/raspberrypi-os latest digest
+- Update Go module dependencies: chromedp/cdproto, magefile/mage v1.17.1, google.golang.org/api v0.275.0,
+  golang.org/x/{crypto,net,sys,text}, google.golang.org/grpc v1.80.0, go.opentelemetry.io/otel v1.43.0,
+  cloud.google.com/go/auth v0.20.0
+- Update Docker base images: golang 1.26.2-alpine, dtcooper/raspberrypi-os latest digest
 
 ### Chores
 
 - Add CLAUDE.md referencing AGENTS.md
-- Update AGENTS.md action version table to match current CI pinned
-  versions
+- Update AGENTS.md action version table to match current CI pinned versions
 - Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
 - Add missing technical terms to cspell config
 - Fix long lines in README.md for markdownlint compliance

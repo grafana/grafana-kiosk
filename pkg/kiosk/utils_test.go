@@ -1,11 +1,13 @@
 package kiosk
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 	"unsafe"
 
 	"github.com/chromedp/chromedp"
@@ -488,6 +490,102 @@ func TestGenerateExecutorOptions(t *testing.T) {
 			Convey("Should not disable HttpsUpgrades feature", func() {
 				So(flags["disable-features"], ShouldEqual, "Translate")
 			})
+		})
+	})
+}
+
+func TestResetWindowState(t *testing.T) {
+	Convey("Given resetWindowState", t, func() {
+		Convey("When custom window size is set", func() {
+			cfg := &Config{
+				General: General{WindowSize: "1920,1080"},
+			}
+			action := resetWindowState(cfg)
+			err := action.Do(context.Background())
+
+			Convey("Should skip and return nil", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+}
+
+func TestWaitForPageLoad(t *testing.T) {
+	Convey("Given waitForPageLoad", t, func() {
+		Convey("When PageLoadDelayMS is zero", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: 0},
+			}
+			action := waitForPageLoad(cfg)
+			start := time.Now()
+			err := action.Do(context.Background())
+			elapsed := time.Since(start)
+
+			So(err, ShouldBeNil)
+			So(elapsed, ShouldBeLessThan, 50*time.Millisecond)
+		})
+
+		Convey("When PageLoadDelayMS is negative", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: -100},
+			}
+			action := waitForPageLoad(cfg)
+			start := time.Now()
+			err := action.Do(context.Background())
+			elapsed := time.Since(start)
+
+			So(err, ShouldBeNil)
+			So(elapsed, ShouldBeLessThan, 50*time.Millisecond)
+		})
+
+		Convey("When PageLoadDelayMS is positive", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: 100},
+			}
+			action := waitForPageLoad(cfg)
+			start := time.Now()
+			err := action.Do(context.Background())
+			elapsed := time.Since(start)
+
+			So(err, ShouldBeNil)
+			So(elapsed, ShouldBeGreaterThanOrEqualTo, 100*time.Millisecond)
+		})
+	})
+}
+
+func TestWaitForBrowserStartup(t *testing.T) {
+	Convey("Given waitForBrowserStartup", t, func() {
+		Convey("When PageLoadDelayMS is zero", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: 0},
+			}
+			start := time.Now()
+			waitForBrowserStartup(cfg)
+			elapsed := time.Since(start)
+
+			So(elapsed, ShouldBeLessThan, 50*time.Millisecond)
+		})
+
+		Convey("When PageLoadDelayMS is negative", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: -100},
+			}
+			start := time.Now()
+			waitForBrowserStartup(cfg)
+			elapsed := time.Since(start)
+
+			So(elapsed, ShouldBeLessThan, 50*time.Millisecond)
+		})
+
+		Convey("When PageLoadDelayMS is positive", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: 100},
+			}
+			start := time.Now()
+			waitForBrowserStartup(cfg)
+			elapsed := time.Since(start)
+
+			So(elapsed, ShouldBeGreaterThanOrEqualTo, 100*time.Millisecond)
 		})
 	})
 }

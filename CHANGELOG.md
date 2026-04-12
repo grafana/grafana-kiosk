@@ -16,8 +16,8 @@ and this project adheres to
 
 ### Bug Fixes
 
-- Fix autofit not working on Grafana 12+ by ensuring fullscreen
-  via CDP window state cycle before navigation (#177)
+- Fix Grafana 12+ scenes viewport changes causing kiosk to not
+  autofit or go full screen (#177)
 - Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode (#155)
 - Fix CLI flags not overriding config file values when using `-c`
   (#210)
@@ -36,6 +36,8 @@ and this project adheres to
 - Add tests for `sanitize` in main and initialize packages
 - Add tests for `GenerateURL` playlist mode
 - Add tests for command allowlist in initialize package
+- Add tests for `resetWindowState`, `waitForPageLoad`, and
+  `waitForBrowserStartup` utilities
 
 ### CI/CD
 

@@ -104,12 +104,10 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 		taskCtx,
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
 		chromedp.Navigate(generatedURL),
+		triggerAutofit(cfg),
 	); err != nil {
 		panic(err)
 	}
-	// Give browser time to fully render the dashboard
-	log.Printf("Sleeping %d MS before continuing", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {
@@ -118,6 +116,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
+				triggerAutofit(cfg),
 			); err != nil {
 				return
 			}

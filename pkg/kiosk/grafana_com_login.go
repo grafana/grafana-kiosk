@@ -72,6 +72,9 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 	); err != nil {
 		panic(err)
 	}
+	if err := chromedp.Run(taskCtx, triggerAutofit(cfg)); err != nil {
+		panic(err)
+	}
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {
@@ -80,6 +83,7 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
+				triggerAutofit(cfg),
 			); err != nil {
 				return
 			}

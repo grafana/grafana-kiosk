@@ -1,11 +1,13 @@
 package kiosk
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/url"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/chromedp/chromedp"
 )
@@ -127,4 +129,18 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	}
 
 	return execAllocatorOption
+}
+
+// triggerAutofit dispatches a browser resize event after a short delay to force
+// Grafana to recalculate panel layout. Grafana 12+ does not always process the
+// autofitpanels URL parameter on initial page load.
+func triggerAutofit(cfg *Config) chromedp.ActionFunc {
+	return chromedp.ActionFunc(func(ctx context.Context) error {
+		if !cfg.General.AutoFit {
+			return nil
+		}
+		log.Printf("Sleeping %d MS before triggering autofit resize", cfg.General.PageLoadDelayMS)
+		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+		return chromedp.Evaluate(`window.dispatchEvent(new Event('resize'))`, nil).Do(ctx)
+	})
 }

@@ -107,11 +107,16 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, messages 
 		panic(err)
 	}
 
+	if err := chromedp.Run(taskCtx, triggerAutofit(cfg)); err != nil {
+		panic(err)
+	}
+
 	// blocking wait for reload messages
 	for {
 		messageFromChrome := <-messages
 		if err := chromedp.Run(taskCtx,
 			chromedp.Navigate(generatedURL),
+			triggerAutofit(cfg),
 		); err != nil {
 			panic(err)
 		}

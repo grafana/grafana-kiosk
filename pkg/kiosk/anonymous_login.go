@@ -36,12 +36,10 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, message
 
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
+		triggerAutofit(cfg),
 	); err != nil {
 		panic(err)
 	}
-	// Give browser time to fully render the dashboard
-	log.Printf("Sleeping %d MS before continuing", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {
@@ -50,6 +48,7 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, message
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
+				triggerAutofit(cfg),
 			); err != nil {
 				return
 			}

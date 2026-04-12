@@ -9,6 +9,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Fix autofit not working on Grafana 12+ by dispatching a resize
+  event after page load (fixes #177)
 - Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode
   (fixes #155)
 - Fix CLI flags not overriding config file values when using `-c`

@@ -115,6 +115,67 @@ func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
 	return processedArgs, flagSettings
 }
 
+// loadConfig reads configuration from a file or environment, then applies
+// CLI flag overrides. Flags always take precedence.
+func loadConfig(args Args, fs *flag.FlagSet, cfg *kiosk.Config) error {
+	if args.ConfigPath != "" {
+		// read configuration from the file and then override with environment variables
+		if err := cleanenv.ReadConfig(args.ConfigPath, cfg); err != nil {
+			return fmt.Errorf("error reading config file: %w", err)
+		}
+		log.Println("Using config from", args.ConfigPath)
+	} else {
+		log.Println("No config specified, using environment and args")
+		if err := cleanenv.ReadEnv(cfg); err != nil {
+			log.Println("Error reading config from environment", err)
+		}
+	}
+
+	// apply CLI flag overrides (flags take precedence over config file and environment)
+	update := map[string]func(){
+		"URL":                       func() { cfg.Target.URL = args.URL },
+		"login-method":              func() { cfg.Target.LoginMethod = args.LoginMethod },
+		"username":                  func() { cfg.Target.Username = args.Username },
+		"password":                  func() { cfg.Target.Password = args.Password },
+		"ignore-certificate-errors": func() { cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors },
+		"playlists":                 func() { cfg.Target.IsPlayList = args.IsPlayList },
+		"use-mfa":                   func() { cfg.Target.UseMFA = args.UseMFA },
+		//
+		"autofit":            func() { cfg.General.AutoFit = args.AutoFit },
+		"lxde":               func() { cfg.General.LXDEEnabled = args.LXDEEnabled },
+		"lxde-home":          func() { cfg.General.LXDEHome = args.LXDEHome },
+		"kiosk-mode":         func() { cfg.General.Mode = args.Mode },
+		"window-position":    func() { cfg.General.WindowPosition = args.WindowPosition },
+		"window-size":        func() { cfg.General.WindowSize = args.WindowSize },
+		"scale-factor":       func() { cfg.General.ScaleFactor = args.ScaleFactor },
+		"page-load-delay-ms": func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
+		"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
+		"hide-time-picker":   func() { cfg.General.HideTimePicker = args.HideTimePicker },
+		"hide-variables":     func() { cfg.General.HideVariables = args.HideVariables },
+		"incognito":          func() { cfg.General.Incognito = args.Incognito },
+		//
+		"auto-login":                     func() { cfg.GoAuth.AutoLogin = args.OauthAutoLogin },
+		"field-username":                 func() { cfg.GoAuth.UsernameField = args.UsernameField },
+		"field-password":                 func() { cfg.GoAuth.PasswordField = args.PasswordField },
+		"wait-for-password-field":        func() { cfg.GoAuth.WaitForPasswordField = args.OauthWaitForPasswordField },
+		"wait-for-password-field-class":  func() { cfg.GoAuth.WaitForPasswordFieldIgnoreClass = args.OauthWaitForPasswordFieldIgnoreClass },
+		"wait-for-stay-signed-in-prompt": func() { cfg.GoAuth.WaitForStaySignedInPrompt = args.OauthWaitForStaySignedInPrompt },
+
+		"audience": func() { cfg.IDToken.Audience = args.Audience },
+		"keyfile":  func() { cfg.IDToken.KeyFile = args.KeyFile },
+
+		"apikey": func() { cfg.APIKey.APIKey = args.APIKey },
+	}
+
+	fs.Visit(func(f *flag.Flag) {
+		if do, ok := update[f.Name]; ok {
+			do()
+		}
+	})
+
+	return nil
+}
+
 func setEnvironment() {
 	// for linux/X display must be set
 	var displayEnv = os.Getenv("DISPLAY")
@@ -185,64 +246,10 @@ func main() {
 		os.Exit(-1)
 	}
 
-	// check if config specified
-	if args.ConfigPath != "" {
-		// read configuration from the file and then override with environment variables
-		if err := cleanenv.ReadConfig(args.ConfigPath, &cfg); err != nil {
-			log.Println("Error reading config file", err)
-			os.Exit(-1)
-		} else {
-			log.Println("Using config from", args.ConfigPath)
-		}
-	} else {
-		log.Println("No config specified, using environment and args")
-		// no config, use environment and args
-		if err := cleanenv.ReadEnv(&cfg); err != nil {
-			log.Println("Error reading config from environment", err)
-		}
+	if err := loadConfig(args, fs, &cfg); err != nil {
+		log.Println(err)
+		os.Exit(-1)
 	}
-
-	// apply CLI flag overrides (flags take precedence over config file and environment)
-	update := map[string]func(){
-		"URL":                       func() { cfg.Target.URL = args.URL },
-		"login-method":              func() { cfg.Target.LoginMethod = args.LoginMethod },
-		"username":                  func() { cfg.Target.Username = args.Username },
-		"password":                  func() { cfg.Target.Password = args.Password },
-		"ignore-certificate-errors": func() { cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors },
-		"playlists":                 func() { cfg.Target.IsPlayList = args.IsPlayList },
-		"use-mfa":                   func() { cfg.Target.UseMFA = args.UseMFA },
-		//
-		"autofit":            func() { cfg.General.AutoFit = args.AutoFit },
-		"lxde":               func() { cfg.General.LXDEEnabled = args.LXDEEnabled },
-		"lxde-home":          func() { cfg.General.LXDEHome = args.LXDEHome },
-		"kiosk-mode":         func() { cfg.General.Mode = args.Mode },
-		"window-position":    func() { cfg.General.WindowPosition = args.WindowPosition },
-		"window-size":        func() { cfg.General.WindowSize = args.WindowSize },
-		"scale-factor":       func() { cfg.General.ScaleFactor = args.ScaleFactor },
-		"page-load-delay-ms": func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
-		"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
-		"hide-time-picker":   func() { cfg.General.HideTimePicker = args.HideTimePicker },
-		"hide-variables":     func() { cfg.General.HideVariables = args.HideVariables },
-		"incognito":          func() { cfg.General.Incognito = args.Incognito },
-		//
-		"auto-login":                     func() { cfg.GoAuth.AutoLogin = args.OauthAutoLogin },
-		"field-username":                 func() { cfg.GoAuth.UsernameField = args.UsernameField },
-		"field-password":                 func() { cfg.GoAuth.PasswordField = args.PasswordField },
-		"wait-for-password-field":        func() { cfg.GoAuth.WaitForPasswordField = args.OauthWaitForPasswordField },
-		"wait-for-password-field-class":  func() { cfg.GoAuth.WaitForPasswordFieldIgnoreClass = args.OauthWaitForPasswordFieldIgnoreClass },
-		"wait-for-stay-signed-in-prompt": func() { cfg.GoAuth.WaitForStaySignedInPrompt = args.OauthWaitForStaySignedInPrompt },
-
-		"audience": func() { cfg.IDToken.Audience = args.Audience },
-		"keyfile":  func() { cfg.IDToken.KeyFile = args.KeyFile },
-
-		"apikey": func() { cfg.APIKey.APIKey = args.APIKey },
-	}
-
-	fs.Visit(func(f *flag.Flag) {
-		if do, ok := update[f.Name]; ok {
-			do()
-		}
-	})
 
 	// make sure the url has content
 	if cfg.Target.URL == "" {

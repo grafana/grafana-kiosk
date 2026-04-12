@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"os"
 	"testing"
@@ -43,7 +42,6 @@ func TestSanitize(t *testing.T) {
 // TestKiosk checks kiosk command.
 func TestCLIFlagsOverrideConfigFile(t *testing.T) {
 	Convey("Given a config file with specific values", t, func() {
-		// create a temp config file with ignore-certificate-errors: false
 		configContent := `
 target:
   URL: https://example.com
@@ -53,6 +51,8 @@ general:
   kiosk-mode: full
   autofit: true
   incognito: true
+  window-position: "0,0"
+  scale-factor: "1.0"
 `
 		tmpFile, err := os.CreateTemp("", "kiosk-test-*.yaml")
 		So(err, ShouldBeNil)
@@ -71,24 +71,8 @@ general:
 			}
 			var cfg kiosk.Config
 			args, fs := ProcessArgs(&cfg)
-			// load config file
-			So(args.ConfigPath, ShouldNotBeEmpty)
-			err := cleanenv.ReadConfig(args.ConfigPath, &cfg)
+			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
-			// config file has it false
-			So(cfg.Target.IgnoreCertificateErrors, ShouldBeFalse)
-
-			// apply CLI overrides (the fixed behavior)
-			update := map[string]func(){
-				"ignore-certificate-errors": func() { cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors },
-				"incognito":                 func() { cfg.General.Incognito = args.Incognito },
-			}
-			fs.Visit(func(f *flag.Flag) {
-				if do, ok := update[f.Name]; ok {
-					do()
-				}
-			})
-			// CLI flag should win
 			So(cfg.Target.IgnoreCertificateErrors, ShouldBeTrue)
 		})
 
@@ -101,19 +85,44 @@ general:
 			}
 			var cfg kiosk.Config
 			args, fs := ProcessArgs(&cfg)
-			err := cleanenv.ReadConfig(args.ConfigPath, &cfg)
+			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
-
-			update := map[string]func(){
-				"ignore-certificate-errors": func() { cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors },
-			}
-			fs.Visit(func(f *flag.Flag) {
-				if do, ok := update[f.Name]; ok {
-					do()
-				}
-			})
-			// no CLI flag passed, config value (false) should remain
 			So(cfg.Target.IgnoreCertificateErrors, ShouldBeFalse)
+		})
+
+		Convey("Multiple CLI flags should override respective config values", func() {
+			oldArgs := os.Args
+			defer func() { os.Args = oldArgs }()
+			os.Args = []string{
+				"grafana-kiosk",
+				"-c", tmpFile.Name(),
+				"-ignore-certificate-errors",
+				"-kiosk-mode", "tv",
+				"-incognito=false",
+			}
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			So(cfg.Target.IgnoreCertificateErrors, ShouldBeTrue)
+			So(cfg.General.Mode, ShouldEqual, "tv")
+			So(cfg.General.Incognito, ShouldBeFalse)
+			// non-overridden values preserved from config file
+			So(cfg.Target.URL, ShouldEqual, "https://example.com")
+			So(cfg.General.AutoFit, ShouldBeTrue)
+		})
+
+		Convey("Invalid config path should return error", func() {
+			oldArgs := os.Args
+			defer func() { os.Args = oldArgs }()
+			os.Args = []string{
+				"grafana-kiosk",
+				"-c", "/nonexistent/config.yaml",
+			}
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldNotBeNil)
 		})
 	})
 }

@@ -9,44 +9,62 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Bug Fixes
+
 - Fix autofit not working on Grafana 12+ by dispatching a resize
-  event after page load (fixes #177)
-- Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode
-  (fixes #155)
+  event after page load (#177)
+- Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode (#155)
 - Fix CLI flags not overriding config file values when using `-c`
-  (fixes #210)
-- Update Go module dependencies: chromedp/cdproto, magefile/mage v1.17.1,
-  google.golang.org/api v0.275.0, golang.org/x/{crypto,net,sys,text},
-  google.golang.org/grpc v1.80.0, go.opentelemetry.io/otel v1.43.0,
-  cloud.google.com/go/auth v0.20.0
-- Add CLAUDE.md referencing AGENTS.md
-- Update Docker base images: golang 1.26.2-alpine,
-  dtcooper/raspberrypi-os latest digest
-- Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
-- Fix long lines in README.md for markdownlint compliance
-- Add missing technical terms to cspell config
+  (#210)
 - Fix API key host prefix matching to prevent auth header leakage
   to hosts sharing a prefix with the target
+- Fix long lines in README.md for markdownlint compliance
+- Fix broken badge images: push shields.io JSON endpoint to `badges`
+  branch from CI, use shields.io dynamic badge in README
+- Fix shellcheck warnings in CI workflow: quote variables, group
+  redirects
+
+### Features
+
+- Add `--incognito` flag to optionally disable Chrome incognito mode
+  ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
+
+### Tests
+
 - Add tests for `IsDataSourceQueryRequest` and `IsTargetHostRequest`
   in apikey login
 - Add tests for `sanitize` in main and initialize packages
 - Add tests for `GenerateURL` playlist mode
 - Add tests for command allowlist in initialize package
+
+### CI/CD
+
 - Update `actions/upload-artifact` from v7 to v7.0.1 in CI workflow
-- Update AGENTS.md action version table to match current CI pinned versions
 - Add octocov-action to CI for test coverage reporting on PRs
 - Add `pull_request` trigger to Build CI workflow
 - Save coverage report as CI artifact
 - Disable octocov PR comment, use PR body insertion only
 - Add octocov coverage badges to README
-- Fix broken badge images: push shields.io JSON endpoint to `badges`
-  branch from CI, use shields.io dynamic badge in README
 - Restrict CI workflow permissions: global `permissions: {}` with
   job-level `contents: write` and `pull-requests: write`
 - Add `actionlint` job to CI for GitHub Actions workflow linting
-- Fix shellcheck warnings in CI workflow: quote variables, group redirects
-- Add `--incognito` flag to optionally disable Chrome incognito mode
-  ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
+
+### Dependencies
+
+- Update Go module dependencies: chromedp/cdproto, magefile/mage
+  v1.17.1, google.golang.org/api v0.275.0,
+  golang.org/x/{crypto,net,sys,text}, google.golang.org/grpc v1.80.0,
+  go.opentelemetry.io/otel v1.43.0, cloud.google.com/go/auth v0.20.0
+- Update Docker base images: golang 1.26.2-alpine,
+  dtcooper/raspberrypi-os latest digest
+
+### Chores
+
+- Add CLAUDE.md referencing AGENTS.md
+- Update AGENTS.md action version table to match current CI pinned
+  versions
+- Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
+- Add missing technical terms to cspell config
 
 ## 1.0.11
 

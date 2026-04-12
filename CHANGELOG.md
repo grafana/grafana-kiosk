@@ -17,17 +17,16 @@ and this project adheres to
 ### Bug Fixes
 
 - Fix Grafana 12+ scenes viewport changes causing kiosk to not
-  autofit or go full screen (#177)
-- Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode (#155)
+  autofit or go full screen
+  ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
+- Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode
+  ([#155](https://github.com/grafana/grafana-kiosk/issues/155))
 - Fix CLI flags not overriding config file values when using `-c`
-  (#210)
+  ([#210](https://github.com/grafana/grafana-kiosk/issues/210))
 - Fix API key host prefix matching to prevent auth header leakage
   to hosts sharing a prefix with the target
-- Fix long lines in README.md for markdownlint compliance
 - Fix broken badge images: push shields.io JSON endpoint to `badges`
   branch from CI, use shields.io dynamic badge in README
-- Fix shellcheck warnings in CI workflow: quote variables, group
-  redirects
 
 ### Tests
 
@@ -50,6 +49,8 @@ and this project adheres to
 - Restrict CI workflow permissions: global `permissions: {}` with
   job-level `contents: write` and `pull-requests: write`
 - Add `actionlint` job to CI for GitHub Actions workflow linting
+- Fix shellcheck warnings in CI workflow: quote variables, group
+  redirects
 
 ### Dependencies
 
@@ -67,6 +68,7 @@ and this project adheres to
   versions
 - Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
 - Add missing technical terms to cspell config
+- Fix long lines in README.md for markdownlint compliance
 
 ## 1.0.11
 

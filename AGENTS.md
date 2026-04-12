@@ -420,6 +420,8 @@ Pushing a `v*` tag triggers the CI workflow which:
   Categorize by type using H3 headings (`### Category`) in the same order
   as the changelog: Features, Bug Fixes, Tests, CI/CD, Dependencies,
   Chores, Documentation. Omit empty categories.
+- PR summary lines may be up to 120 characters before wrapping. Do not
+  split lines shorter than 120 characters.
 - When pushing new commits to a PR, always update the PR summary to reflect all
   changes.
 - **Do not commit automatically**. Only commit when explicitly asked.

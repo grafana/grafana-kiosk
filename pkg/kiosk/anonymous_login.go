@@ -36,7 +36,7 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, message
 
 	if err := chromedp.Run(taskCtx,
 		chromedp.Navigate(generatedURL),
-		triggerAutofit(cfg),
+		postNavigate(cfg),
 	); err != nil {
 		panic(err)
 	}
@@ -48,7 +48,7 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, message
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
-				triggerAutofit(cfg),
+				postNavigate(cfg),
 			); err != nil {
 				return
 			}

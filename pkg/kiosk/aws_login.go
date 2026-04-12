@@ -58,7 +58,7 @@ func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, messages
 			panic(err)
 		}
 	}
-	if err := chromedp.Run(taskCtx, triggerAutofit(cfg)); err != nil {
+	if err := chromedp.Run(taskCtx, postNavigate(cfg)); err != nil {
 		panic(err)
 	}
 
@@ -70,7 +70,7 @@ func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, messages
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
-				triggerAutofit(cfg),
+				postNavigate(cfg),
 			); err != nil {
 				return
 			}

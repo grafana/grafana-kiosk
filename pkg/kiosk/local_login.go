@@ -85,7 +85,7 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 				return nil
 			}),
 			chromedp.Navigate(generatedURL),
-			triggerAutofit(cfg),
+			postNavigate(cfg),
 		); err != nil {
 			panic(err)
 		}
@@ -105,7 +105,7 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 			chromedp.WaitVisible(`//input[@name="user"]`, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="user"]`, cfg.Target.Username, chromedp.BySearch),
 			chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-			triggerAutofit(cfg),
+			postNavigate(cfg),
 		); err != nil {
 			panic(err)
 		}
@@ -119,7 +119,7 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
-				triggerAutofit(cfg),
+				postNavigate(cfg),
 			); err != nil {
 				return
 			}

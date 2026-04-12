@@ -104,7 +104,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 		taskCtx,
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
 		chromedp.Navigate(generatedURL),
-		triggerAutofit(cfg),
+		postNavigate(cfg),
 	); err != nil {
 		panic(err)
 	}
@@ -116,7 +116,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 		case messageFromChrome := <-messages:
 			if err := chromedp.Run(taskCtx,
 				chromedp.Navigate(generatedURL),
-				triggerAutofit(cfg),
+				postNavigate(cfg),
 			); err != nil {
 				return
 			}

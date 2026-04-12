@@ -131,10 +131,10 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	return execAllocatorOption
 }
 
-// triggerAutofit waits for the page to load, then dispatches a browser resize
+// postNavigate waits for the page to load, then dispatches a browser resize
 // event to force Grafana to recalculate panel layout. Grafana 12+ may not
 // process the autofitpanels URL parameter on initial page load.
-func triggerAutofit(cfg *Config) chromedp.ActionFunc {
+func postNavigate(cfg *Config) chromedp.ActionFunc {
 	return chromedp.ActionFunc(func(ctx context.Context) error {
 		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
 		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)

@@ -9,6 +9,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode
+  (fixes #155)
 - Fix CLI flags not overriding config file values when using `-c`
   (fixes #210)
 - Update Go module dependencies: chromedp/cdproto, magefile/mage v1.17.1,

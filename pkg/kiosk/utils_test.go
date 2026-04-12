@@ -118,7 +118,7 @@ func TestGenerateExecutorOptions(t *testing.T) {
 				So(flags["bwsi"], ShouldEqual, true)
 				So(flags["check-for-update-interval"], ShouldEqual, "31536000")
 				So(flags["password-store"], ShouldEqual, "basic")
-				So(flags["disable-features"], ShouldEqual, "Translate")
+				So(flags["disable-features"], ShouldEqual, "Translate,HttpsUpgrades")
 				So(flags["disable-notifications"], ShouldEqual, true)
 				So(flags["disable-overlay-scrollbar"], ShouldEqual, true)
 				So(flags["hide-scrollbars"], ShouldEqual, true)

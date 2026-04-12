@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"testing"
@@ -40,6 +41,83 @@ func TestSanitize(t *testing.T) {
 }
 
 // TestKiosk checks kiosk command.
+func TestCLIFlagsOverrideConfigFile(t *testing.T) {
+	Convey("Given a config file with specific values", t, func() {
+		// create a temp config file with ignore-certificate-errors: false
+		configContent := `
+target:
+  URL: https://example.com
+  login-method: anon
+  ignore-certificate-errors: false
+general:
+  kiosk-mode: full
+  autofit: true
+  incognito: true
+`
+		tmpFile, err := os.CreateTemp("", "kiosk-test-*.yaml")
+		So(err, ShouldBeNil)
+		defer os.Remove(tmpFile.Name())
+		_, err = tmpFile.WriteString(configContent)
+		So(err, ShouldBeNil)
+		tmpFile.Close()
+
+		Convey("CLI flag should override config file value", func() {
+			oldArgs := os.Args
+			defer func() { os.Args = oldArgs }()
+			os.Args = []string{
+				"grafana-kiosk",
+				"-c", tmpFile.Name(),
+				"-ignore-certificate-errors",
+			}
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			// load config file
+			So(args.ConfigPath, ShouldNotBeEmpty)
+			err := cleanenv.ReadConfig(args.ConfigPath, &cfg)
+			So(err, ShouldBeNil)
+			// config file has it false
+			So(cfg.Target.IgnoreCertificateErrors, ShouldBeFalse)
+
+			// apply CLI overrides (the fixed behavior)
+			update := map[string]func(){
+				"ignore-certificate-errors": func() { cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors },
+				"incognito":                 func() { cfg.General.Incognito = args.Incognito },
+			}
+			fs.Visit(func(f *flag.Flag) {
+				if do, ok := update[f.Name]; ok {
+					do()
+				}
+			})
+			// CLI flag should win
+			So(cfg.Target.IgnoreCertificateErrors, ShouldBeTrue)
+		})
+
+		Convey("Config file value should be used when no CLI flag is passed", func() {
+			oldArgs := os.Args
+			defer func() { os.Args = oldArgs }()
+			os.Args = []string{
+				"grafana-kiosk",
+				"-c", tmpFile.Name(),
+			}
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := cleanenv.ReadConfig(args.ConfigPath, &cfg)
+			So(err, ShouldBeNil)
+
+			update := map[string]func(){
+				"ignore-certificate-errors": func() { cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors },
+			}
+			fs.Visit(func(f *flag.Flag) {
+				if do, ok := update[f.Name]; ok {
+					do()
+				}
+			})
+			// no CLI flag passed, config value (false) should remain
+			So(cfg.Target.IgnoreCertificateErrors, ShouldBeFalse)
+		})
+	})
+}
+
 func TestMain(t *testing.T) {
 	Convey("Given Default Configuration", t, func() {
 		cfg := kiosk.Config{

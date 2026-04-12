@@ -9,6 +9,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Fix CLI flags not overriding config file values when using `-c`
+  (fixes #210)
 - Update Go module dependencies: chromedp/cdproto, magefile/mage v1.17.1,
   google.golang.org/api v0.275.0, golang.org/x/{crypto,net,sys,text},
   google.golang.org/grpc v1.80.0, go.opentelemetry.io/otel v1.43.0,

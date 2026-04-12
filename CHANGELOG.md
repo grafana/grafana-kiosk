@@ -9,6 +9,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Features
+
+- Add `--incognito` flag to optionally disable Chrome incognito mode
+  ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
+
 ### Bug Fixes
 
 - Fix autofit not working on Grafana 12+ by dispatching a resize
@@ -23,11 +28,6 @@ and this project adheres to
   branch from CI, use shields.io dynamic badge in README
 - Fix shellcheck warnings in CI workflow: quote variables, group
   redirects
-
-### Features
-
-- Add `--incognito` flag to optionally disable Chrome incognito mode
-  ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
 
 ### Tests
 

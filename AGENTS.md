@@ -321,6 +321,9 @@ corresponding entry in the changelog under the current unreleased version
 section. Add entries as part of the same commit or as a follow-up commit
 before pushing.
 
+Categorize entries under H3 headings in this order: Features, Bug Fixes,
+Tests, CI/CD, Dependencies, Chores. Omit empty categories.
+
 ## Release Process
 
 This project uses [semantic versioning](https://semver.org/) with tags in the

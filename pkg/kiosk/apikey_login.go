@@ -99,7 +99,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 	})
 	if err := chromedp.Run(
 		taskCtx,
-		resetWindowState(cfg),
+		cycleWindowState(cfg),
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
 		chromedp.Navigate(generatedURL),
 		waitForPageLoad(cfg),

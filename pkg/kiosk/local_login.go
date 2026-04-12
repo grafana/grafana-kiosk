@@ -63,7 +63,7 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 
 		if err := chromedp.Run(taskCtx,
 			waitForPageLoad(cfg),
-			resetWindowState(cfg),
+			cycleWindowState(cfg),
 			chromedp.Navigate(bypassURL),
 			chromedp.ActionFunc(func(context.Context) error {
 				log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
@@ -91,7 +91,7 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, messages ch
 	} else {
 		if err := chromedp.Run(taskCtx,
 			waitForPageLoad(cfg),
-			resetWindowState(cfg),
+			cycleWindowState(cfg),
 			chromedp.ActionFunc(func(context.Context) error {
 				log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
 				time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)

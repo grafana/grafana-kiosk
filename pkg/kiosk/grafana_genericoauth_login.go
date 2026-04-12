@@ -43,7 +43,7 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 	if cfg.GoAuth.AutoLogin {
 		if err := chromedp.Run(taskCtx,
 			waitForPageLoad(cfg),
-			resetWindowState(cfg),
+			cycleWindowState(cfg),
 			chromedp.Navigate(generatedURL),
 		); err != nil {
 			panic(err)
@@ -51,7 +51,7 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 	} else {
 		if err := chromedp.Run(taskCtx,
 			waitForPageLoad(cfg),
-			resetWindowState(cfg),
+			cycleWindowState(cfg),
 			chromedp.Navigate(generatedURL),
 			chromedp.WaitVisible(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),
 			chromedp.Click(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),

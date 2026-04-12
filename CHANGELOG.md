@@ -27,7 +27,7 @@ and this project adheres to
 - Add tests for `sanitize` in main and initialize packages
 - Add tests for `GenerateURL` playlist mode
 - Add tests for command allowlist in initialize package
-- Add tests for `resetWindowState`, `waitForPageLoad`, and `waitForBrowserStartup` utilities
+- Add tests for `cycleWindowToSize`, `waitForPageLoad`, and `waitForBrowserStartup` utilities
 
 ### CI/CD
 

@@ -494,17 +494,32 @@ func TestGenerateExecutorOptions(t *testing.T) {
 	})
 }
 
-func TestResetWindowState(t *testing.T) {
-	Convey("Given resetWindowState", t, func() {
-		Convey("When custom window size is set", func() {
-			cfg := &Config{
-				General: General{WindowSize: "1920,1080"},
-			}
-			action := resetWindowState(cfg)
-			err := action.Do(context.Background())
+func TestCycleWindowToSize(t *testing.T) {
+	Convey("Given cycleWindowToSize", t, func() {
+		Convey("When window size format is invalid", func() {
+			err := cycleWindowToSize(0, "invalid", context.Background())
 
-			Convey("Should skip and return nil", func() {
-				So(err, ShouldBeNil)
+			Convey("Should return a format error", func() {
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldContainSubstring, "invalid window-size format")
+			})
+		})
+
+		Convey("When width is not a number", func() {
+			err := cycleWindowToSize(0, "abc,1080", context.Background())
+
+			Convey("Should return a width parse error", func() {
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldContainSubstring, "parse window width")
+			})
+		})
+
+		Convey("When height is not a number", func() {
+			err := cycleWindowToSize(0, "1920,abc", context.Background())
+
+			Convey("Should return a height parse error", func() {
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldContainSubstring, "parse window height")
 			})
 		})
 	})

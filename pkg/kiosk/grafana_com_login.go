@@ -43,7 +43,7 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 	// Click the grafana_com login button
 	if err := chromedp.Run(taskCtx,
 		waitForPageLoad(cfg),
-		resetWindowState(cfg),
+		cycleWindowState(cfg),
 		chromedp.Navigate(generatedURL),
 		chromedp.ActionFunc(func(context.Context) error {
 			log.Println("waiting for login dialog")

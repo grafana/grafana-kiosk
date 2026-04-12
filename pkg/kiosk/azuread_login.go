@@ -45,7 +45,7 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, messages 
 	// Click the AzureAD login button on the Grafana login page
 	if err := chromedp.Run(taskCtx,
 		waitForPageLoad(cfg),
-		resetWindowState(cfg),
+		cycleWindowState(cfg),
 		chromedp.Navigate(generatedURL),
 		chromedp.ActionFunc(func(context.Context) error {
 			log.Println("waiting for azuread login button")

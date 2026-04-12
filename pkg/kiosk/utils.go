@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/url"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -132,18 +133,20 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	return execAllocatorOption
 }
 
-// resetWindowState cycles the browser window from normal to fullscreen via
-// CDP before navigation. This forces Chrome to properly register viewport
+// cycleWindowState cycles the browser window state via CDP before navigation.
+// When no custom window size is set, it cycles normal → fullscreen.
+// When a custom window size is set, it cycles minimized → normal with the
+// specified dimensions. This forces Chrome to properly register viewport
 // dimensions so Grafana sees the correct size on initial page load.
-func resetWindowState(cfg *Config) chromedp.ActionFunc {
+func cycleWindowState(cfg *Config) chromedp.ActionFunc {
 	return chromedp.ActionFunc(func(ctx context.Context) error {
-		if cfg.General.WindowSize != "" {
-			return nil
-		}
 		log.Println("Resetting window state via CDP")
 		windowID, _, err := browser.GetWindowForTarget().Do(ctx)
 		if err != nil {
 			return fmt.Errorf("get window for target: %w", err)
+		}
+		if cfg.General.WindowSize != "" {
+			return cycleWindowToSize(windowID, cfg.General.WindowSize, ctx)
 		}
 		err = browser.SetWindowBounds(windowID, &browser.Bounds{
 			WindowState: browser.WindowStateNormal,
@@ -156,6 +159,35 @@ func resetWindowState(cfg *Config) chromedp.ActionFunc {
 			WindowState: browser.WindowStateFullscreen,
 		}).Do(ctx)
 	})
+}
+
+// cycleWindowToSize cycles the window from minimized to normal with the
+// specified dimensions to force Chrome to register the correct viewport.
+func cycleWindowToSize(windowID browser.WindowID, windowSize string, ctx context.Context) error {
+	parts := strings.SplitN(windowSize, ",", 2)
+	if len(parts) != 2 {
+		return fmt.Errorf("invalid window-size format: %q", windowSize)
+	}
+	width, err := strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
+	if err != nil {
+		return fmt.Errorf("parse window width: %w", err)
+	}
+	height, err := strconv.ParseInt(strings.TrimSpace(parts[1]), 10, 64)
+	if err != nil {
+		return fmt.Errorf("parse window height: %w", err)
+	}
+	err = browser.SetWindowBounds(windowID, &browser.Bounds{
+		WindowState: browser.WindowStateMinimized,
+	}).Do(ctx)
+	if err != nil {
+		return fmt.Errorf("set window minimized: %w", err)
+	}
+	time.Sleep(100 * time.Millisecond)
+	return browser.SetWindowBounds(windowID, &browser.Bounds{
+		WindowState: browser.WindowStateNormal,
+		Width:       width,
+		Height:      height,
+	}).Do(ctx)
 }
 
 // waitForPageLoad pauses to allow the browser to finish loading.

@@ -32,7 +32,7 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, message
 	log.Println("Navigating to ", generatedURL)
 
 	if err := chromedp.Run(taskCtx,
-		resetWindowState(cfg),
+		cycleWindowState(cfg),
 		chromedp.Navigate(generatedURL),
 		waitForPageLoad(cfg),
 	); err != nil {

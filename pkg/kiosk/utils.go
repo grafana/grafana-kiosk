@@ -147,7 +147,7 @@ func cycleWindowState(cfg *Config) chromedp.ActionFunc {
 			return fmt.Errorf("get window for target: %w", err)
 		}
 		if cfg.General.WindowSize != "" {
-			return cycleWindowToSize(windowID, cfg.General.WindowSize, ctx)
+			return cycleWindowToSize(windowID, cfg.General.WindowSize, cfg.General.Mode, ctx)
 		}
 		err = browser.SetWindowBounds(windowID, &browser.Bounds{
 			WindowState: browser.WindowStateNormal,
@@ -162,9 +162,11 @@ func cycleWindowState(cfg *Config) chromedp.ActionFunc {
 	})
 }
 
-// cycleWindowToSize sets the window to the specified dimensions, then
-// cycles to fullscreen to force Chrome to register the correct viewport.
-func cycleWindowToSize(windowID browser.WindowID, windowSize string, ctx context.Context) error {
+// cycleWindowToSize sets the window to the specified dimensions.
+// When mode is "full" or default, it then cycles to fullscreen to force
+// Chrome to register the correct viewport. Otherwise it stays at the
+// requested size.
+func cycleWindowToSize(windowID browser.WindowID, windowSize string, mode string, ctx context.Context) error {
 	parts := strings.SplitN(windowSize, ",", 2)
 	if len(parts) != 2 {
 		return fmt.Errorf("invalid window-size format: %q", windowSize)
@@ -183,6 +185,13 @@ func cycleWindowToSize(windowID browser.WindowID, windowSize string, ctx context
 	}).Do(ctx)
 	if err != nil {
 		return fmt.Errorf("set window size: %w", err)
+	}
+
+	// Only cycle to fullscreen when mode requires it (full or default).
+	// For tv/disabled modes, stay at the requested window size.
+	fullscreen := mode == "full" || mode == ""
+	if !fullscreen {
+		return nil
 	}
 
 	time.Sleep(100 * time.Millisecond)

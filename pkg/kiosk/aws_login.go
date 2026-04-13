@@ -3,7 +3,6 @@ package kiosk
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
@@ -21,23 +20,21 @@ func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, messages
 	defer cancel()
 
 	listenChromeEvents(taskCtx, cfg, targetCrashed)
-	// Give browser time to load
-	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {
 		panic(err)
 	}
 
+	waitForBrowserStartup(cfg)
+
 	var generatedURL = GenerateURL(cfg)
 
 	log.Println("Navigating to ", generatedURL)
 
-	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
-	time.Sleep(2000 * time.Millisecond)
-
 	if err := chromedp.Run(taskCtx,
+		waitForPageLoad(cfg),
+		cycleWindowState(cfg),
 		chromedp.Navigate(generatedURL),
 		chromedp.WaitVisible(`//a[contains(@href,'login/sso')]`, chromedp.BySearch),
 		chromedp.WaitVisible(`div#awsccc-cb-buttons`, chromedp.BySearch),
@@ -58,7 +55,6 @@ func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, messages
 			panic(err)
 		}
 	}
-
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {

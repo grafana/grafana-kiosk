@@ -3,7 +3,6 @@ package kiosk
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/chromedp/chromedp"
 )
@@ -26,22 +25,19 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, message
 		panic(err)
 	}
 
-	// Give browser time to load
-	log.Printf("Sleeping %d MS before navigating to url", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+	waitForBrowserStartup(cfg)
 
 	var generatedURL = GenerateURL(cfg)
 
 	log.Println("Navigating to ", generatedURL)
 
 	if err := chromedp.Run(taskCtx,
+		cycleWindowState(cfg),
 		chromedp.Navigate(generatedURL),
+		waitForPageLoad(cfg),
 	); err != nil {
 		panic(err)
 	}
-	// Give browser time to fully render the dashboard
-	log.Printf("Sleeping %d MS before continuing", cfg.General.PageLoadDelayMS)
-	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {

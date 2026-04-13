@@ -4,3 +4,5 @@ config:
     code_blocks: false
   no-duplicate-heading:
     siblings_only: true
+ignores:
+  - CLAUDE.md

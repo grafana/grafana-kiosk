@@ -1,12 +1,16 @@
 package kiosk
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/url"
 	"runtime"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/chromedp/cdproto/browser"
 	"github.com/chromedp/chromedp"
 )
 
@@ -112,10 +116,11 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 			chromedp.Flag("ozone-platform", cfg.General.OzonePlatform))
 	}
 	if cfg.General.WindowSize != "" {
+		fullscreen := cfg.General.Mode == "full" || cfg.General.Mode == ""
 		execAllocatorOption = append(
 			execAllocatorOption,
-			chromedp.Flag("kiosk", false),
-			chromedp.Flag("start-fullscreen", false),
+			chromedp.Flag("kiosk", fullscreen),
+			chromedp.Flag("start-fullscreen", fullscreen),
 			// force app mode (no address bar and controls)
 			chromedp.Flag("app", "data:text/html,<title>Grafana</title>"),
 			chromedp.Flag("window-size", cfg.General.WindowSize))
@@ -127,4 +132,83 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	}
 
 	return execAllocatorOption
+}
+
+// cycleWindowState cycles the browser window state via CDP before navigation.
+// When no custom window size is set, it cycles normal → fullscreen.
+// When a custom window size is set, it cycles minimized → normal with the
+// specified dimensions. This forces Chrome to properly register viewport
+// dimensions so Grafana sees the correct size on initial page load.
+func cycleWindowState(cfg *Config) chromedp.ActionFunc {
+	return chromedp.ActionFunc(func(ctx context.Context) error {
+		log.Println("Cycling window state via CDP")
+		windowID, _, err := browser.GetWindowForTarget().Do(ctx)
+		if err != nil {
+			return fmt.Errorf("get window for target: %w", err)
+		}
+		if cfg.General.WindowSize != "" {
+			return cycleWindowToSize(windowID, cfg.General.WindowSize, ctx)
+		}
+		err = browser.SetWindowBounds(windowID, &browser.Bounds{
+			WindowState: browser.WindowStateNormal,
+		}).Do(ctx)
+		if err != nil {
+			return fmt.Errorf("set window normal: %w", err)
+		}
+		time.Sleep(100 * time.Millisecond)
+		return browser.SetWindowBounds(windowID, &browser.Bounds{
+			WindowState: browser.WindowStateFullscreen,
+		}).Do(ctx)
+	})
+}
+
+// cycleWindowToSize sets the window to the specified dimensions, then
+// cycles to fullscreen to force Chrome to register the correct viewport.
+func cycleWindowToSize(windowID browser.WindowID, windowSize string, ctx context.Context) error {
+	parts := strings.SplitN(windowSize, ",", 2)
+	if len(parts) != 2 {
+		return fmt.Errorf("invalid window-size format: %q", windowSize)
+	}
+	width, err := strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
+	if err != nil {
+		return fmt.Errorf("parse window width: %w", err)
+	}
+	height, err := strconv.ParseInt(strings.TrimSpace(parts[1]), 10, 64)
+	if err != nil {
+		return fmt.Errorf("parse window height: %w", err)
+	}
+	err = browser.SetWindowBounds(windowID, &browser.Bounds{
+		Width:  width,
+		Height: height,
+	}).Do(ctx)
+	if err != nil {
+		return fmt.Errorf("set window size: %w", err)
+	}
+
+	time.Sleep(100 * time.Millisecond)
+
+	return browser.SetWindowBounds(windowID, &browser.Bounds{
+		WindowState: browser.WindowStateFullscreen,
+	}).Do(ctx)
+}
+
+// waitForPageLoad pauses to allow the browser to finish loading.
+func waitForPageLoad(cfg *Config) chromedp.ActionFunc {
+	return chromedp.ActionFunc(func(_ context.Context) error {
+		if cfg.General.PageLoadDelayMS <= 0 {
+			return nil
+		}
+		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
+		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+		return nil
+	})
+}
+
+// waitForBrowserStartup pauses to allow the browser process to become idle.
+func waitForBrowserStartup(cfg *Config) {
+	if cfg.General.PageLoadDelayMS <= 0 {
+		return
+	}
+	log.Printf("Sleeping %d MS waiting for browser startup", cfg.General.PageLoadDelayMS)
+	time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 }

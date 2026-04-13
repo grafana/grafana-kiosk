@@ -75,5 +75,23 @@ func TestRunCommandAllowlist(t *testing.T) {
 				runCommand("/tmp", "", []string{"arg"}, false)
 			}, ShouldNotPanic)
 		})
+
+		Convey("When allowed command does not exist on system", func() {
+			allowedCommands["/usr/bin/nonexistent-kiosk-test"] = true
+			defer delete(allowedCommands, "/usr/bin/nonexistent-kiosk-test")
+
+			So(func() {
+				runCommand("/tmp", "/usr/bin/nonexistent-kiosk-test", []string{"arg"}, false)
+			}, ShouldNotPanic)
+		})
+
+		Convey("When allowed command fails with waitForEnd", func() {
+			allowedCommands["/usr/bin/nonexistent-kiosk-test"] = true
+			defer delete(allowedCommands, "/usr/bin/nonexistent-kiosk-test")
+
+			So(func() {
+				runCommand("/tmp", "/usr/bin/nonexistent-kiosk-test", []string{"arg"}, true)
+			}, ShouldNotPanic)
+		})
 	})
 }

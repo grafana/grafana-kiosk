@@ -1,11 +1,13 @@
 package kiosk
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 	"unsafe"
 
 	"github.com/chromedp/chromedp"
@@ -206,12 +208,12 @@ func TestGenerateExecutorOptions(t *testing.T) {
 			opts := generateExecutorOptions("/tmp/test", cfg)
 			flags := applyOptions(opts)
 
-			Convey("Should override kiosk to false", func() {
-				So(flags["kiosk"], ShouldEqual, false)
+			Convey("Should keep kiosk as true", func() {
+				So(flags["kiosk"], ShouldEqual, true)
 			})
 
-			Convey("Should override start-fullscreen to false", func() {
-				So(flags["start-fullscreen"], ShouldEqual, false)
+			Convey("Should keep start-fullscreen as true", func() {
+				So(flags["start-fullscreen"], ShouldEqual, true)
 			})
 
 			Convey("Should set app mode", func() {
@@ -219,6 +221,31 @@ func TestGenerateExecutorOptions(t *testing.T) {
 			})
 
 			Convey("Should set window-size flag", func() {
+				So(flags["window-size"], ShouldEqual, "1920,1080")
+			})
+		})
+
+		Convey("When window size is set with tv mode", func() {
+			cfg := &Config{
+				BuildInfo: BuildInfo{Version: "v1.0.0"},
+				General: General{
+					WindowSize:     "1920,1080",
+					WindowPosition: "0,0",
+					Mode:           "tv",
+				},
+			}
+			opts := generateExecutorOptions("/tmp/test", cfg)
+			flags := applyOptions(opts)
+
+			Convey("Should set kiosk to false", func() {
+				So(flags["kiosk"], ShouldEqual, false)
+			})
+
+			Convey("Should set start-fullscreen to false", func() {
+				So(flags["start-fullscreen"], ShouldEqual, false)
+			})
+
+			Convey("Should still set window-size flag", func() {
 				So(flags["window-size"], ShouldEqual, "1920,1080")
 			})
 		})
@@ -382,9 +409,9 @@ func TestGenerateExecutorOptions(t *testing.T) {
 				So(flags["ozone-platform"], ShouldEqual, "x11")
 			})
 
-			Convey("Should override kiosk and fullscreen for window size", func() {
-				So(flags["kiosk"], ShouldEqual, false)
-				So(flags["start-fullscreen"], ShouldEqual, false)
+			Convey("Should keep kiosk and fullscreen for window size", func() {
+				So(flags["kiosk"], ShouldEqual, true)
+				So(flags["start-fullscreen"], ShouldEqual, true)
 				So(flags["app"], ShouldEqual, "data:text/html,<title>Grafana</title>")
 				So(flags["window-size"], ShouldEqual, "800,600")
 			})
@@ -488,6 +515,117 @@ func TestGenerateExecutorOptions(t *testing.T) {
 			Convey("Should not disable HttpsUpgrades feature", func() {
 				So(flags["disable-features"], ShouldEqual, "Translate")
 			})
+		})
+	})
+}
+
+func TestCycleWindowToSize(t *testing.T) {
+	Convey("Given cycleWindowToSize", t, func() {
+		Convey("When window size format is invalid", func() {
+			err := cycleWindowToSize(0, "invalid", context.Background())
+
+			Convey("Should return a format error", func() {
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldContainSubstring, "invalid window-size format")
+			})
+		})
+
+		Convey("When width is not a number", func() {
+			err := cycleWindowToSize(0, "abc,1080", context.Background())
+
+			Convey("Should return a width parse error", func() {
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldContainSubstring, "parse window width")
+			})
+		})
+
+		Convey("When height is not a number", func() {
+			err := cycleWindowToSize(0, "1920,abc", context.Background())
+
+			Convey("Should return a height parse error", func() {
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldContainSubstring, "parse window height")
+			})
+		})
+	})
+}
+
+func TestWaitForPageLoad(t *testing.T) {
+	Convey("Given waitForPageLoad", t, func() {
+		Convey("When PageLoadDelayMS is zero", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: 0},
+			}
+			action := waitForPageLoad(cfg)
+			start := time.Now()
+			err := action.Do(context.Background())
+			elapsed := time.Since(start)
+
+			So(err, ShouldBeNil)
+			So(elapsed, ShouldBeLessThan, 50*time.Millisecond)
+		})
+
+		Convey("When PageLoadDelayMS is negative", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: -100},
+			}
+			action := waitForPageLoad(cfg)
+			start := time.Now()
+			err := action.Do(context.Background())
+			elapsed := time.Since(start)
+
+			So(err, ShouldBeNil)
+			So(elapsed, ShouldBeLessThan, 50*time.Millisecond)
+		})
+
+		Convey("When PageLoadDelayMS is positive", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: 100},
+			}
+			action := waitForPageLoad(cfg)
+			start := time.Now()
+			err := action.Do(context.Background())
+			elapsed := time.Since(start)
+
+			So(err, ShouldBeNil)
+			So(elapsed, ShouldBeGreaterThanOrEqualTo, 100*time.Millisecond)
+		})
+	})
+}
+
+func TestWaitForBrowserStartup(t *testing.T) {
+	Convey("Given waitForBrowserStartup", t, func() {
+		Convey("When PageLoadDelayMS is zero", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: 0},
+			}
+			start := time.Now()
+			waitForBrowserStartup(cfg)
+			elapsed := time.Since(start)
+
+			So(elapsed, ShouldBeLessThan, 50*time.Millisecond)
+		})
+
+		Convey("When PageLoadDelayMS is negative", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: -100},
+			}
+			start := time.Now()
+			waitForBrowserStartup(cfg)
+			elapsed := time.Since(start)
+
+			So(elapsed, ShouldBeLessThan, 50*time.Millisecond)
+		})
+
+		Convey("When PageLoadDelayMS is positive", func() {
+			cfg := &Config{
+				General: General{PageLoadDelayMS: 100},
+			}
+			start := time.Now()
+			waitForBrowserStartup(cfg)
+			elapsed := time.Since(start)
+
+			So(elapsed, ShouldBeGreaterThanOrEqualTo, 100*time.Millisecond)
 		})
 	})
 }

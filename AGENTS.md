@@ -257,6 +257,7 @@ GitHub Actions workflows (`.github/workflows/`):
   golangci-lint → gosec → `mage -v build:ci` → coverage upload → release
   packaging on version tags (`v*`).
 - **`osv-scanner-pr.yml`**: Vulnerability scanning on PRs to `main`.
+- **`markdownlint.yml`**: Lint `.md` files on push to `main` and PRs (path-filtered).
 - **`stale.yml`**: Auto-closes stale issues/PRs after 90+60 days.
 
 All actions are pinned to commit SHAs with version comments (required by
@@ -276,6 +277,7 @@ zizmor). Current versions:
 | `k1LoW/octocov-action` | v1.5.0 |
 | `google/osv-scanner-action` | v2.3.5 |
 | `rhysd/actionlint` | v1.7.12 |
+| `DavidAnson/markdownlint-cli2-action` | v23.0.0 |
 
 When updating actions, always pin to full commit SHA with a version comment:
 
@@ -320,6 +322,13 @@ modifies code, documentation, dependencies, or configuration must have a
 corresponding entry in the changelog under the current unreleased version
 section. Add entries as part of the same commit or as a follow-up commit
 before pushing.
+
+Categorize entries under H3 headings in this order: Features, Bug Fixes,
+Tests, CI/CD, Dependencies, Chores. Omit empty categories.
+
+Changelog lines may be up to 120 characters before wrapping, matching
+the markdownlint `line-length` config. Do not wrap lines shorter than
+120 characters.
 
 ## Release Process
 
@@ -414,9 +423,11 @@ Pushing a `v*` tag triggers the CI workflow which:
 - **Never commit directly to `main`**. Always create a new branch for changes.
 - Use descriptive branch names (e.g., `feat/add-feature`, `fix/bug-description`).
 - Use categorized PR summaries both when creating and when updating PRs.
-  Categorize by type using H3 headings (`### Category`) with Bug Fixes
-  listed first. Common categories: Bug Fixes, CI/CD, Dependencies, Tests,
-  Chores, Documentation.
+  Categorize by type using H3 headings (`### Category`) in the same order
+  as the changelog: Features, Bug Fixes, Tests, CI/CD, Dependencies,
+  Chores, Documentation. Omit empty categories.
+- PR summary lines may be up to 120 characters before wrapping. Do not
+  split lines shorter than 120 characters.
 - When pushing new commits to a PR, always update the PR summary to reflect all
   changes.
 - **Do not commit automatically**. Only commit when explicitly asked.

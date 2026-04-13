@@ -127,6 +127,43 @@ general:
 	})
 }
 
+func TestLoadConfigEnvOnly(t *testing.T) {
+	Convey("Given no config file and no CLI flags", t, func() {
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+		os.Args = []string{"grafana-kiosk"}
+
+		Convey("Should load defaults from environment", func() {
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			// env-defaults from struct tags
+			So(cfg.Target.URL, ShouldEqual, "https://play.grafana.org")
+			So(cfg.Target.LoginMethod, ShouldEqual, "anon")
+			So(cfg.General.AutoFit, ShouldBeTrue)
+			So(cfg.General.Mode, ShouldEqual, "full")
+		})
+
+		Convey("Should apply CLI flags over env defaults", func() {
+			os.Args = []string{
+				"grafana-kiosk",
+				"-URL", "http://localhost:3000",
+				"-kiosk-mode", "tv",
+			}
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			So(cfg.Target.URL, ShouldEqual, "http://localhost:3000")
+			So(cfg.General.Mode, ShouldEqual, "tv")
+			// non-overridden defaults preserved
+			So(cfg.General.AutoFit, ShouldBeTrue)
+			So(cfg.Target.LoginMethod, ShouldEqual, "anon")
+		})
+	})
+}
+
 func TestMain(t *testing.T) {
 	Convey("Given Default Configuration", t, func() {
 		cfg := kiosk.Config{

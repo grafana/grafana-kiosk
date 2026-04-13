@@ -29,6 +29,9 @@ and this project adheres to
 - Add tests for `GenerateURL` playlist mode
 - Add tests for command allowlist in initialize package
 - Add tests for `cycleWindowToSize`, `waitForPageLoad`, and `waitForBrowserStartup` utilities
+- Add tests for `loadConfig`: malformed YAML, testdata fixtures, env var overrides,
+  all CLI flag overrides (37.5% -> 82.5%)
+- Add tests for `ProcessArgs` with all CLI flags
 
 ### CI/CD
 

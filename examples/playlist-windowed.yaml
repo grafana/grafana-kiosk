@@ -1,0 +1,17 @@
+# Playlist in a fixed-size window (TV mode)
+#
+# Chrome flags: --app --window-size=1920,1080
+# CDP cycling:  Sets dimensions, stays at requested size
+# Grafana URL:  ?kiosk=tv&inactive=1
+# Result:       1920x1080 window, no address bar, no sidebar, playlist starts immediately
+general:
+  kiosk-mode: tv
+  autofit: false
+  incognito: true
+  window-size: "1920,1080"
+
+target:
+  login-method: anon
+  playlist: true
+  URL: https://play.grafana.org/playlists/play/edn2qdq3ypzwgf
+  ignore-certificate-errors: false

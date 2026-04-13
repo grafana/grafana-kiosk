@@ -1,0 +1,15 @@
+# Dashboard in fullscreen kiosk mode (default)
+#
+# Chrome flags: --kiosk --start-fullscreen
+# Grafana URL:  ?kiosk=1&autofitpanels
+# Result:       No top nav, no sidebar, panels autofit to screen
+general:
+  kiosk-mode: full
+  autofit: true
+  incognito: true
+
+target:
+  login-method: anon
+  playlist: false
+  URL: https://play.grafana.org/d/c75d0920-78ac-4a93-937b-8105f93d3532/may-the-4th-be-with-you
+  ignore-certificate-errors: false

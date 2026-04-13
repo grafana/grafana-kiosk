@@ -1,0 +1,15 @@
+# Playlist in fullscreen kiosk mode
+#
+# Chrome flags: --kiosk --start-fullscreen
+# Grafana URL:  ?kiosk=1&autofitpanels&inactive=1
+# Result:       No top nav, no sidebar, panels autofit, playlist starts immediately
+general:
+  kiosk-mode: full
+  autofit: true
+  incognito: true
+
+target:
+  login-method: anon
+  playlist: true
+  URL: https://play.grafana.org/playlists/play/edn2qdq3ypzwgf
+  ignore-certificate-errors: false

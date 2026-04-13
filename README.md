@@ -156,6 +156,9 @@ target:
 grafana-kiosk -c config.yaml
 ```
 
+See the [examples](examples/) directory for complete configuration files covering
+dashboards, playlists, kiosk modes, window sizing, and multi-monitor positioning.
+
 Environment variables can be set and will override the configuration file.
 They can also be used instead of a configuration file.
 
@@ -266,6 +269,8 @@ The `-kiosk-mode` flag also controls the `kiosk` query parameter appended to the
 | `full` (default) | `?kiosk=1`      | No top navigation, no sidebar              |
 | `tv`             | `?kiosk=tv`     | No sidebar, top navigation without buttons |
 | `disabled`       | none            | Full Grafana UI                            |
+
+See [examples/](examples/) for complete configuration files demonstrating each combination.
 
 ### Hosted Grafana using grafana.com authentication
 

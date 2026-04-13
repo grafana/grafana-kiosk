@@ -1,0 +1,24 @@
+# Dashboard positioned on a secondary display
+#
+# Chrome flags: --kiosk --start-fullscreen --window-position=1920,0
+# Grafana URL:  ?kiosk=1&autofitpanels
+# Result:       Fullscreen kiosk on monitor starting at x=1920
+#
+# Use window-position to target a specific display in a multi-monitor setup.
+# The value is the top-left corner (x,y) of the target screen in pixels.
+# Common positions:
+#   0,0       - primary display (default)
+#   1920,0    - second display to the right of a 1920px-wide primary
+#   3840,0    - third display in a horizontal row
+#   0,1080    - display below a 1080px-tall primary
+general:
+  kiosk-mode: full
+  autofit: true
+  incognito: true
+  window-position: "1920,0"
+
+target:
+  login-method: anon
+  playlist: false
+  URL: https://play.grafana.org/d/c75d0920-78ac-4a93-937b-8105f93d3532/may-the-4th-be-with-you
+  ignore-certificate-errors: false

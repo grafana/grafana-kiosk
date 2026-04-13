@@ -1,0 +1,21 @@
+# Dashboard in a fixed-size window on a secondary display
+#
+# Chrome flags: --app --window-size=1280,720 --window-position=1920,0
+# CDP cycling:  Sets dimensions, stays at requested size
+# Grafana URL:  ?kiosk=tv
+# Result:       1280x720 window on second monitor, no address bar, no sidebar
+#
+# Combining window-size and window-position lets you place a specific-sized
+# kiosk window on any display in a multi-monitor setup.
+general:
+  kiosk-mode: tv
+  autofit: false
+  incognito: true
+  window-size: "960,540"
+  window-position: "960,0"
+
+target:
+  login-method: anon
+  playlist: false
+  URL: https://play.grafana.org/d/c75d0920-78ac-4a93-937b-8105f93d3532/may-the-4th-be-with-you
+  ignore-certificate-errors: false

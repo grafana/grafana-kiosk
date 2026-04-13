@@ -118,7 +118,7 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	if cfg.General.WindowSize != "" {
 		fullscreen := cfg.General.Mode == "full" || cfg.General.Mode == ""
 		if fullscreen {
-			log.Printf("window-size %s will be ignored, kiosk mode %q uses fullscreen", cfg.General.WindowSize, cfg.General.Mode)
+			log.Printf("window-size %s set but kiosk mode %q will cycle to fullscreen via CDP", cfg.General.WindowSize, cfg.General.Mode)
 		}
 		execAllocatorOption = append(
 			execAllocatorOption,

@@ -1,9 +1,9 @@
 # Playlist in a fixed-size window on a secondary display
 #
-# Chrome flags: --app --window-size=1280,720 --window-position=1920,0
+# Chrome flags: --app --window-size=960,540 --window-position=300,0
 # CDP cycling:  Sets dimensions, stays at requested size
 # Grafana URL:  ?kiosk=tv&inactive=1
-# Result:       1280x720 window on second monitor, playlist starts immediately
+# Result:       960x540 window on second monitor, playlist starts immediately
 general:
   kiosk-mode: tv
   autofit: false

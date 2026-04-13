@@ -1,9 +1,9 @@
 # Dashboard in a fixed-size window (TV mode)
 #
-# Chrome flags: --app --window-size=1920,1080
+# Chrome flags: --app --window-size=960,540
 # CDP cycling:  Sets dimensions, stays at requested size
 # Grafana URL:  ?kiosk=tv
-# Result:       1920x1080 window, no address bar, no sidebar
+# Result:       960x540 window, no address bar, no sidebar
 general:
   kiosk-mode: tv
   autofit: false

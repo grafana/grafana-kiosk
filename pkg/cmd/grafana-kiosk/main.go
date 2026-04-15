@@ -324,7 +324,7 @@ func main() {
 	switch cfg.Target.LoginMethod {
 	case "local":
 		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskLocal(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	case "gcom":
 		log.Printf("Launching GCOM login kiosk")
 		kiosk.GrafanaKioskGCOM(ctx, &cfg, dir, messages)

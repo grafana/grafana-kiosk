@@ -117,8 +117,6 @@ func buildCommand(command string, arch string) error {
 		return err
 	}
 
-	// intentionally ignores errors
-	sh.RunV("chmod", "+x", outDir)
 	return nil
 }
 

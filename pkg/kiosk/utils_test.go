@@ -67,7 +67,7 @@ func TestGenerateURL(t *testing.T) {
 			conf.General.Mode = "full"
 			conf.General.HideLogo = true
 			anURL := GenerateURL(&conf)
-			So(anURL, ShouldEqual, "https://play.grafana.org?_dash.hideLogo=1&kiosk=1&autofitpanels")
+			So(anURL, ShouldEqual, "https://play.grafana.org?hideLogo=1&kiosk=1&autofitpanels")
 		})
 		Convey("Hide playlist nav appends hidePlaylistNav parameter", func() {
 			conf := GetConfig()

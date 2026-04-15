@@ -36,7 +36,7 @@ func GenerateURL(cfg *Config) string {
 		parsedQuery.Set("_dash.hideLinks", "true")
 	}
 	if cfg.General.HideLogo {
-		parsedQuery.Set("_dash.hideLogo", "1") // Grafana uses "1" for this param, not "true"
+		parsedQuery.Set("hideLogo", "1")
 	}
 	if cfg.General.HidePlaylistNav {
 		parsedQuery.Set("_dash.hidePlaylistNav", "true")

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"log"
 	"os"
 	"testing"
@@ -494,6 +495,99 @@ func TestMain(t *testing.T) {
 			So(result.LoginMethod, ShouldEqual, "local")
 			So(result.URL, ShouldEqual, "https://play.grafana.org")
 			So(result.AutoFit, ShouldBeTrue)
+		})
+	})
+}
+
+// captureLogOutput redirects log output to a buffer for the duration of fn.
+func captureLogOutput(fn func()) string {
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer log.SetOutput(os.Stderr)
+	fn()
+	return buf.String()
+}
+
+func TestLogGeneralSettings(t *testing.T) {
+	Convey("Given a config with general settings", t, func() {
+		cfg := &kiosk.Config{
+			General: kiosk.General{
+				AutoFit:         true,
+				Mode:            "full",
+				Incognito:       true,
+				WindowPosition:  "0,0",
+				WindowSize:      "1920,1080",
+				ScaleFactor:     "1.5",
+				PageLoadDelayMS: 3000,
+				HideLinks:       true,
+				HideLogo:        true,
+				HidePlaylistNav: true,
+				HideTimePicker:  true,
+				HideVariables:   true,
+			},
+		}
+
+		Convey("Should log all general fields", func() {
+			output := captureLogOutput(func() { logGeneralSettings(cfg) })
+			So(output, ShouldContainSubstring, "--- General ----")
+			So(output, ShouldContainSubstring, "AutoFit: true")
+			So(output, ShouldContainSubstring, "Mode: full")
+			So(output, ShouldContainSubstring, "Incognito: true")
+			So(output, ShouldContainSubstring, "WindowSize: 1920,1080")
+			So(output, ShouldContainSubstring, "ScaleFactor: 1.5")
+			So(output, ShouldContainSubstring, "PageLoadDelayMS: 3000")
+			So(output, ShouldContainSubstring, "HideLinks: true")
+			So(output, ShouldContainSubstring, "HideLogo: true")
+			So(output, ShouldContainSubstring, "HidePlaylistNav: true")
+			So(output, ShouldContainSubstring, "HideTimePicker: true")
+			So(output, ShouldContainSubstring, "HideVariables: true")
+		})
+	})
+}
+
+func TestLogTargetSettings(t *testing.T) {
+	Convey("Given a config with target settings", t, func() {
+		cfg := &kiosk.Config{
+			Target: kiosk.Target{
+				URL:         "https://grafana.example.com",
+				LoginMethod: "local",
+				Username:    "admin",
+				Password:    "supersecret",
+				IsPlayList:  true,
+				UseMFA:      true,
+			},
+		}
+
+		Convey("Should log target fields and redact password", func() {
+			output := captureLogOutput(func() { logTargetSettings(cfg) })
+			So(output, ShouldContainSubstring, "--- Target ---")
+			So(output, ShouldContainSubstring, "URL: https://grafana.example.com")
+			So(output, ShouldContainSubstring, "LoginMethod: local")
+			So(output, ShouldContainSubstring, "Username: admin")
+			So(output, ShouldContainSubstring, "Password: *redacted*")
+			So(output, ShouldNotContainSubstring, "supersecret")
+			So(output, ShouldContainSubstring, "IsPlayList: true")
+			So(output, ShouldContainSubstring, "UseMFA: true")
+		})
+	})
+}
+
+func TestLogGoAuthSettings(t *testing.T) {
+	Convey("Given a config with GoAuth settings", t, func() {
+		cfg := &kiosk.Config{
+			GoAuth: kiosk.GoAuth{
+				AutoLogin:     true,
+				UsernameField: "email",
+				PasswordField: "passwd",
+			},
+		}
+
+		Convey("Should log GoAuth fields", func() {
+			output := captureLogOutput(func() { logGoAuthSettings(cfg) })
+			So(output, ShouldContainSubstring, "--- GoAuth ---")
+			So(output, ShouldContainSubstring, "Fieldname AutoLogin: true")
+			So(output, ShouldContainSubstring, "Fieldname Username: email")
+			So(output, ShouldContainSubstring, "Fieldname Password: passwd")
 		})
 	})
 }

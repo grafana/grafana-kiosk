@@ -17,6 +17,7 @@ and this project adheres to
 - Update `_dash.hideLinks`, `_dash.hideTimePicker`, `_dash.hideVariables` query param values to match Grafana's native format
 - Add hide flags to startup config summary logging with visual section separators
 - Refactor `summary()` into `logGeneralSettings`, `logTargetSettings`, `logGoAuthSettings`
+- Extract `browser.Browser` interface to decouple login providers from chromedp ([#257](https://github.com/grafana/grafana-kiosk/issues/257))
 
 ### Bug Fixes
 

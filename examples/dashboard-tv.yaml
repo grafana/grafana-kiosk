@@ -7,6 +7,10 @@ general:
   kiosk-mode: tv
   autofit: false
   incognito: true
+  hide-links: true
+  hide-logo: true
+  hide-time-picker: true
+  hide-variables: true
 
 target:
   login-method: anon

@@ -8,6 +8,11 @@ general:
   kiosk-mode: tv
   autofit: false
   incognito: true
+  hide-links: true
+  hide-logo: true
+  hide-playlist-nav: true
+  hide-time-picker: true
+  hide-variables: true
   window-size: "960,540"
   window-position: "300,0"
 

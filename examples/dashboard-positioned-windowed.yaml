@@ -11,6 +11,10 @@ general:
   kiosk-mode: tv
   autofit: false
   incognito: true
+  hide-links: true
+  hide-logo: true
+  hide-time-picker: true
+  hide-variables: true
   window-size: "960,540"
   window-position: "960,0"
 

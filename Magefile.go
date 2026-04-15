@@ -127,8 +127,14 @@ func kioskCmd() error {
 }
 
 func buildCmdAll() error {
+	errs := make(chan error, len(archTargets))
 	for anArch := range archTargets {
-		if err := buildCommand("grafana-kiosk", anArch); err != nil {
+		go func(arch string) {
+			errs <- buildCommand("grafana-kiosk", arch)
+		}(anArch)
+	}
+	for range archTargets {
+		if err := <-errs; err != nil {
 			return err
 		}
 	}

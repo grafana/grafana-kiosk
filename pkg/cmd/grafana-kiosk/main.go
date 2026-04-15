@@ -211,15 +211,15 @@ func setEnvironment() {
 }
 
 func summary(cfg *kiosk.Config) {
-	log.Println("****** Configuration ******")
+	log.Println("*********************************************************")
 	logGeneralSettings(cfg)
 	logTargetSettings(cfg)
 	logGoAuthSettings(cfg)
-	log.Println("***************************")
+	log.Println("*********************************************************")
 }
 
 func logGeneralSettings(cfg *kiosk.Config) {
-	log.Println("--- General ---")
+	log.Println("--- General -------------------------------------------------")
 	log.Println("AutoFit:", cfg.General.AutoFit)
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
 	log.Println("LXDEHome:", cfg.General.LXDEHome)
@@ -237,7 +237,7 @@ func logGeneralSettings(cfg *kiosk.Config) {
 }
 
 func logTargetSettings(cfg *kiosk.Config) {
-	log.Println("--- Target ---")
+	log.Println("--- Target --------------------------------------------------")
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
 	log.Println("Username:", cfg.Target.Username)
@@ -248,7 +248,7 @@ func logTargetSettings(cfg *kiosk.Config) {
 }
 
 func logGoAuthSettings(cfg *kiosk.Config) {
-	log.Println("--- GoAuth ---")
+	log.Println("--- GoAuth --------------------------------------------------")
 	log.Println("Fieldname AutoLogin:", cfg.GoAuth.AutoLogin)
 	log.Println("Fieldname Username:", cfg.GoAuth.UsernameField)
 	log.Println("Fieldname Password:", cfg.GoAuth.PasswordField)

@@ -529,7 +529,7 @@ func TestLogGeneralSettings(t *testing.T) {
 
 		Convey("Should log all general fields", func() {
 			output := captureLogOutput(func() { logGeneralSettings(cfg) })
-			So(output, ShouldContainSubstring, "--- General ---")
+			So(output, ShouldContainSubstring, "--- General ----")
 			So(output, ShouldContainSubstring, "AutoFit: true")
 			So(output, ShouldContainSubstring, "Mode: full")
 			So(output, ShouldContainSubstring, "Incognito: true")

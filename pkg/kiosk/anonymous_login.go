@@ -5,10 +5,11 @@ import (
 	"log"
 
 	"github.com/chromedp/chromedp"
+	"github.com/grafana/grafana-kiosk/pkg/browser"
 )
 
 // GrafanaKioskAnonymous creates a chrome-based kiosk using a local grafana-server account.
-func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, messages chan string) {
+func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -33,20 +34,22 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, message
 
 	if err := chromedp.Run(taskCtx,
 		cycleWindowState(cfg),
-		chromedp.Navigate(generatedURL),
-		waitForPageLoad(cfg),
 	); err != nil {
 		panic(err)
 	}
+
+	if err := b.Navigate(taskCtx, generatedURL); err != nil {
+		panic(err)
+	}
+
+	waitForPageLoad(cfg)
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case messageFromChrome := <-messages:
-			if err := chromedp.Run(taskCtx,
-				chromedp.Navigate(generatedURL),
-			); err != nil {
+			if err := b.Navigate(taskCtx, generatedURL); err != nil {
 				return
 			}
 			log.Println("Chromium output:", messageFromChrome)

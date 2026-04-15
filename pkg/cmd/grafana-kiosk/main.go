@@ -13,6 +13,7 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 
+	"github.com/grafana/grafana-kiosk/pkg/browser"
 	"github.com/grafana/grafana-kiosk/pkg/initialize"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 )
@@ -344,6 +345,6 @@ func main() {
 		kiosk.GrafanaKioskAzureAD(ctx, &cfg, dir, messages)
 	default:
 		log.Printf("Launching ANON login kiosk")
-		kiosk.GrafanaKioskAnonymous(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskAnonymous(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	}
 }

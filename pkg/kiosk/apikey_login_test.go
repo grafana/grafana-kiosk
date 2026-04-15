@@ -87,6 +87,14 @@ func TestIsDataSourceQueryRequest(t *testing.T) {
 			)
 			So(result, ShouldBeFalse)
 		})
+
+		Convey("When request is under query.grafana.app but not a /query endpoint", func() {
+			result := IsDataSourceQueryRequest(
+				"https://myorg.grafana.net/apis/query.grafana.app/v0alpha1/namespaces/stacks-123/something-else",
+				"https", "myorg.grafana.net",
+			)
+			So(result, ShouldBeFalse)
+		})
 	})
 }
 

@@ -30,7 +30,8 @@ func IsDataSourceQueryRequest(requestURL, targetScheme, targetHost string) bool 
 		return true
 	}
 
-	return strings.Contains(rest, "/apis/query.grafana.app/") && strings.Contains(rest, "/query")
+	path := strings.SplitN(rest, "?", 2)[0]
+	return strings.Contains(rest, "/apis/query.grafana.app/") && strings.HasSuffix(path, "/query")
 }
 
 // IsTargetHostRequest checks if the request URL host matches the target host.

@@ -211,7 +211,12 @@ func setEnvironment() {
 }
 
 func summary(cfg *kiosk.Config) {
-	// general
+	logGeneralSettings(cfg)
+	logTargetSettings(cfg)
+	logGoAuthSettings(cfg)
+}
+
+func logGeneralSettings(cfg *kiosk.Config) {
 	log.Println("AutoFit:", cfg.General.AutoFit)
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
 	log.Println("LXDEHome:", cfg.General.LXDEHome)
@@ -221,7 +226,14 @@ func summary(cfg *kiosk.Config) {
 	log.Println("WindowSize:", cfg.General.WindowSize)
 	log.Println("ScaleFactor:", cfg.General.ScaleFactor)
 	log.Println("PageLoadDelayMS:", cfg.General.PageLoadDelayMS)
-	// target
+	log.Println("HideLinks:", cfg.General.HideLinks)
+	log.Println("HideLogo:", cfg.General.HideLogo)
+	log.Println("HidePlaylistNav:", cfg.General.HidePlaylistNav)
+	log.Println("HideTimePicker:", cfg.General.HideTimePicker)
+	log.Println("HideVariables:", cfg.General.HideVariables)
+}
+
+func logTargetSettings(cfg *kiosk.Config) {
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
 	log.Println("Username:", cfg.Target.Username)
@@ -229,7 +241,9 @@ func summary(cfg *kiosk.Config) {
 	log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
 	log.Println("IsPlayList:", cfg.Target.IsPlayList)
 	log.Println("UseMFA:", cfg.Target.UseMFA)
-	// goauth
+}
+
+func logGoAuthSettings(cfg *kiosk.Config) {
 	log.Println("Fieldname AutoLogin:", cfg.GoAuth.AutoLogin)
 	log.Println("Fieldname Username:", cfg.GoAuth.UsernameField)
 	log.Println("Fieldname Password:", cfg.GoAuth.PasswordField)

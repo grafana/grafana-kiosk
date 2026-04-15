@@ -281,7 +281,7 @@ These flags append `_dash.*` query parameters to hide specific UI elements:
 | Flag                 | Query parameter              | UI effect                         |
 | -------------------- | ---------------------------- | --------------------------------- |
 | `-hide-links`        | `_dash.hideLinks=true`       | Hide links in the top nav bar     |
-| `-hide-logo`         | `_dash.hideLogo=1`           | Hide Powered by Grafana logo      |
+| `-hide-logo`         | `hideLogo=1`                 | Hide Powered by Grafana logo      |
 | `-hide-playlist-nav` | `_dash.hidePlaylistNav=true` | Hide playlist navigation controls |
 | `-hide-time-picker`  | `_dash.hideTimePicker=true`  | Hide time picker in the top nav   |
 | `-hide-variables`    | `_dash.hideVariables=true`   | Hide variables in the top nav     |

@@ -26,7 +26,7 @@ func GenerateURL(cfg *Config) string {
 	case "full": // FULLSCREEN
 		parsedQuery.Set("kiosk", "1") // sidebar and topnav always shown
 		log.Printf("KioskMode: Fullscreen")
-	case "disabled": // FULLSCREEN
+	case "disabled":
 		log.Printf("KioskMode: Disabled")
 	default: // disabled
 		parsedQuery.Set("kiosk", "1") // sidebar and topnav always shown
@@ -36,7 +36,7 @@ func GenerateURL(cfg *Config) string {
 		parsedQuery.Set("_dash.hideLinks", "true")
 	}
 	if cfg.General.HideLogo {
-		parsedQuery.Set("_dash.hideLogo", "1")
+		parsedQuery.Set("_dash.hideLogo", "1") // Grafana uses "1" for this param, not "true"
 	}
 	if cfg.General.HidePlaylistNav {
 		parsedQuery.Set("_dash.hidePlaylistNav", "true")

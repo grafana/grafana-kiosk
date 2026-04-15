@@ -10,6 +10,8 @@ type General struct {
 	AutoFit         bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
 	HideVariables   bool   `yaml:"hide-variables" env:"KIOSK_HIDE_VARIABLES" env-default:"false" env-description:"Hide variables in the top nav bar"`
 	HideLinks       bool   `yaml:"hide-links" env:"KIOSK_HIDE_LINKS" env-default:"false" env-description:"Hide links in the top nav bar"`
+	HideLogo        bool   `yaml:"hide-logo" env:"KIOSK_HIDE_LOGO" env-default:"false" env-description:"Hide Powered by Grafana logo"`
+	HidePlaylistNav bool   `yaml:"hide-playlist-nav" env:"KIOSK_HIDE_PLAYLIST_NAV" env-default:"false" env-description:"Hide playlist navigation controls"`
 	HideTimePicker  bool   `yaml:"hide-time-picker" env:"KIOSK_HIDE_TIME_PICKER" env-default:"false" env-description:"Hide time picker in the top nav bar"`
 	Incognito       bool   `yaml:"incognito" env:"KIOSK_INCOGNITO" env-default:"true" env-description:"use incognito mode"`
 	DebugEnabled    bool   `yaml:"debug" env:"KIOSK_DEBUG" env-default:"false" env-description:"enables debug output"`

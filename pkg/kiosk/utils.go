@@ -33,13 +33,19 @@ func GenerateURL(cfg *Config) string {
 		log.Printf("KioskMode: Fullscreen")
 	}
 	if cfg.General.HideLinks {
-		parsedQuery.Set("_dash.hideLinks", "")
+		parsedQuery.Set("_dash.hideLinks", "true")
+	}
+	if cfg.General.HideLogo {
+		parsedQuery.Set("_dash.hideLogo", "1")
+	}
+	if cfg.General.HidePlaylistNav {
+		parsedQuery.Set("_dash.hidePlaylistNav", "true")
 	}
 	if cfg.General.HideTimePicker {
-		parsedQuery.Set("_dash.hideTimePicker", "")
+		parsedQuery.Set("_dash.hideTimePicker", "true")
 	}
 	if cfg.General.HideVariables {
-		parsedQuery.Set("_dash.hideVariables", "")
+		parsedQuery.Set("_dash.hideVariables", "true")
 	}
 	// a playlist should also go inactive immediately
 	if cfg.Target.IsPlayList {

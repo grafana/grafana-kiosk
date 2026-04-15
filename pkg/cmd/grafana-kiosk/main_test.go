@@ -273,6 +273,8 @@ func TestProcessArgsAllFlags(t *testing.T) {
 			"-playlists",
 			"-autofit=false",
 			"-hide-links",
+			"-hide-logo",
+			"-hide-playlist-nav",
 			"-hide-time-picker",
 			"-hide-variables",
 			"-lxde",
@@ -312,6 +314,8 @@ func TestProcessArgsAllFlags(t *testing.T) {
 			So(result.ScaleFactor, ShouldEqual, "1.5")
 			So(result.PageLoadDelayMS, ShouldEqual, 5000)
 			So(result.HideLinks, ShouldBeTrue)
+			So(result.HideLogo, ShouldBeTrue)
+			So(result.HidePlaylistNav, ShouldBeTrue)
 			So(result.HideTimePicker, ShouldBeTrue)
 			So(result.HideVariables, ShouldBeTrue)
 			So(result.LXDEEnabled, ShouldBeTrue)
@@ -357,6 +361,8 @@ func TestLoadConfigAllFlagsOverride(t *testing.T) {
 			"-playlists",
 			"-autofit=false",
 			"-hide-links",
+			"-hide-logo",
+			"-hide-playlist-nav",
 			"-hide-time-picker",
 			"-hide-variables",
 			"-incognito=false",
@@ -386,6 +392,8 @@ func TestLoadConfigAllFlagsOverride(t *testing.T) {
 			So(cfg.General.ScaleFactor, ShouldEqual, "2.0")
 			So(cfg.General.PageLoadDelayMS, ShouldEqual, int64(3000))
 			So(cfg.General.HideLinks, ShouldBeTrue)
+			So(cfg.General.HideLogo, ShouldBeTrue)
+			So(cfg.General.HidePlaylistNav, ShouldBeTrue)
 			So(cfg.General.HideTimePicker, ShouldBeTrue)
 			So(cfg.General.HideVariables, ShouldBeTrue)
 			So(cfg.GoAuth.AutoLogin, ShouldBeTrue)

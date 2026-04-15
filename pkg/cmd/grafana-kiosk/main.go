@@ -211,11 +211,11 @@ func setEnvironment() {
 }
 
 func summary(cfg *kiosk.Config) {
-	log.Println("*********************************************************")
+	log.Println("*************************************************************")
 	logGeneralSettings(cfg)
 	logTargetSettings(cfg)
 	logGoAuthSettings(cfg)
-	log.Println("*********************************************************")
+	log.Println("*************************************************************")
 }
 
 func logGeneralSettings(cfg *kiosk.Config) {

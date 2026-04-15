@@ -11,5 +11,5 @@ general:
 target:
   login-method: anon
   playlist: true
-  URL: https://play.grafana.org/playlists/play/edn2qdq3ypzwgf
+  URL: https://play.grafana.org/playlists/play/aew1xn07xdg5ca
   ignore-certificate-errors: false

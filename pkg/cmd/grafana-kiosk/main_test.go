@@ -164,6 +164,240 @@ func TestLoadConfigEnvOnly(t *testing.T) {
 	})
 }
 
+func TestLoadConfigMalformedYAML(t *testing.T) {
+	Convey("Given a malformed YAML config file", t, func() {
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+		os.Args = []string{
+			"grafana-kiosk",
+			"-c", "../../../testdata/config-malformed.yaml",
+		}
+
+		Convey("Should return error", func() {
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, "error reading config file")
+		})
+	})
+}
+
+func TestLoadConfigFromTestdata(t *testing.T) {
+	Convey("Given the anon testdata config", t, func() {
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+		os.Args = []string{
+			"grafana-kiosk",
+			"-c", "../../../testdata/config-anon.yaml",
+		}
+
+		Convey("Should load all values from config file", func() {
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			So(cfg.General.Mode, ShouldEqual, "full")
+			So(cfg.General.AutoFit, ShouldBeTrue)
+			So(cfg.General.LXDEEnabled, ShouldBeTrue)
+			So(cfg.General.LXDEHome, ShouldEqual, "/home/pi")
+			So(cfg.Target.LoginMethod, ShouldEqual, "anon")
+			So(cfg.Target.URL, ShouldEqual, "https://play.grafana.org")
+			So(cfg.Target.Username, ShouldEqual, "user")
+			So(cfg.Target.IsPlayList, ShouldBeFalse)
+			So(cfg.Target.UseMFA, ShouldBeFalse)
+			So(cfg.Target.IgnoreCertificateErrors, ShouldBeFalse)
+			So(cfg.GoAuth.AutoLogin, ShouldBeFalse)
+			So(cfg.GoAuth.UsernameField, ShouldEqual, "username")
+			So(cfg.GoAuth.PasswordField, ShouldEqual, "password")
+		})
+	})
+
+	Convey("Given the local testdata config", t, func() {
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+		os.Args = []string{
+			"grafana-kiosk",
+			"-c", "../../../testdata/config-local.yaml",
+		}
+
+		Convey("Should load login-method as local", func() {
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			So(cfg.Target.LoginMethod, ShouldEqual, "local")
+		})
+	})
+}
+
+func TestLoadConfigEnvOverridesFile(t *testing.T) {
+	Convey("Given a config file and an environment variable override", t, func() {
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+		os.Args = []string{
+			"grafana-kiosk",
+			"-c", "../../../testdata/config-anon.yaml",
+		}
+
+		Convey("Env var should override config file value", func() {
+			oldVal := os.Getenv("KIOSK_URL")
+			defer func() { _ = os.Setenv("KIOSK_URL", oldVal) }()
+			_ = os.Setenv("KIOSK_URL", "https://env-override.example.com")
+
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			So(cfg.Target.URL, ShouldEqual, "https://env-override.example.com")
+		})
+	})
+}
+
+func TestProcessArgsAllFlags(t *testing.T) {
+	Convey("Given all CLI flags", t, func() {
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+		os.Args = []string{
+			"grafana-kiosk",
+			"-URL", "https://test.grafana.org",
+			"-login-method", "gcom",
+			"-username", "testuser",
+			"-password", "testpass",
+			"-use-mfa",
+			"-kiosk-mode", "tv",
+			"-window-position", "100,200",
+			"-window-size", "1280,720",
+			"-scale-factor", "1.5",
+			"-page-load-delay-ms", "5000",
+			"-playlists",
+			"-autofit=false",
+			"-hide-links",
+			"-hide-time-picker",
+			"-hide-variables",
+			"-lxde",
+			"-lxde-home", "/home/test",
+			"-ignore-certificate-errors",
+			"-incognito=false",
+			"-auto-login",
+			"-wait-for-password-field",
+			"-wait-for-password-field-class", "ignore-me",
+			"-wait-for-stay-signed-in-prompt",
+			"-field-username", "email",
+			"-field-password", "passwd",
+			"-audience", "my-client-id",
+			"-keyfile", "/tmp/creds.json",
+			"-apikey", "secret123",
+		}
+
+		var cfg kiosk.Config
+		result, _ := ProcessArgs(&cfg)
+
+		Convey("Should parse target flags", func() {
+			So(result.URL, ShouldEqual, "https://test.grafana.org")
+			So(result.LoginMethod, ShouldEqual, "gcom")
+			So(result.Username, ShouldEqual, "testuser")
+			So(result.Password, ShouldEqual, "testpass")
+			So(result.UseMFA, ShouldBeTrue)
+			So(result.IsPlayList, ShouldBeTrue)
+			So(result.IgnoreCertificateErrors, ShouldBeTrue)
+		})
+
+		Convey("Should parse general flags", func() {
+			So(result.Mode, ShouldEqual, "tv")
+			So(result.AutoFit, ShouldBeFalse)
+			So(result.Incognito, ShouldBeFalse)
+			So(result.WindowPosition, ShouldEqual, "100,200")
+			So(result.WindowSize, ShouldEqual, "1280,720")
+			So(result.ScaleFactor, ShouldEqual, "1.5")
+			So(result.PageLoadDelayMS, ShouldEqual, 5000)
+			So(result.HideLinks, ShouldBeTrue)
+			So(result.HideTimePicker, ShouldBeTrue)
+			So(result.HideVariables, ShouldBeTrue)
+			So(result.LXDEEnabled, ShouldBeTrue)
+			So(result.LXDEHome, ShouldEqual, "/home/test")
+		})
+
+		Convey("Should parse OAuth flags", func() {
+			So(result.OauthAutoLogin, ShouldBeTrue)
+			So(result.OauthWaitForPasswordField, ShouldBeTrue)
+			So(result.OauthWaitForPasswordFieldIgnoreClass, ShouldEqual, "ignore-me")
+			So(result.OauthWaitForStaySignedInPrompt, ShouldBeTrue)
+			So(result.UsernameField, ShouldEqual, "email")
+			So(result.PasswordField, ShouldEqual, "passwd")
+		})
+
+		Convey("Should parse ID token flags", func() {
+			So(result.Audience, ShouldEqual, "my-client-id")
+			So(result.KeyFile, ShouldEqual, "/tmp/creds.json")
+		})
+
+		Convey("Should parse API key flag", func() {
+			So(result.APIKey, ShouldEqual, "secret123")
+		})
+	})
+}
+
+func TestLoadConfigAllFlagsOverride(t *testing.T) {
+	Convey("Given a config file with all CLI flags overriding", t, func() {
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+		os.Args = []string{
+			"grafana-kiosk",
+			"-c", "../../../testdata/config-anon.yaml",
+			"-URL", "https://override.example.com",
+			"-login-method", "local",
+			"-username", "overrideuser",
+			"-password", "overridepass",
+			"-kiosk-mode", "disabled",
+			"-window-position", "50,50",
+			"-window-size", "800,600",
+			"-scale-factor", "2.0",
+			"-page-load-delay-ms", "3000",
+			"-playlists",
+			"-autofit=false",
+			"-hide-links",
+			"-hide-time-picker",
+			"-hide-variables",
+			"-incognito=false",
+			"-auto-login",
+			"-field-username", "email",
+			"-field-password", "pw",
+			"-audience", "aud123",
+			"-keyfile", "/tmp/k.json",
+			"-apikey", "key456",
+		}
+
+		Convey("All CLI flags should override config file", func() {
+			var cfg kiosk.Config
+			args, fs := ProcessArgs(&cfg)
+			err := loadConfig(args, fs, &cfg)
+			So(err, ShouldBeNil)
+			So(cfg.Target.URL, ShouldEqual, "https://override.example.com")
+			So(cfg.Target.LoginMethod, ShouldEqual, "local")
+			So(cfg.Target.Username, ShouldEqual, "overrideuser")
+			So(cfg.Target.Password, ShouldEqual, "overridepass")
+			So(cfg.Target.IsPlayList, ShouldBeTrue)
+			So(cfg.General.Mode, ShouldEqual, "disabled")
+			So(cfg.General.AutoFit, ShouldBeFalse)
+			So(cfg.General.Incognito, ShouldBeFalse)
+			So(cfg.General.WindowPosition, ShouldEqual, "50,50")
+			So(cfg.General.WindowSize, ShouldEqual, "800,600")
+			So(cfg.General.ScaleFactor, ShouldEqual, "2.0")
+			So(cfg.General.PageLoadDelayMS, ShouldEqual, int64(3000))
+			So(cfg.General.HideLinks, ShouldBeTrue)
+			So(cfg.General.HideTimePicker, ShouldBeTrue)
+			So(cfg.General.HideVariables, ShouldBeTrue)
+			So(cfg.GoAuth.AutoLogin, ShouldBeTrue)
+			So(cfg.GoAuth.UsernameField, ShouldEqual, "email")
+			So(cfg.GoAuth.PasswordField, ShouldEqual, "pw")
+			So(cfg.IDToken.Audience, ShouldEqual, "aud123")
+			So(cfg.IDToken.KeyFile, ShouldEqual, "/tmp/k.json")
+			So(cfg.APIKey.APIKey, ShouldEqual, "key456")
+		})
+	})
+}
+
 func TestMain(t *testing.T) {
 	Convey("Given Default Configuration", t, func() {
 		cfg := kiosk.Config{

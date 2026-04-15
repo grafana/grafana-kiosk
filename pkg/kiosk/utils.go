@@ -116,7 +116,10 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 			chromedp.Flag("ozone-platform", cfg.General.OzonePlatform))
 	}
 	if cfg.General.WindowSize != "" {
-		fullscreen := cfg.General.Mode == "full" || cfg.General.Mode == ""
+		fullscreen := isFullscreenMode(cfg.General.Mode)
+		if fullscreen {
+			log.Printf("window-size %s with kiosk mode %q: window will cycle to fullscreen via CDP", cfg.General.WindowSize, cfg.General.Mode)
+		}
 		execAllocatorOption = append(
 			execAllocatorOption,
 			chromedp.Flag("kiosk", fullscreen),
@@ -134,6 +137,12 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	return execAllocatorOption
 }
 
+// isFullscreenMode reports whether the given kiosk mode requires fullscreen.
+// "full" and the empty default both mean fullscreen; "tv" and "disabled" do not.
+func isFullscreenMode(mode string) bool {
+	return mode == "full" || mode == ""
+}
+
 // cycleWindowState cycles the browser window state via CDP before navigation.
 // When no custom window size is set, it cycles normal → fullscreen.
 // When a custom window size is set, it cycles minimized → normal with the
@@ -147,7 +156,7 @@ func cycleWindowState(cfg *Config) chromedp.ActionFunc {
 			return fmt.Errorf("get window for target: %w", err)
 		}
 		if cfg.General.WindowSize != "" {
-			return cycleWindowToSize(windowID, cfg.General.WindowSize, ctx)
+			return cycleWindowToSize(ctx, windowID, cfg.General.WindowSize, isFullscreenMode(cfg.General.Mode))
 		}
 		err = browser.SetWindowBounds(windowID, &browser.Bounds{
 			WindowState: browser.WindowStateNormal,
@@ -162,9 +171,10 @@ func cycleWindowState(cfg *Config) chromedp.ActionFunc {
 	})
 }
 
-// cycleWindowToSize sets the window to the specified dimensions, then
-// cycles to fullscreen to force Chrome to register the correct viewport.
-func cycleWindowToSize(windowID browser.WindowID, windowSize string, ctx context.Context) error {
+// cycleWindowToSize sets the window to the specified dimensions.
+// When fullscreen is true, it then cycles to fullscreen to force Chrome to
+// register the correct viewport. Otherwise it stays at the requested size.
+func cycleWindowToSize(ctx context.Context, windowID browser.WindowID, windowSize string, fullscreen bool) error {
 	parts := strings.SplitN(windowSize, ",", 2)
 	if len(parts) != 2 {
 		return fmt.Errorf("invalid window-size format: %q", windowSize)
@@ -183,6 +193,10 @@ func cycleWindowToSize(windowID browser.WindowID, windowSize string, ctx context
 	}).Do(ctx)
 	if err != nil {
 		return fmt.Errorf("set window size: %w", err)
+	}
+
+	if !fullscreen {
+		return nil
 	}
 
 	time.Sleep(100 * time.Millisecond)

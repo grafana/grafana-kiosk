@@ -1,0 +1,15 @@
+# Dashboard in TV kiosk mode
+#
+# Chrome flags: --kiosk --start-fullscreen
+# Grafana URL:  ?kiosk=tv
+# Result:       No sidebar, top nav without buttons, fullscreen
+general:
+  kiosk-mode: tv
+  autofit: false
+  incognito: true
+
+target:
+  login-method: anon
+  playlist: false
+  URL: https://play.grafana.org/d/c75d0920-78ac-4a93-937b-8105f93d3532/may-the-4th-be-with-you
+  ignore-certificate-errors: false

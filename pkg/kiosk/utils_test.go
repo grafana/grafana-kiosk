@@ -519,10 +519,27 @@ func TestGenerateExecutorOptions(t *testing.T) {
 	})
 }
 
+func TestIsFullscreenMode(t *testing.T) {
+	Convey("Given isFullscreenMode", t, func() {
+		Convey("Should return true for full mode", func() {
+			So(isFullscreenMode("full"), ShouldBeTrue)
+		})
+		Convey("Should return true for empty (default) mode", func() {
+			So(isFullscreenMode(""), ShouldBeTrue)
+		})
+		Convey("Should return false for tv mode", func() {
+			So(isFullscreenMode("tv"), ShouldBeFalse)
+		})
+		Convey("Should return false for disabled mode", func() {
+			So(isFullscreenMode("disabled"), ShouldBeFalse)
+		})
+	})
+}
+
 func TestCycleWindowToSize(t *testing.T) {
 	Convey("Given cycleWindowToSize", t, func() {
 		Convey("When window size format is invalid", func() {
-			err := cycleWindowToSize(0, "invalid", context.Background())
+			err := cycleWindowToSize(context.Background(), 0, "invalid", true)
 
 			Convey("Should return a format error", func() {
 				So(err, ShouldNotBeNil)
@@ -531,7 +548,7 @@ func TestCycleWindowToSize(t *testing.T) {
 		})
 
 		Convey("When width is not a number", func() {
-			err := cycleWindowToSize(0, "abc,1080", context.Background())
+			err := cycleWindowToSize(context.Background(), 0, "abc,1080", true)
 
 			Convey("Should return a width parse error", func() {
 				So(err, ShouldNotBeNil)
@@ -540,7 +557,7 @@ func TestCycleWindowToSize(t *testing.T) {
 		})
 
 		Convey("When height is not a number", func() {
-			err := cycleWindowToSize(0, "1920,abc", context.Background())
+			err := cycleWindowToSize(context.Background(), 0, "1920,abc", true)
 
 			Convey("Should return a height parse error", func() {
 				So(err, ShouldNotBeNil)

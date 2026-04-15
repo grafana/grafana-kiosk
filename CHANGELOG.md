@@ -16,6 +16,7 @@ and this project adheres to
 ### Bug Fixes
 
 - Fix Grafana 12+ scenes viewport changes causing kiosk to not autofit panels ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
+- Fix `cycleWindowToSize` unconditionally cycling to fullscreen when kiosk mode is `tv` or `disabled` ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
 - Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode ([#155](https://github.com/grafana/grafana-kiosk/issues/155))
 - Fix CLI flags not overriding config file values when using `-c` ([#210](https://github.com/grafana/grafana-kiosk/issues/210))
 - Fix API key host prefix matching to prevent auth header leakage to hosts sharing a prefix with the target
@@ -28,6 +29,9 @@ and this project adheres to
 - Add tests for `GenerateURL` playlist mode
 - Add tests for command allowlist in initialize package
 - Add tests for `cycleWindowToSize`, `waitForPageLoad`, and `waitForBrowserStartup` utilities
+- Add tests for `loadConfig`: malformed YAML, testdata fixtures, env var overrides,
+  all CLI flag overrides (37.5% -> 82.5%)
+- Add tests for `ProcessArgs` with all CLI flags
 
 ### CI/CD
 
@@ -49,13 +53,20 @@ and this project adheres to
   cloud.google.com/go/auth v0.20.0
 - Update Docker base images: golang 1.26.2-alpine, dtcooper/raspberrypi-os latest digest
 
+### Documentation
+
+- Expand README window-size/kiosk-mode section with Chrome launch flags, CDP cycling,
+  and Grafana query parameter tables
+- Add 10 example YAML config files for dashboard/playlist, fullscreen/tv/windowed, and multi-monitor positioning
+- Fix long lines in README.md for MD013 compliance
+
 ### Chores
 
 - Add CLAUDE.md referencing AGENTS.md
 - Update AGENTS.md action version table to match current CI pinned versions
+- Add MD013 (line length) and MD060 (aligned tables) rules to markdownlint config
 - Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
 - Add missing technical terms to cspell config
-- Fix long lines in README.md for markdownlint compliance
 
 ## 1.0.11
 

@@ -4,5 +4,12 @@ config:
     code_blocks: false
   no-duplicate-heading:
     siblings_only: true
+  MD060:
+    style: aligned
+  MD013:
+    code_blocks: false
+    heading_line_length: 120
+    line_length: 120
+    strict: false
 ignores:
   - CLAUDE.md

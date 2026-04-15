@@ -156,6 +156,9 @@ target:
 grafana-kiosk -c config.yaml
 ```
 
+See the [examples](examples/) directory for complete configuration files covering
+dashboards, playlists, kiosk modes, window sizing, and multi-monitor positioning.
+
 Environment variables can be set and will override the configuration file.
 They can also be used instead of a configuration file.
 
@@ -228,18 +231,46 @@ They can also be used instead of a configuration file.
 ### Window size and kiosk mode
 
 By default, the kiosk launches Chrome in fullscreen kiosk mode (`--kiosk --start-fullscreen`). The `-window-size` and
-`-kiosk-mode` flags interact as follows:
+`-kiosk-mode` flags interact to control Chrome launch flags and CDP window cycling behavior.
 
-| `-window-size` | `-kiosk-mode` | Behavior |
-| --- | --- | --- |
-| not set | `full` (default) | Fullscreen kiosk, panels autofit to screen |
-| not set | `tv` or `disabled` | Fullscreen kiosk, no panel autofit |
-| set (e.g. `1920,1080`) | `full` (default) | App window at specified size, then cycles to fullscreen via CDP |
-| set (e.g. `1920,1080`) | `tv` or `disabled` | App window at specified size, no fullscreen |
+#### Chrome launch flags
 
-When `-window-size` is specified, Chrome launches in app mode (no address bar or controls). Before navigating to the
-dashboard, the kiosk cycles the browser window state via the Chrome DevTools Protocol (CDP) to force Chrome to properly
-register viewport dimensions. This ensures Grafana correctly applies the `autofitpanels` parameter on initial page load.
+| `-window-size`  | `-kiosk-mode`    | `--kiosk` | `--start-fullscreen` | `--app` | `--window-size` |
+| --------------- | ---------------- | --------- | -------------------- | ------- | --------------- |
+| not set         | `full` (default) | true      | true                 | not set | not set         |
+| not set         | `tv`             | true      | true                 | not set | not set         |
+| not set         | `disabled`       | true      | true                 | not set | not set         |
+| `1920,1080`     | `full` (default) | true      | true                 | set     | `1920,1080`     |
+| `1920,1080`     | `tv`             | false     | false                | set     | `1920,1080`     |
+| `1920,1080`     | `disabled`       | false     | false                | set     | `1920,1080`     |
+
+When `-window-size` is specified, Chrome launches in app mode (`--app`) which removes the address bar and browser
+controls. The `--kiosk` and `--start-fullscreen` Chrome flags are only enabled when the kiosk mode requires
+fullscreen (`full` or default).
+
+#### CDP window cycling
+
+Before navigating to the dashboard, the kiosk cycles the browser window state via the Chrome DevTools Protocol (CDP)
+to force Chrome to properly register viewport dimensions. This ensures Grafana correctly applies the `autofitpanels`
+parameter on initial page load.
+
+| `-window-size` | `-kiosk-mode`      | CDP action                  | Final window state              |
+| -------------- | ------------------ | --------------------------- | ------------------------------- |
+| not set        | any                | normal → fullscreen         | fullscreen                      |
+| set            | `full` (default)   | set dimensions → fullscreen | fullscreen at native resolution |
+| set            | `tv` or `disabled` | set dimensions              | fixed size window               |
+
+#### Grafana query parameters
+
+The `-kiosk-mode` flag also controls the `kiosk` query parameter appended to the dashboard URL:
+
+| `-kiosk-mode`    | Query parameter | UI effect                                  |
+| ---------------- | --------------- | ------------------------------------------ |
+| `full` (default) | `?kiosk=1`      | No top navigation, no sidebar              |
+| `tv`             | `?kiosk=tv`     | No sidebar, top navigation without buttons |
+| `disabled`       | none            | Full Grafana UI                            |
+
+See [examples/](examples/) for complete configuration files demonstrating each combination.
 
 ### Hosted Grafana using grafana.com authentication
 
@@ -390,7 +421,8 @@ Actions Performed:
 - runs `xset s noblank` disables blank mode for screensaver (maybe not needed)
 - runs `unclutter` to hide the mouse
 
-The `-lxde-home` option allows you to specify a different $HOME directory where the lxde configuration files can be found.
+The `-lxde-home` option allows you to specify a different $HOME directory where the lxde
+configuration files can be found.
 
 ## Automatic Startup
 
@@ -506,7 +538,8 @@ apt install rng-tools
 
 ## Building
 
-A Magefile is provided for building the utility, you can install mage by following the instructions at <https://magefile.org/>
+A Magefile is provided for building the utility, you can install mage by following the instructions
+at <https://magefile.org/>
 
 ```bash
 mage -v

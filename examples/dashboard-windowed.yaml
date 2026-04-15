@@ -1,0 +1,17 @@
+# Dashboard in a fixed-size window (TV mode)
+#
+# Chrome flags: --app --window-size=960,540
+# CDP cycling:  Sets dimensions, stays at requested size
+# Grafana URL:  ?kiosk=tv
+# Result:       960x540 window, no address bar, no sidebar
+general:
+  kiosk-mode: tv
+  autofit: false
+  incognito: true
+  window-size: "960,540"
+
+target:
+  login-method: anon
+  playlist: false
+  URL: https://play.grafana.org/d/c75d0920-78ac-4a93-937b-8105f93d3532/may-the-4th-be-with-you
+  ignore-certificate-errors: false

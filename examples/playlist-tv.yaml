@@ -1,0 +1,15 @@
+# Playlist in TV kiosk mode
+#
+# Chrome flags: --kiosk --start-fullscreen
+# Grafana URL:  ?kiosk=tv&inactive=1
+# Result:       No sidebar, top nav without buttons, playlist starts immediately
+general:
+  kiosk-mode: tv
+  autofit: false
+  incognito: true
+
+target:
+  login-method: anon
+  playlist: true
+  URL: https://play.grafana.org/playlists/play/aew1xn07xdg5ca
+  ignore-certificate-errors: false

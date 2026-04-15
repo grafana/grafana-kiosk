@@ -205,7 +205,7 @@ This codebase uses an aggressive error handling style:
 ### Configuration
 
 - Configuration uses [`cleanenv`](https://github.com/ilyakaznacheev/cleanenv).
-- Three-tier precedence: YAML file → environment variables → CLI flags.
+- Three-tier precedence: YAML file -> environment variables -> CLI flags.
 - Environment variable naming: `KIOSK_<SECTION>_<FIELD>` (e.g.,
   `KIOSK_TARGET_URL`, `KIOSK_GRAFANA_AUTOFIT`).
 - Provide `env-default` values in struct tags for all config fields.
@@ -253,31 +253,33 @@ this procedure:
 
 GitHub Actions workflows (`.github/workflows/`):
 
-- **`ci.yml`**: Checkout → Go setup (version from `go.mod`) → `go get .` →
-  golangci-lint → gosec → `mage -v build:ci` → coverage upload → release
+- **`ci.yml`**: Checkout -> Go setup (version from `go.mod`) -> `go get .` ->
+  golangci-lint -> gosec -> `mage -v build:ci` -> coverage upload -> release
   packaging on version tags (`v*`).
 - **`osv-scanner-pr.yml`**: Vulnerability scanning on PRs to `main`.
+- **`cspell.yml`**: Spell check `.md` and `.go` files on push to `main` and PRs (path-filtered).
 - **`markdownlint.yml`**: Lint `.md` files on push to `main` and PRs (path-filtered).
 - **`stale.yml`**: Auto-closes stale issues/PRs after 90+60 days.
 
 All actions are pinned to commit SHAs with version comments (required by
 zizmor). Current versions:
 
-| Action | Version |
-| --- | --- |
-| `actions/checkout` | v6.0.2 |
-| `actions/setup-go` | v6.4.0 (cache disabled) |
-| `golangci/golangci-lint-action` | v9.2.0 |
-| `securego/gosec` | v2.25.0 |
-| `magefile/mage-action` | v4.0.0 |
-| `jwalton/gh-find-current-pr` | v1.3.5 |
-| `actions/upload-artifact` | v7.0.1 |
-| `softprops/action-gh-release` | v2.6.1 |
-| `actions/stale` | v10.2.0 |
-| `k1LoW/octocov-action` | v1.5.0 |
-| `google/osv-scanner-action` | v2.3.5 |
-| `rhysd/actionlint` | v1.7.12 |
-| `DavidAnson/markdownlint-cli2-action` | v23.0.0 |
+| Action                                | Version                |
+| ------------------------------------- | ---------------------- |
+| `actions/checkout`                    | v6.0.2                 |
+| `actions/setup-go`                    | v6.4.0 (cache disabled)|
+| `golangci/golangci-lint-action`       | v9.2.0                 |
+| `securego/gosec`                      | v2.25.0                |
+| `magefile/mage-action`                | v4.0.0                 |
+| `jwalton/gh-find-current-pr`          | v1.3.5                 |
+| `actions/upload-artifact`             | v7.0.1                 |
+| `softprops/action-gh-release`         | v2.6.1                 |
+| `actions/stale`                       | v10.2.0                |
+| `k1LoW/octocov-action`                | v1.5.0                 |
+| `google/osv-scanner-action`           | v2.3.5                 |
+| `rhysd/actionlint`                    | v1.7.12                |
+| `DavidAnson/markdownlint-cli2-action` | v23.0.0                |
+| `streetsidesoftware/cspell-action`    | v8.4.0                 |
 
 When updating actions, always pin to full commit SHA with a version comment:
 
@@ -346,11 +348,11 @@ packaging, and publishing releases automatically when a version tag is pushed.
 
 2. **Choose the version bump** — the default is patch:
 
-   | Bump | When to use | Example |
-   | --- | --- | --- |
-   | Patch | Bug fixes, dependency updates, docs | v1.0.10 → v1.0.11 |
-   | Minor | New features, non-breaking changes | v1.0.10 → v1.1.0 |
-   | Major | Breaking changes to CLI, config, login | v1.0.10 → v2.0.0 |
+   | Bump  | When to use                            | Example            |
+   | ----- | -------------------------------------- | ------------------ |
+   | Patch | Bug fixes, dependency updates, docs    | v1.0.10 -> v1.0.11 |
+   | Minor | New features, non-breaking changes     | v1.0.10 -> v1.1.0  |
+   | Major | Breaking changes to CLI, config, login | v1.0.10 -> v2.0.0  |
 
 ### Pre-release Checklist
 

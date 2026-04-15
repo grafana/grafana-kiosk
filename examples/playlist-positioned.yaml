@@ -1,0 +1,16 @@
+# Playlist positioned on a secondary display
+#
+# Chrome flags: --kiosk --start-fullscreen --window-position=1920,0
+# Grafana URL:  ?kiosk=1&autofitpanels&inactive=1
+# Result:       Fullscreen kiosk on second monitor, playlist starts immediately
+general:
+  kiosk-mode: full
+  autofit: true
+  incognito: true
+  window-position: "1920,0"
+
+target:
+  login-method: anon
+  playlist: true
+  URL: https://play.grafana.org/playlists/play/aew1xn07xdg5ca
+  ignore-certificate-errors: false

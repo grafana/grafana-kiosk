@@ -183,10 +183,12 @@ func (Build) Local(ctx context.Context) {
 
 // CI Lint/Format/Test/Build
 func (Build) CI(ctx context.Context) {
-	mg.Deps(
+	mg.SerialDeps(
 		Build.Lint,
 		Build.Format,
 		Test.Verbose,
+	)
+	mg.Deps(
 		Clean,
 		buildCmdAll,
 	)
@@ -194,10 +196,12 @@ func (Build) CI(ctx context.Context) {
 
 // All build all
 func (Build) All(ctx context.Context) {
-	mg.Deps(
+	mg.SerialDeps(
 		Build.Lint,
 		Build.Format,
 		Test.Verbose,
+	)
+	mg.Deps(
 		buildCmdAll,
 	)
 }

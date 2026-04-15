@@ -529,6 +529,7 @@ func TestLogGeneralSettings(t *testing.T) {
 
 		Convey("Should log all general fields", func() {
 			output := captureLogOutput(func() { logGeneralSettings(cfg) })
+			So(output, ShouldContainSubstring, "--- General ---")
 			So(output, ShouldContainSubstring, "AutoFit: true")
 			So(output, ShouldContainSubstring, "Mode: full")
 			So(output, ShouldContainSubstring, "Incognito: true")
@@ -559,6 +560,7 @@ func TestLogTargetSettings(t *testing.T) {
 
 		Convey("Should log target fields and redact password", func() {
 			output := captureLogOutput(func() { logTargetSettings(cfg) })
+			So(output, ShouldContainSubstring, "--- Target ---")
 			So(output, ShouldContainSubstring, "URL: https://grafana.example.com")
 			So(output, ShouldContainSubstring, "LoginMethod: local")
 			So(output, ShouldContainSubstring, "Username: admin")
@@ -582,6 +584,7 @@ func TestLogGoAuthSettings(t *testing.T) {
 
 		Convey("Should log GoAuth fields", func() {
 			output := captureLogOutput(func() { logGoAuthSettings(cfg) })
+			So(output, ShouldContainSubstring, "--- GoAuth ---")
 			So(output, ShouldContainSubstring, "Fieldname AutoLogin: true")
 			So(output, ShouldContainSubstring, "Fieldname Username: email")
 			So(output, ShouldContainSubstring, "Fieldname Password: passwd")

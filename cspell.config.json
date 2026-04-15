@@ -69,7 +69,18 @@
     "TOPNAV",
     "XAUTHORITY",
     "xset",
-    "zizmor"
+    "zizmor",
+    "Anson",
+    "coverpkg",
+    "coverprofile",
+    "gocritic",
+    "loginfmt",
+    "nosec",
+    "overridepass",
+    "overrideuser",
+    "slimbean",
+    "testpass",
+    "testuser"
   ],
   "ignoreRegExpList": [
     "@[\\w]+"

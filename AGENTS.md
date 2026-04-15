@@ -257,6 +257,7 @@ GitHub Actions workflows (`.github/workflows/`):
   golangci-lint -> gosec -> `mage -v build:ci` -> coverage upload -> release
   packaging on version tags (`v*`).
 - **`osv-scanner-pr.yml`**: Vulnerability scanning on PRs to `main`.
+- **`cspell.yml`**: Spell check `.md` and `.go` files on push to `main` and PRs (path-filtered).
 - **`markdownlint.yml`**: Lint `.md` files on push to `main` and PRs (path-filtered).
 - **`stale.yml`**: Auto-closes stale issues/PRs after 90+60 days.
 
@@ -278,6 +279,7 @@ zizmor). Current versions:
 | `google/osv-scanner-action`           | v2.3.5                 |
 | `rhysd/actionlint`                    | v1.7.12                |
 | `DavidAnson/markdownlint-cli2-action` | v23.0.0                |
+| `streetsidesoftware/cspell-action`    | v8.4.0                 |
 
 When updating actions, always pin to full commit SHA with a version comment:
 

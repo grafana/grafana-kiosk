@@ -83,6 +83,10 @@ NOTE: Flags with parameters should use an "equals"
       Fieldname for the username (default "username")
   -hide-links
       Hide links in the top nav bar
+  -hide-logo
+      Hide Powered by Grafana logo
+  -hide-playlist-nav
+      Hide playlist navigation controls
   -hide-time-picker
       Hide time picker in the top nav bar
   -hide-variables
@@ -269,6 +273,18 @@ The `-kiosk-mode` flag also controls the `kiosk` query parameter appended to the
 | `full` (default) | `?kiosk=1`      | No top navigation, no sidebar              |
 | `tv`             | `?kiosk=tv`     | No sidebar, top navigation without buttons |
 | `disabled`       | none            | Full Grafana UI                            |
+
+#### Dashboard hide options
+
+These flags append `_dash.*` query parameters to hide specific UI elements:
+
+| Flag                 | Query parameter              | UI effect                         |
+| -------------------- | ---------------------------- | --------------------------------- |
+| `-hide-links`        | `_dash.hideLinks=true`       | Hide links in the top nav bar     |
+| `-hide-logo`         | `_dash.hideLogo=1`           | Hide Powered by Grafana logo      |
+| `-hide-playlist-nav` | `_dash.hidePlaylistNav=true` | Hide playlist navigation controls |
+| `-hide-time-picker`  | `_dash.hideTimePicker=true`  | Hide time picker in the top nav   |
+| `-hide-variables`    | `_dash.hideVariables=true`   | Hide variables in the top nav     |
 
 See [examples/](examples/) for complete configuration files demonstrating each combination.
 

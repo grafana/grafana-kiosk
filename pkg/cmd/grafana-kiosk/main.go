@@ -57,6 +57,8 @@ type Args struct {
 	WindowSize                           string
 	ScaleFactor                          string
 	HideLinks                            bool
+	HideLogo                             bool
+	HidePlaylistNav                      bool
 	HideTimePicker                       bool
 	HideVariables                        bool
 	Incognito                            bool
@@ -81,6 +83,8 @@ func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
 	flagSettings.BoolVar(&processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
 	flagSettings.BoolVar(&processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
 	flagSettings.BoolVar(&processedArgs.HideLinks, "hide-links", false, "Hide links in the top nav bar")
+	flagSettings.BoolVar(&processedArgs.HideLogo, "hide-logo", false, "Hide Powered by Grafana logo")
+	flagSettings.BoolVar(&processedArgs.HidePlaylistNav, "hide-playlist-nav", false, "Hide playlist navigation controls")
 	flagSettings.BoolVar(&processedArgs.HideTimePicker, "hide-time-picker", false, "Hide time picker in the top nav bar")
 	flagSettings.BoolVar(&processedArgs.HideVariables, "hide-variables", false, "Hide variables in the top nav bar")
 	flagSettings.BoolVar(&processedArgs.LXDEEnabled, "lxde", false, "Initialize LXDE for kiosk mode")
@@ -150,6 +154,8 @@ func loadConfig(args Args, fs *flag.FlagSet, cfg *kiosk.Config) error {
 		"scale-factor":       func() { cfg.General.ScaleFactor = args.ScaleFactor },
 		"page-load-delay-ms": func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
 		"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
+		"hide-logo":          func() { cfg.General.HideLogo = args.HideLogo },
+		"hide-playlist-nav":  func() { cfg.General.HidePlaylistNav = args.HidePlaylistNav },
 		"hide-time-picker":   func() { cfg.General.HideTimePicker = args.HideTimePicker },
 		"hide-variables":     func() { cfg.General.HideVariables = args.HideVariables },
 		"incognito":          func() { cfg.General.Incognito = args.Incognito },

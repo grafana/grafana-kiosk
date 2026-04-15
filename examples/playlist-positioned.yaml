@@ -7,6 +7,11 @@ general:
   kiosk-mode: full
   autofit: true
   incognito: true
+  hide-links: true
+  hide-logo: true
+  hide-playlist-nav: true
+  hide-time-picker: true
+  hide-variables: true
   window-position: "1920,0"
 
 target:

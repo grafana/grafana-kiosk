@@ -12,6 +12,9 @@ and this project adheres to
 ### Features
 
 - Add `--incognito` flag to optionally disable Chrome incognito mode ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
+- Add `-hide-logo` flag to hide Powered by Grafana logo ([#240](https://github.com/grafana/grafana-kiosk/issues/240))
+- Add `-hide-playlist-nav` flag to hide playlist navigation controls ([#240](https://github.com/grafana/grafana-kiosk/issues/240))
+- Update `_dash.hideLinks`, `_dash.hideTimePicker`, `_dash.hideVariables` query param values to match Grafana's native format
 
 ### Bug Fixes
 

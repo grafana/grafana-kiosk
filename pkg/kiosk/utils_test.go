@@ -17,7 +17,7 @@ import (
 func GetConfig() Config {
 	return Config{
 		Target: Target{
-			URL: "https://play.grafana/com",
+			URL: "https://play.grafana.org",
 		},
 		General: General{
 			AutoFit: true,
@@ -33,41 +33,55 @@ func TestGenerateURL(t *testing.T) {
 			conf := GetConfig()
 			conf.General.Mode = "full"
 			anURL := GenerateURL(&conf)
-			So(anURL, ShouldEqual, "https://play.grafana/com?kiosk=1&autofitpanels")
+			So(anURL, ShouldEqual, "https://play.grafana.org?kiosk=1&autofitpanels")
 		})
 		Convey("TV Mode Anonymous Login", func() {
 			conf := GetConfig()
 			conf.General.Mode = "tv"
 			anURL := GenerateURL(&conf)
-			So(anURL, ShouldEqual, "https://play.grafana/com?kiosk=tv&autofitpanels")
+			So(anURL, ShouldEqual, "https://play.grafana.org?kiosk=tv&autofitpanels")
 		})
 		Convey("Not Fullscreen Anonymous Login", func() {
 			conf := GetConfig()
 			conf.General.Mode = "disabled"
 			anURL := GenerateURL(&conf)
-			So(anURL, ShouldEqual, "https://play.grafana/com?autofitpanels")
+			So(anURL, ShouldEqual, "https://play.grafana.org?autofitpanels")
 		})
 		Convey("Default Kiosk Anonymous Login", func() {
 			conf := GetConfig()
 			conf.General.Mode = ""
 			conf.General.AutoFit = false
 			anURL := GenerateURL(&conf)
-			So(anURL, ShouldEqual, "https://play.grafana/com?kiosk=1")
+			So(anURL, ShouldEqual, "https://play.grafana.org?kiosk=1")
 		})
-		Convey("Default Anonymous Login with autofit", func() {
+		Convey("Default Anonymous Login with autofit and hide options", func() {
 			conf := GetConfig()
 			conf.General.HideLinks = true
 			conf.General.HideTimePicker = true
 			conf.General.HideVariables = true
 			anURL := GenerateURL(&conf)
-			So(anURL, ShouldEqual, "https://play.grafana/com?_dash.hideLinks=&_dash.hideTimePicker=&_dash.hideVariables=&kiosk=1&autofitpanels")
+			So(anURL, ShouldEqual, "https://play.grafana.org?_dash.hideLinks=true&_dash.hideTimePicker=true&_dash.hideVariables=true&kiosk=1&autofitpanels")
+		})
+		Convey("Hide logo appends hideLogo parameter", func() {
+			conf := GetConfig()
+			conf.General.Mode = "full"
+			conf.General.HideLogo = true
+			anURL := GenerateURL(&conf)
+			So(anURL, ShouldEqual, "https://play.grafana.org?_dash.hideLogo=1&kiosk=1&autofitpanels")
+		})
+		Convey("Hide playlist nav appends hidePlaylistNav parameter", func() {
+			conf := GetConfig()
+			conf.General.Mode = "full"
+			conf.General.HidePlaylistNav = true
+			anURL := GenerateURL(&conf)
+			So(anURL, ShouldEqual, "https://play.grafana.org?_dash.hidePlaylistNav=true&kiosk=1&autofitpanels")
 		})
 		Convey("Playlist mode adds inactive parameter", func() {
 			conf := GetConfig()
 			conf.General.Mode = "full"
 			conf.Target.IsPlayList = true
 			anURL := GenerateURL(&conf)
-			So(anURL, ShouldEqual, "https://play.grafana/com?inactive=1&kiosk=1&autofitpanels")
+			So(anURL, ShouldEqual, "https://play.grafana.org?inactive=1&kiosk=1&autofitpanels")
 		})
 		Convey("Playlist mode without autofit", func() {
 			conf := GetConfig()
@@ -75,7 +89,7 @@ func TestGenerateURL(t *testing.T) {
 			conf.General.AutoFit = false
 			conf.Target.IsPlayList = true
 			anURL := GenerateURL(&conf)
-			So(anURL, ShouldEqual, "https://play.grafana/com?inactive=1&kiosk=tv")
+			So(anURL, ShouldEqual, "https://play.grafana.org?inactive=1&kiosk=tv")
 		})
 	})
 }

@@ -1,5 +1,4 @@
 //go:build mage
-// +build mage
 
 package main
 
@@ -14,7 +13,6 @@ import (
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
-	// mg contains helpful utility functions, like Deps
 )
 
 // Build namespace
@@ -139,22 +137,15 @@ func buildCmdAll() error {
 	return nil
 }
 
-func testVerbose() error {
+func runTests(verbose bool) error {
 	os.Setenv("GO111MODULE", "on")
 	os.Setenv("CGO_ENABLED", "0")
-	if err := sh.RunV("go", "test", "-v", "-coverpkg=./...", "--coverprofile=coverage.out", "./pkg/..."); err != nil {
-		return err
+	args := []string{"test"}
+	if verbose {
+		args = append(args, "-v")
 	}
-	if err := sh.RunV("go", "tool", "cover", "-func", "coverage.out"); err != nil {
-		return err
-	}
-	return sh.RunV("go", "tool", "cover", "-html=coverage.out", "-o", "coverage.html")
-}
-
-func test() error {
-	os.Setenv("GO111MODULE", "on")
-	os.Setenv("CGO_ENABLED", "0")
-	if err := sh.RunV("go", "test", "-coverpkg=./...", "--coverprofile=coverage.out", "./pkg/..."); err != nil {
+	args = append(args, "-coverpkg=./...", "--coverprofile=coverage.out", "./pkg/...")
+	if err := sh.RunV("go", args...); err != nil {
 		return err
 	}
 	if err := sh.RunV("go", "tool", "cover", "-func", "coverage.out"); err != nil {
@@ -165,10 +156,7 @@ func test() error {
 
 // Format Formats the source files
 func (Build) Format() error {
-	if err := sh.RunV("gofmt", "-w", "./pkg"); err != nil {
-		return err
-	}
-	return nil
+	return sh.RunV("gofmt", "-w", "./pkg")
 }
 
 // Local Minimal build
@@ -218,31 +206,21 @@ func (Build) Lint() error {
 }
 
 // Verbose Run tests in verbose mode
-func (Test) Verbose() {
-	mg.Deps(
-		testVerbose,
-	)
+func (Test) Verbose() error {
+	return runTests(true)
 }
 
 // Default Run tests in normal mode
-func (Test) Default() {
-	mg.Deps(
-		test,
-	)
+func (Test) Default() error {
+	return runTests(false)
 }
 
 // Clean Removes built files
 func Clean() {
 	log.Printf("Cleaning all")
-	os.RemoveAll("./bin/linux_386")
-	os.RemoveAll("./bin/linux_amd64")
-	os.RemoveAll("./bin/linux_arm64")
-	os.RemoveAll("./bin/linux_armv5")
-	os.RemoveAll("./bin/linux_armv6")
-	os.RemoveAll("./bin/linux_armv7")
-	os.RemoveAll("./bin/darwin_amd64")
-	os.RemoveAll("./bin/darwin_arm64")
-	os.RemoveAll("./bin/windows_amd64")
+	for arch := range archTargets {
+		os.RemoveAll("./bin/" + arch)
+	}
 }
 
 // Local Build and Run

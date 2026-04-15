@@ -116,7 +116,7 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 			chromedp.Flag("ozone-platform", cfg.General.OzonePlatform))
 	}
 	if cfg.General.WindowSize != "" {
-		fullscreen := cfg.General.Mode == "full" || cfg.General.Mode == ""
+		fullscreen := isFullscreenMode(cfg.General.Mode)
 		if fullscreen {
 			log.Printf("window-size %s set but kiosk mode %q will cycle to fullscreen via CDP", cfg.General.WindowSize, cfg.General.Mode)
 		}
@@ -135,6 +135,12 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 	}
 
 	return execAllocatorOption
+}
+
+// isFullscreenMode reports whether the given kiosk mode requires fullscreen.
+// "full" and the empty default both mean fullscreen; "tv" and "disabled" do not.
+func isFullscreenMode(mode string) bool {
+	return mode == "full" || mode == ""
 }
 
 // cycleWindowState cycles the browser window state via CDP before navigation.
@@ -192,7 +198,7 @@ func cycleWindowToSize(windowID browser.WindowID, windowSize string, mode string
 
 	// Only cycle to fullscreen when mode requires it (full or default).
 	// For tv/disabled modes, stay at the requested window size.
-	fullscreen := mode == "full" || mode == ""
+	fullscreen := isFullscreenMode(mode)
 	if !fullscreen {
 		return nil
 	}

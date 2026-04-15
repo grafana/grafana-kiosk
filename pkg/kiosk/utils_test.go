@@ -519,6 +519,23 @@ func TestGenerateExecutorOptions(t *testing.T) {
 	})
 }
 
+func TestIsFullscreenMode(t *testing.T) {
+	Convey("Given isFullscreenMode", t, func() {
+		Convey("Should return true for full mode", func() {
+			So(isFullscreenMode("full"), ShouldBeTrue)
+		})
+		Convey("Should return true for empty (default) mode", func() {
+			So(isFullscreenMode(""), ShouldBeTrue)
+		})
+		Convey("Should return false for tv mode", func() {
+			So(isFullscreenMode("tv"), ShouldBeFalse)
+		})
+		Convey("Should return false for disabled mode", func() {
+			So(isFullscreenMode("disabled"), ShouldBeFalse)
+		})
+	})
+}
+
 func TestCycleWindowToSize(t *testing.T) {
 	Convey("Given cycleWindowToSize", t, func() {
 		Convey("When window size format is invalid", func() {

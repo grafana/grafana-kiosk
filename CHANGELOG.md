@@ -15,9 +15,12 @@ and this project adheres to
 - Add `-hide-logo` flag to hide Powered by Grafana logo ([#240](https://github.com/grafana/grafana-kiosk/issues/240))
 - Add `-hide-playlist-nav` flag to hide playlist navigation controls ([#240](https://github.com/grafana/grafana-kiosk/issues/240))
 - Update `_dash.hideLinks`, `_dash.hideTimePicker`, `_dash.hideVariables` query param values to match Grafana's native format
+- Add hide flags to startup config summary logging with visual section separators
+- Refactor `summary()` into `logGeneralSettings`, `logTargetSettings`, `logGoAuthSettings`
 
 ### Bug Fixes
 
+- Fix `hideLogo` query parameter from `_dash.hideLogo` to `hideLogo` to match Grafana's native format
 - Fix Grafana 12+ scenes viewport changes causing kiosk to not autofit panels ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
 - Fix `cycleWindowToSize` unconditionally cycling to fullscreen when kiosk mode is `tv` or `disabled` ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
 - Fix HTTP URLs blocked by Chromium 130+ HTTPS-First Mode ([#155](https://github.com/grafana/grafana-kiosk/issues/155))

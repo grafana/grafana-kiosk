@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/grafana/grafana-kiosk/pkg/browser"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestLocalLoginBypassURL(t *testing.T) {

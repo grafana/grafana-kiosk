@@ -13,3 +13,4 @@ config:
     strict: false
 ignores:
   - CLAUDE.md
+  - GEMINI.md

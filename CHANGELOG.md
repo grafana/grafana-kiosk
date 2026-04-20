@@ -65,6 +65,8 @@ and this project adheres to
   and Grafana query parameter tables
 - Add 10 example YAML config files for dashboard/playlist, fullscreen/tv/windowed, and multi-monitor positioning
 - Fix long lines in README.md for MD013 compliance
+- Rewrap AGENTS.md around the [agents-md](https://github.com/TheRealSeanDonahoe/agents-md) behavioral template;
+  split project-specific detail into topic files under `.agents/` (build, code-style, readme-policy, ci, release)
 
 ### Chores
 
@@ -73,6 +75,8 @@ and this project adheres to
 - Add MD013 (line length) and MD060 (aligned tables) rules to markdownlint config
 - Switch to markdownlint-cli2 with `.markdownlint-cli2.yaml` config
 - Add missing technical terms to cspell config
+- Replace `CLAUDE.md` include stub with symlink to `AGENTS.md`; add `GEMINI.md` symlink for cross-tool portability
+- Ignore `CLAUDE.md` and `GEMINI.md` symlinks in markdownlint config to avoid duplicate linting
 
 ## 1.0.11
 

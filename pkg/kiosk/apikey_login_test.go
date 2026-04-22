@@ -55,6 +55,46 @@ func TestIsDataSourceQueryRequest(t *testing.T) {
 			)
 			So(result, ShouldBeFalse)
 		})
+
+		Convey("When request uses the Grafana Cloud query API path", func() {
+			result := IsDataSourceQueryRequest(
+				"https://myorg.grafana.net/apis/query.grafana.app/v0alpha1/namespaces/stacks-123/query?ds_type=prometheus&requestId=SQR1",
+				"https", "myorg.grafana.net",
+			)
+			So(result, ShouldBeTrue)
+		})
+
+		Convey("When request uses the Grafana Cloud query API path with port", func() {
+			result := IsDataSourceQueryRequest(
+				"https://localhost:3000/apis/query.grafana.app/v0alpha1/namespaces/default/query?ds_type=loki",
+				"https", "localhost:3000",
+			)
+			So(result, ShouldBeTrue)
+		})
+
+		Convey("When request uses Grafana Cloud API path but wrong host", func() {
+			result := IsDataSourceQueryRequest(
+				"https://other.grafana.net/apis/query.grafana.app/v0alpha1/namespaces/stacks-123/query?ds_type=prometheus",
+				"https", "myorg.grafana.net",
+			)
+			So(result, ShouldBeFalse)
+		})
+
+		Convey("When request has /apis/ path but is not a query endpoint", func() {
+			result := IsDataSourceQueryRequest(
+				"https://grafana.example.com/apis/dashboard.grafana.app/v1/namespaces/default/dashboards",
+				"https", "grafana.example.com",
+			)
+			So(result, ShouldBeFalse)
+		})
+
+		Convey("When request is under query.grafana.app but not a /query endpoint", func() {
+			result := IsDataSourceQueryRequest(
+				"https://myorg.grafana.net/apis/query.grafana.app/v0alpha1/namespaces/stacks-123/something-else",
+				"https", "myorg.grafana.net",
+			)
+			So(result, ShouldBeFalse)
+		})
 	})
 }
 

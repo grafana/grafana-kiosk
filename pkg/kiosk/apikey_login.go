@@ -12,7 +12,8 @@ import (
 )
 
 // IsDataSourceQueryRequest checks if the request URL is a datasource query API
-// call to the target host, matching scheme://host and /api/ds/query? path.
+// call to the target host. It matches both the legacy /api/ds/query path and
+// the newer /apis/query.grafana.app/.../query path.
 func IsDataSourceQueryRequest(requestURL, targetScheme, targetHost string) bool {
 	prefix := targetScheme + "://" + targetHost
 	if !strings.HasPrefix(requestURL, prefix) {
@@ -25,7 +26,12 @@ func IsDataSourceQueryRequest(requestURL, targetScheme, targetHost string) bool 
 		return false
 	}
 
-	return strings.Contains(requestURL, "/api/ds/query?")
+	if strings.Contains(requestURL, "/api/ds/query?") {
+		return true
+	}
+
+	path := strings.SplitN(rest, "?", 2)[0]
+	return strings.Contains(rest, "/apis/query.grafana.app/") && strings.HasSuffix(path, "/query")
 }
 
 // IsTargetHostRequest checks if the request URL host matches the target host.

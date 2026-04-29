@@ -309,7 +309,8 @@ abstractly ("be careful with Y"). If an existing line already covers the
 correction, tighten it instead of adding a new one. Remove lines when the
 underlying issue goes away (model upgrades, refactors, process changes).
 
-- (empty)
+- When releasing, remove the `[Unreleased]` header from `CHANGELOG.md` entirely — do not leave it as an empty section above
+  the new version.
 
 ---
 

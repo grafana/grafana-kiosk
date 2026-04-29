@@ -33,8 +33,9 @@ pushed.
 2. **Merge any feature branches** that should be included in the release.
 
 3. **Verify the changelog** — `CHANGELOG.md` must have a section header
-   matching the new version number (without the `v` prefix). Cross-reference
-   all entries against the commits since the last tag:
+   matching the new version number (without the `v` prefix). Remove the
+   `[Unreleased]` header entirely — do not leave it as an empty section.
+   Cross-reference all entries against the commits since the last tag:
 
    ```sh
    git log <last-tag>..HEAD --oneline

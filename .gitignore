@@ -5,3 +5,4 @@ coverage.html
 .idea
 .claude/
 docs/superpowers/
+.playwright-mcp/

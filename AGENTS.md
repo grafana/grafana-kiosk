@@ -288,8 +288,8 @@ Key deltas from vanilla Go:
 - **README**: update when CLI flags, env vars, defaults, login methods, or
   build targets change. Procedure:
   [`.agents/readme-policy.md`](.agents/readme-policy.md).
-- **Markdown**: run `npx markdownlint-cli2` on any `.md` file before
-  committing.
+- **Markdown**: run `npx markdownlint-cli2` then `npx cspell` on any `.md` file
+  before committing. Fix all issues before staging.
 - **Branching**: always create a feature branch (`feat/...`, `fix/...`).
   PR summaries use the same H3 categorization as the changelog and get
   updated after every push.
@@ -309,7 +309,8 @@ abstractly ("be careful with Y"). If an existing line already covers the
 correction, tighten it instead of adding a new one. Remove lines when the
 underlying issue goes away (model upgrades, refactors, process changes).
 
-- (empty)
+- When releasing, remove the `[Unreleased]` header from `CHANGELOG.md` entirely — do not leave it as an empty section above
+  the new version.
 
 ---
 

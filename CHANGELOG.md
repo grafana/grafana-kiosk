@@ -7,7 +7,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.12] - 2026-04-29
 
 ### Features
 
@@ -27,6 +27,7 @@ and this project adheres to
 - Fix CLI flags not overriding config file values when using `-c` ([#210](https://github.com/grafana/grafana-kiosk/issues/210))
 - Fix API key host prefix matching to prevent auth header leakage to hosts sharing a prefix with the target
 - Fix broken badge images: push shields.io JSON endpoint to `badges` branch from CI, use shields.io dynamic badge in README
+- Fix query errors with newer Grafana API ([#254](https://github.com/grafana/grafana-kiosk/pull/254))
 
 ### Tests
 
@@ -58,6 +59,9 @@ and this project adheres to
   golang.org/x/{crypto,net,sys,text}, google.golang.org/grpc v1.80.0, go.opentelemetry.io/otel v1.43.0,
   cloud.google.com/go/auth v0.20.0
 - Update Docker base images: golang 1.26.2-alpine, dtcooper/raspberrypi-os latest digest
+- Update `actions/setup-go` from v6.3.0 to v6.4.0 in CI workflow ([#236](https://github.com/grafana/grafana-kiosk/pull/236))
+- Update `google/osv-scanner-action` to v2.3.5 in CI workflow ([#235](https://github.com/grafana/grafana-kiosk/pull/235))
+- Update `softprops/action-gh-release` to v3 in CI workflow ([#259](https://github.com/grafana/grafana-kiosk/pull/259))
 
 ### Documentation
 

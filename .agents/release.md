@@ -97,7 +97,7 @@ Pushing a `v*` tag triggers the CI workflow which:
 
    | Category      | What goes here                               |
    | ------------- | -------------------------------------------- |
-   | Features      | New flags, behaviours, login methods         |
+   | Features      | New flags, behaviors, login methods         |
    | Bug Fixes     | Defect corrections                           |
    | Tests         | New or updated test coverage                 |
    | CI/CD         | Workflow, badge, permission changes          |

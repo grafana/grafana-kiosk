@@ -64,7 +64,7 @@ func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser,
 		panic(fmt.Errorf("url.Parse: %w", err))
 	}
 
-	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
+	chromedp.ListenTarget(taskCtx, func(ev any) {
 		switch ev := ev.(type) {
 		case *fetch.EventRequestPaused:
 			go func() {

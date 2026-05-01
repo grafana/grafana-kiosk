@@ -41,7 +41,7 @@ func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser,
 		panic(err)
 	}
 
-	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
+	chromedp.ListenTarget(taskCtx, func(ev any) {
 		//nolint:gocritic // future events can be handled here
 		switch ev := ev.(type) {
 		case *fetch.EventRequestPaused:

@@ -113,6 +113,8 @@ NOTE: Flags with parameters should use an "equals"
       Initialize LXDE for kiosk mode
   -lxde-home string
       Path to home directory of LXDE user running X Server (default "/home/pi")
+  -headless
+      Run browser in headless mode (no display required)
   -page-load-delay-ms int
       Delay in milliseconds before navigating to URL (default 2000)
   -restart-delay-ms int
@@ -239,6 +241,26 @@ They can also be used instead of a configuration file.
   KIOSK_WINDOW_SIZE string
       Size of Kiosk in pixels (width,height) (default "")
 ```
+
+### Headless mode
+
+Use `-headless` (or `KIOSK_HEADLESS=true`) to run the browser without a physical display. Useful for:
+
+- Integration testing in CI
+- Verifying dashboard URLs without a monitor attached
+- Running grafana-kiosk in a container or SSH session
+
+```bash
+grafana-kiosk -URL https://play.grafana.org -headless
+```
+
+Set `KIOSK_BROWSER_PATH` if Chrome is not on the default PATH.
+
+### Auto-refresh reliability
+
+grafana-kiosk disables Chrome's background throttling flags so Grafana auto-refresh timers continue
+firing even when the browser window loses focus. This is important for playlist rotation and
+multi-monitor setups where windows may not always be in the foreground.
 
 ### Window size and kiosk mode
 

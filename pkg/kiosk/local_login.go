@@ -58,74 +58,73 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, b browser.B
 
 	waitForBrowserStartup(cfg)
 
-	var generatedURL = GenerateURL(cfg)
+	if err := chromedp.Run(taskCtx,
+		waitForPageLoad(cfg),
+		cycleWindowState(cfg),
+	); err != nil {
+		panic(err)
+	}
 
+	if err := localLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+		panic(err)
+	}
+}
+
+// localLoginFlow drives the local-account login sequence and then blocks until
+// context is cancelled or a message triggers a reload. Extracted for testability.
+func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generatedURL string, messages chan string) error {
 	log.Println("Navigating to ", generatedURL)
+	delay := time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond
+
 	/*
 		Launch chrome and login with local user account
 
 		name=user, type=text
 		id=inputPassword, type=password, name=password
 	*/
-	delay := time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond
-
 	if cfg.GoAuth.AutoLogin {
 		// if AutoLogin is set, get the base URL and append the local login bypass before navigating to the full url
 		bypassURL := LocalLoginBypassURL(cfg.Target.URL)
 
 		log.Println("Bypassing autoLogin using URL ", bypassURL)
 
-		if err := chromedp.Run(taskCtx,
-			waitForPageLoad(cfg),
-			cycleWindowState(cfg),
-		); err != nil {
-			panic(err)
-		}
-
-		if err := b.Navigate(taskCtx, bypassURL); err != nil {
-			panic(err)
+		if err := b.Navigate(ctx, bypassURL); err != nil {
+			return err
 		}
 
 		log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
 		time.Sleep(delay)
 
-		if err := loginWithCredentials(taskCtx, b, cfg.Target.Username, cfg.Target.Password); err != nil {
-			panic(err)
+		if err := loginWithCredentials(ctx, b, cfg.Target.Username, cfg.Target.Password); err != nil {
+			return err
 		}
 
 		log.Printf("Sleeping %d MS before checking for topnav", cfg.General.PageLoadDelayMS)
 		time.Sleep(delay)
 
-		if err := b.WaitVisible(taskCtx, `//img[@alt="User avatar"]`); err != nil {
-			panic(err)
+		if err := b.WaitVisible(ctx, `//img[@alt="User avatar"]`); err != nil {
+			return err
 		}
 
 		log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
 		time.Sleep(delay)
 
-		if err := b.Navigate(taskCtx, generatedURL); err != nil {
-			panic(err)
+		if err := b.Navigate(ctx, generatedURL); err != nil {
+			return err
 		}
 	} else {
-		if err := chromedp.Run(taskCtx,
-			waitForPageLoad(cfg),
-			cycleWindowState(cfg),
-		); err != nil {
-			panic(err)
-		}
-
 		log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
 		time.Sleep(delay)
 
-		if err := b.Navigate(taskCtx, generatedURL); err != nil {
-			panic(err)
+		if err := b.Navigate(ctx, generatedURL); err != nil {
+			return err
 		}
 
 		log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
 		time.Sleep(delay)
 
-		if err := loginWithCredentials(taskCtx, b, cfg.Target.Username, cfg.Target.Password); err != nil {
-			panic(err)
+		if err := loginWithCredentials(ctx, b, cfg.Target.Username, cfg.Target.Password); err != nil {
+			return err
 		}
 	}
 
@@ -133,12 +132,12 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, b browser.B
 	for {
 		select {
 		case <-ctx.Done():
-			return
-		case messageFromChrome := <-messages:
-			if err := b.Navigate(taskCtx, generatedURL); err != nil {
-				return
+			return nil
+		case msg := <-messages:
+			if err := b.Navigate(ctx, generatedURL); err != nil {
+				return nil
 			}
-			log.Println("Chromium output:", messageFromChrome)
+			log.Println("Chromium output:", msg)
 		}
 	}
 }

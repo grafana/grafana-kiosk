@@ -2,7 +2,9 @@ package kiosk
 
 import (
 	"context"
+	"errors"
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser"
 	. "github.com/smartystreets/goconvey/convey"
@@ -71,74 +73,68 @@ func TestLoginWithCredentials(t *testing.T) {
 	})
 }
 
-func TestLocalLoginAutoLoginFlow(t *testing.T) {
-	Convey("Given a local login with AutoLogin enabled", t, func() {
-		mock := browser.NewMock()
-		ctx := context.Background()
-
-		cfg := &Config{
-			General: General{
-				Mode:            "full",
-				AutoFit:         true,
-				PageLoadDelayMS: 0,
-			},
-			Target: Target{
-				URL:      "https://grafana.example.com/d/abc/dashboard",
-				Username: "admin",
-				Password: "admin",
-			},
-			GoAuth: GoAuth{
-				AutoLogin: true,
-			},
+func TestLocalLoginFlow(t *testing.T) {
+	baseCfg := func() *Config {
+		return &Config{
+			General: General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
+			Target:  Target{URL: "https://grafana.example.com/d/abc/dashboard", Username: "admin", Password: "secret"},
 		}
+	}
 
-		Convey("Should navigate to bypass URL then fill credentials then navigate to final URL", func() {
-			bypassURL := LocalLoginBypassURL(cfg.Target.URL)
-			generatedURL := GenerateURL(cfg)
+	Convey("Given localLoginFlow with AutoLogin", t, func() {
+		mock := browser.NewMock()
+		cfg := baseCfg()
+		cfg.GoAuth = GoAuth{AutoLogin: true}
+		generatedURL := GenerateURL(cfg)
 
-			_ = mock.Navigate(ctx, bypassURL)
-			_ = loginWithCredentials(ctx, mock, cfg.Target.Username, cfg.Target.Password)
-			_ = mock.WaitVisible(ctx, `//img[@alt="User avatar"]`)
-			_ = mock.Navigate(ctx, generatedURL)
+		Convey("Full sequence: bypass URL → credentials → avatar wait → dashboard", func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- localLoginFlow(ctx, cfg, mock, generatedURL, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			<-done
 
-			navigateCalls := mock.CallsTo("Navigate")
-			So(navigateCalls, ShouldHaveLength, 2)
-			So(navigateCalls[0].Args[0], ShouldEqual, "https://grafana.example.com/login/local")
-			So(navigateCalls[1].Args[0], ShouldContainSubstring, "kiosk=1")
+			nav := mock.CallsTo("Navigate")
+			So(nav, ShouldHaveLength, 2)
+			So(nav[0].Args[0], ShouldEqual, "https://grafana.example.com/login/local")
+			So(nav[1].Args[0], ShouldContainSubstring, "kiosk=1")
+			So(mock.CallsTo("WaitVisible"), ShouldHaveLength, 2) // user field + avatar
+			So(mock.CallsTo("SendKeys"), ShouldHaveLength, 2)    // username + password
+		})
+
+		Convey("Returns error if Navigate to bypass URL fails", func() {
+			mock.Errors["Navigate"] = errors.New("refused")
+			err := localLoginFlow(context.Background(), cfg, mock, generatedURL, make(chan string))
+			So(err, ShouldNotBeNil)
+			So(mock.CallsTo("Navigate")[0].Args[0], ShouldEqual, "https://grafana.example.com/login/local")
 		})
 	})
-}
 
-func TestLocalLoginDirectFlow(t *testing.T) {
-	Convey("Given a local login without AutoLogin", t, func() {
+	Convey("Given localLoginFlow without AutoLogin", t, func() {
 		mock := browser.NewMock()
-		ctx := context.Background()
+		cfg := baseCfg()
+		generatedURL := GenerateURL(cfg)
 
-		cfg := &Config{
-			General: General{
-				Mode:            "full",
-				AutoFit:         true,
-				PageLoadDelayMS: 0,
-			},
-			Target: Target{
-				URL:      "https://grafana.example.com/d/abc/dashboard",
-				Username: "admin",
-				Password: "admin",
-			},
-		}
+		Convey("Full sequence: dashboard URL → credentials", func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- localLoginFlow(ctx, cfg, mock, generatedURL, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			<-done
 
-		Convey("Should navigate to generated URL then fill credentials", func() {
-			generatedURL := GenerateURL(cfg)
+			nav := mock.CallsTo("Navigate")
+			So(nav, ShouldHaveLength, 1)
+			So(nav[0].Args[0], ShouldContainSubstring, "kiosk=1")
+			So(mock.CallsTo("WaitVisible"), ShouldHaveLength, 1) // user field only
+			So(mock.CallsTo("SendKeys"), ShouldHaveLength, 2)
+		})
 
-			_ = mock.Navigate(ctx, generatedURL)
-			_ = loginWithCredentials(ctx, mock, cfg.Target.Username, cfg.Target.Password)
-
-			navigateCalls := mock.CallsTo("Navigate")
-			So(navigateCalls, ShouldHaveLength, 1)
-			So(navigateCalls[0].Args[0], ShouldContainSubstring, "kiosk=1")
-
-			sendKeysCalls := mock.CallsTo("SendKeys")
-			So(sendKeysCalls, ShouldHaveLength, 2)
+		Convey("Returns error if Navigate fails", func() {
+			mock.Errors["Navigate"] = errors.New("refused")
+			err := localLoginFlow(context.Background(), cfg, mock, generatedURL, make(chan string))
+			So(err, ShouldNotBeNil)
 		})
 	})
 }

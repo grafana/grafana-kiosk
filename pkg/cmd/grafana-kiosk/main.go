@@ -121,6 +121,7 @@ func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
 
 	err := flagSettings.Parse(os.Args[1:])
 	if err != nil {
+		log.Printf("Failed to parse flags: %v — run with -help to see available options", err)
 		os.Exit(-1)
 	}
 
@@ -281,12 +282,12 @@ func main() {
 	switch args.LoginMethod {
 	case "goauth", "anon", "local", "gcom", "idtoken", "apikey", "aws", "azuread":
 	default:
-		log.Println("Invalid auth method", args.LoginMethod)
+		log.Printf("Invalid login method %q — supported values: anon, local, gcom, goauth, idtoken, apikey, aws, azuread", args.LoginMethod)
 		os.Exit(-1)
 	}
 
 	if err := loadConfig(args, fs, &cfg); err != nil {
-		log.Println(err)
+		log.Printf("Failed to load configuration: %v — check your config file and environment variables", err)
 		os.Exit(-1)
 	}
 
@@ -294,18 +295,19 @@ func main() {
 	switch strings.ToLower(cfg.General.Browser) {
 	case "", "chrome", "edge":
 	default:
-		log.Println("Invalid browser", cfg.General.Browser, "- supported: chrome, edge")
+		log.Printf("Invalid browser %q — supported values: chrome, edge (or use -browser-path for a custom binary)", cfg.General.Browser)
 		os.Exit(-1)
 	}
 
 	// make sure the url has content
 	if cfg.Target.URL == "" {
-		os.Exit(1)
+		log.Println("No target URL specified — set -URL or KIOSK_URL")
+		os.Exit(-1)
 	}
 	// validate url
 	_, err := url.ParseRequestURI(cfg.Target.URL)
 	if err != nil {
-		log.Println("Invalid URL:", err)
+		log.Printf("Invalid target URL %q: %v — set a valid URL with -URL or KIOSK_URL", cfg.Target.URL, err)
 		os.Exit(-1)
 	}
 

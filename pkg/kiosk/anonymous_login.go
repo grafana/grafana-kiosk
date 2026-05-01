@@ -3,6 +3,7 @@ package kiosk
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/grafana/grafana-kiosk/pkg/browser"
@@ -28,33 +29,35 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, b brows
 
 	waitForBrowserStartup(cfg)
 
-	var generatedURL = GenerateURL(cfg)
-
-	log.Println("Navigating to ", generatedURL)
-
-	if err := chromedp.Run(taskCtx,
-		cycleWindowState(cfg),
-	); err != nil {
+	if err := chromedp.Run(taskCtx, cycleWindowState(cfg)); err != nil {
 		panic(err)
 	}
 
-	if err := b.Navigate(taskCtx, generatedURL); err != nil {
+	if err := anonymousLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
 		panic(err)
 	}
+}
 
-	if err := chromedp.Run(taskCtx, waitForPageLoad(cfg)); err != nil {
-		panic(err)
+// anonymousLoginFlow navigates to url, waits for page load, then blocks until
+// context is cancelled or a message triggers a reload. Extracted for testability.
+func anonymousLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
+	log.Println("Navigating to ", url)
+	if err := b.Navigate(ctx, url); err != nil {
+		return err
 	}
-	// blocking wait until context is cancelled or a message triggers a reload
+	if cfg.General.PageLoadDelayMS > 0 {
+		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
+		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+	}
 	for {
 		select {
 		case <-ctx.Done():
-			return
-		case messageFromChrome := <-messages:
-			if err := b.Navigate(taskCtx, generatedURL); err != nil {
-				return
+			return nil
+		case msg := <-messages:
+			if err := b.Navigate(ctx, url); err != nil {
+				return nil
 			}
-			log.Println("Chromium output:", messageFromChrome)
+			log.Println("Chromium output:", msg)
 		}
 	}
 }

@@ -33,8 +33,9 @@ pushed.
 2. **Merge any feature branches** that should be included in the release.
 
 3. **Verify the changelog** — `CHANGELOG.md` must have a section header
-   matching the new version number (without the `v` prefix). Cross-reference
-   all entries against the commits since the last tag:
+   matching the new version number (without the `v` prefix). Remove the
+   `[Unreleased]` header entirely — do not leave it as an empty section.
+   Cross-reference all entries against the commits since the last tag:
 
    ```sh
    git log <last-tag>..HEAD --oneline
@@ -84,5 +85,28 @@ Pushing a `v*` tag triggers the CI workflow which:
 1. **Verify the release** — Go to the
    [GitHub Releases](https://github.com/grafana/grafana-kiosk/releases) page
    and confirm the artifacts are attached and downloadable.
-2. **Promote the release** — Edit the release on GitHub and uncheck
+
+2. **Rewrite the release notes** — CI auto-generates a flat commit list.
+   Replace it with categorized sections using `gh release edit`:
+
+   ```sh
+   gh release edit vX.X.X --repo grafana/grafana-kiosk --notes "..."
+   ```
+
+   Use this category order (omit empty categories):
+
+   | Category      | What goes here                               |
+   | ------------- | -------------------------------------------- |
+   | Features      | New flags, behaviors, login methods         |
+   | Bug Fixes     | Defect corrections                           |
+   | Tests         | New or updated test coverage                 |
+   | CI/CD         | Workflow, badge, permission changes          |
+   | Dependencies  | Go module and action version bumps           |
+   | Documentation | README, AGENTS.md, `.agents/` changes        |
+   | Chores        | Housekeeping with no user-facing effect      |
+
+   Each entry: `- Plain-English description ([#NNN](PR URL))`
+   First-time contributors get a **New Contributors** section at the bottom.
+
+3. **Promote the release** — Edit the release on GitHub and uncheck
    "Set as a pre-release" to make it a full release.

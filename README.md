@@ -75,6 +75,10 @@ NOTE: Flags with parameters should use an "equals"
       oauth_auto_login is enabled in grafana config
   -autofit
       Fit panels to screen (default true)
+  -browser string
+      Browser to launch [chrome|edge] (default "chrome")
+  -browser-path string
+      Explicit path to a Chromium-based browser executable; overrides -browser
   -c string
       Path to configuration file (config.yaml)
   -field-password string

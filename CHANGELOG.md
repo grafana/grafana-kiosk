@@ -7,10 +7,14 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.12] - 2026-04-29
 
 ### Features
 
+- Add `-browser` flag (env `KIOSK_BROWSER`, default `chrome`) to choose between Chrome and Microsoft Edge as the
+  launched browser
+- Add `-browser-path` flag (env `KIOSK_BROWSER_PATH`) to point at an explicit Chromium-based browser executable;
+  overrides `-browser`
 - Add `--incognito` flag to optionally disable Chrome incognito mode ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
 - Add `-hide-logo` flag to hide Powered by Grafana logo ([#240](https://github.com/grafana/grafana-kiosk/issues/240))
 - Add `-hide-playlist-nav` flag to hide playlist navigation controls ([#240](https://github.com/grafana/grafana-kiosk/issues/240))
@@ -28,9 +32,11 @@ and this project adheres to
 - Fix CLI flags not overriding config file values when using `-c` ([#210](https://github.com/grafana/grafana-kiosk/issues/210))
 - Fix API key host prefix matching to prevent auth header leakage to hosts sharing a prefix with the target
 - Fix broken badge images: push shields.io JSON endpoint to `badges` branch from CI, use shields.io dynamic badge in README
+- Fix query errors with newer Grafana API ([#254](https://github.com/grafana/grafana-kiosk/pull/254))
 
 ### Tests
 
+- Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers
 - Add tests for `IsDataSourceQueryRequest` and `IsTargetHostRequest` in apikey login
 - Add tests for `sanitize` in main and initialize packages
 - Add tests for `GenerateURL` playlist mode
@@ -60,6 +66,9 @@ and this project adheres to
   golang.org/x/{crypto,net,sys,text}, google.golang.org/grpc v1.80.0, go.opentelemetry.io/otel v1.43.0,
   cloud.google.com/go/auth v0.20.0
 - Update Docker base images: golang 1.26.2-alpine, dtcooper/raspberrypi-os latest digest
+- Update `actions/setup-go` from v6.3.0 to v6.4.0 in CI workflow ([#236](https://github.com/grafana/grafana-kiosk/pull/236))
+- Update `google/osv-scanner-action` to v2.3.5 in CI workflow ([#235](https://github.com/grafana/grafana-kiosk/pull/235))
+- Update `softprops/action-gh-release` to v3 in CI workflow ([#259](https://github.com/grafana/grafana-kiosk/pull/259))
 
 ### Documentation
 

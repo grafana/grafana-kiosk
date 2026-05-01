@@ -3,10 +3,10 @@ module github.com/grafana/grafana-kiosk
 go 1.26
 
 require (
-	github.com/chromedp/cdproto v0.0.0-20260405000525-47a8ff65b46a
+	github.com/chromedp/cdproto v0.0.0-20260427013145-5737772c319b
 	github.com/chromedp/chromedp v0.15.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/magefile/mage v1.17.1
+	github.com/magefile/mage v1.17.2
 	github.com/smartystreets/goconvey v1.8.1
 	google.golang.org/api v0.276.0
 )

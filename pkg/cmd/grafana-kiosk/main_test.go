@@ -270,6 +270,8 @@ func TestProcessArgsAllFlags(t *testing.T) {
 			"-window-position", "100,200",
 			"-window-size", "1280,720",
 			"-scale-factor", "1.5",
+			"-browser", "edge",
+			"-browser-path", "/opt/edge/msedge",
 			"-page-load-delay-ms", "5000",
 			"-playlists",
 			"-autofit=false",
@@ -313,6 +315,8 @@ func TestProcessArgsAllFlags(t *testing.T) {
 			So(result.WindowPosition, ShouldEqual, "100,200")
 			So(result.WindowSize, ShouldEqual, "1280,720")
 			So(result.ScaleFactor, ShouldEqual, "1.5")
+			So(result.Browser, ShouldEqual, "edge")
+			So(result.BrowserPath, ShouldEqual, "/opt/edge/msedge")
 			So(result.PageLoadDelayMS, ShouldEqual, 5000)
 			So(result.HideLinks, ShouldBeTrue)
 			So(result.HideLogo, ShouldBeTrue)

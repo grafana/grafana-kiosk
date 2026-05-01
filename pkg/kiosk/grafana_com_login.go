@@ -84,7 +84,7 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 			); err != nil {
 				return
 			}
-			log.Println("Chromium output:", messageFromChrome)
+			log.Println("Browser output:", messageFromChrome)
 		}
 	}
 }

@@ -57,7 +57,7 @@ func anonymousLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url
 			if err := b.Navigate(ctx, url); err != nil {
 				return nil
 			}
-			log.Println("Chromium output:", msg)
+			log.Println("Browser output:", msg)
 		}
 	}
 }

@@ -137,7 +137,7 @@ func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generat
 			if err := b.Navigate(ctx, generatedURL); err != nil {
 				return nil
 			}
-			log.Println("Chromium output:", msg)
+			log.Println("Browser output:", msg)
 		}
 	}
 }

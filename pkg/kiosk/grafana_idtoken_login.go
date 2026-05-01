@@ -86,7 +86,7 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 			); err != nil {
 				return
 			}
-			log.Println("Chromium output:", messageFromChrome)
+			log.Println("Browser output:", messageFromChrome)
 		}
 	}
 }

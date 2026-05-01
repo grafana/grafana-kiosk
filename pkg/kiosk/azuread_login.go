@@ -115,6 +115,6 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, messages 
 		); err != nil {
 			panic(err)
 		}
-		log.Println("Chromium output:", messageFromChrome)
+		log.Println("Browser output:", messageFromChrome)
 	}
 }

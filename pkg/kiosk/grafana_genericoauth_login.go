@@ -101,7 +101,7 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 			); err != nil {
 				return
 			}
-			log.Println("Chromium output:", messageFromChrome)
+			log.Println("Browser output:", messageFromChrome)
 		}
 	}
 }

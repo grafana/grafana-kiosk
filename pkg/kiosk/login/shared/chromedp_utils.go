@@ -20,7 +20,8 @@ import (
 // kioskVersion holds the user-agent version string set by SetVersion.
 var kioskVersion string
 
-// SetVersion sets the kiosk version used in the user agent string.
+// SetVersion injects the binary build version into the shared package so it
+// can be included in the browser user-agent string.
 func SetVersion(v string) { kioskVersion = v }
 
 // edgeBinaryCandidates lists executable names to look up on PATH when the

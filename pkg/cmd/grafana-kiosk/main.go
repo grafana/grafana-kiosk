@@ -56,6 +56,8 @@ type Args struct {
 	WindowPosition                       string
 	WindowSize                           string
 	ScaleFactor                          string
+	Browser                              string
+	BrowserPath                          string
 	HideLinks                            bool
 	HideLogo                             bool
 	HidePlaylistNav                      bool
@@ -79,6 +81,8 @@ func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
 	flagSettings.StringVar(&processedArgs.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
 	flagSettings.StringVar(&processedArgs.WindowSize, "window-size", "", "Size of Kiosk in pixels (width,height)")
 	flagSettings.StringVar(&processedArgs.ScaleFactor, "scale-factor", "1.0", "Scale factor, sort of zoom")
+	flagSettings.StringVar(&processedArgs.Browser, "browser", "chrome", "Browser to launch [chrome|edge]")
+	flagSettings.StringVar(&processedArgs.BrowserPath, "browser-path", "", "Explicit path to a Chromium-based browser executable; overrides -browser")
 	flagSettings.Int64Var(&processedArgs.PageLoadDelayMS, "page-load-delay-ms", 2000, "Delay in milliseconds before navigating to URL")
 	flagSettings.BoolVar(&processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
 	flagSettings.BoolVar(&processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
@@ -152,6 +156,8 @@ func loadConfig(args Args, fs *flag.FlagSet, cfg *kiosk.Config) error {
 		"window-position":    func() { cfg.General.WindowPosition = args.WindowPosition },
 		"window-size":        func() { cfg.General.WindowSize = args.WindowSize },
 		"scale-factor":       func() { cfg.General.ScaleFactor = args.ScaleFactor },
+		"browser":            func() { cfg.General.Browser = args.Browser },
+		"browser-path":       func() { cfg.General.BrowserPath = args.BrowserPath },
 		"page-load-delay-ms": func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
 		"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
 		"hide-logo":          func() { cfg.General.HideLogo = args.HideLogo },
@@ -228,6 +234,8 @@ func logGeneralSettings(cfg *kiosk.Config) {
 	log.Println("WindowPosition:", cfg.General.WindowPosition)
 	log.Println("WindowSize:", cfg.General.WindowSize)
 	log.Println("ScaleFactor:", cfg.General.ScaleFactor)
+	log.Println("Browser:", cfg.General.Browser)
+	log.Println("BrowserPath:", cfg.General.BrowserPath)
 	log.Println("PageLoadDelayMS:", cfg.General.PageLoadDelayMS)
 	log.Println("HideLinks:", cfg.General.HideLinks)
 	log.Println("HideLogo:", cfg.General.HideLogo)
@@ -273,6 +281,14 @@ func main() {
 
 	if err := loadConfig(args, fs, &cfg); err != nil {
 		log.Println(err)
+		os.Exit(-1)
+	}
+
+	// validate browser selection
+	switch strings.ToLower(cfg.General.Browser) {
+	case "", "chrome", "edge":
+	default:
+		log.Println("Invalid browser", cfg.General.Browser, "- supported: chrome, edge")
 		os.Exit(-1)
 	}
 

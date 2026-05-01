@@ -660,3 +660,64 @@ func TestWaitForBrowserStartup(t *testing.T) {
 		})
 	})
 }
+
+func TestResolveBrowserExecPath(t *testing.T) {
+	Convey("Given resolveBrowserExecPath", t, func() {
+		origLookPath := lookPath
+		defer func() { lookPath = origLookPath }()
+
+		Convey("When BrowserPath is set, it wins regardless of Browser", func() {
+			lookPath = func(string) (string, error) { return "/should/not/be/used", nil }
+			cfg := &Config{General: General{Browser: "edge", BrowserPath: "/custom/path/to/browser"}}
+			So(resolveBrowserExecPath(cfg), ShouldEqual, "/custom/path/to/browser")
+		})
+
+		Convey("When Browser is empty, returns empty (chromedp default)", func() {
+			cfg := &Config{General: General{Browser: ""}}
+			So(resolveBrowserExecPath(cfg), ShouldEqual, "")
+		})
+
+		Convey("When Browser is chrome, returns empty (chromedp default)", func() {
+			cfg := &Config{General: General{Browser: "chrome"}}
+			So(resolveBrowserExecPath(cfg), ShouldEqual, "")
+		})
+
+		Convey("When Browser is CHROME (case-insensitive), returns empty", func() {
+			cfg := &Config{General: General{Browser: "CHROME"}}
+			So(resolveBrowserExecPath(cfg), ShouldEqual, "")
+		})
+
+		Convey("When Browser is edge and msedge is on PATH, returns its path", func() {
+			lookPath = func(name string) (string, error) {
+				if name == "msedge" {
+					return "/usr/local/bin/msedge", nil
+				}
+				return "", fmt.Errorf("not found")
+			}
+			cfg := &Config{General: General{Browser: "edge"}}
+			So(resolveBrowserExecPath(cfg), ShouldEqual, "/usr/local/bin/msedge")
+		})
+
+		Convey("When Browser is edge and only microsoft-edge is on PATH, returns it", func() {
+			lookPath = func(name string) (string, error) {
+				if name == "microsoft-edge" {
+					return "/usr/bin/microsoft-edge", nil
+				}
+				return "", fmt.Errorf("not found")
+			}
+			cfg := &Config{General: General{Browser: "edge"}}
+			So(resolveBrowserExecPath(cfg), ShouldEqual, "/usr/bin/microsoft-edge")
+		})
+
+		Convey("When Browser is edge and nothing is on PATH, returns empty", func() {
+			lookPath = func(string) (string, error) { return "", fmt.Errorf("not found") }
+			cfg := &Config{General: General{Browser: "edge"}}
+			So(resolveBrowserExecPath(cfg), ShouldEqual, "")
+		})
+
+		Convey("When Browser is unknown, returns empty", func() {
+			cfg := &Config{General: General{Browser: "firefox"}}
+			So(resolveBrowserExecPath(cfg), ShouldEqual, "")
+		})
+	})
+}

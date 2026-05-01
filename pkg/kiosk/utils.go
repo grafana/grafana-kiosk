@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
@@ -140,7 +141,50 @@ func generateExecutorOptions(dir string, cfg *Config) []chromedp.ExecAllocatorOp
 			chromedp.Flag("force-device-scale-factor", cfg.General.ScaleFactor))
 	}
 
+	if path := resolveBrowserExecPath(cfg); path != "" {
+		log.Printf("Using browser executable: %s", path)
+		execAllocatorOption = append(execAllocatorOption, chromedp.ExecPath(path))
+	}
+
 	return execAllocatorOption
+}
+
+// edgeBinaryCandidates lists executable names to look up on PATH when the
+// user requests the Edge browser. Order matters: first match wins.
+var edgeBinaryCandidates = []string{
+	"msedge",
+	"microsoft-edge",
+	"microsoft-edge-stable",
+}
+
+// lookPath is overridable in tests.
+var lookPath = exec.LookPath
+
+// resolveBrowserExecPath returns the explicit browser executable path that
+// should be passed to chromedp.ExecPath. An empty string means "let chromedp
+// auto-detect" (the default Chrome lookup).
+//
+// Precedence:
+//  1. cfg.General.BrowserPath (verbatim) if set
+//  2. cfg.General.Browser == "edge" → PATH lookup
+//  3. cfg.General.Browser == "chrome" or empty → "" (chromedp default)
+func resolveBrowserExecPath(cfg *Config) string {
+	if cfg.General.BrowserPath != "" {
+		return cfg.General.BrowserPath
+	}
+	switch strings.ToLower(cfg.General.Browser) {
+	case "", "chrome":
+		return ""
+	case "edge":
+		for _, name := range edgeBinaryCandidates {
+			if p, err := lookPath(name); err == nil {
+				return p
+			}
+		}
+		log.Println("Browser 'edge' requested but no Edge binary found on PATH; set -browser-path or KIOSK_BROWSER_PATH to the Edge executable")
+		return ""
+	}
+	return ""
 }
 
 // isFullscreenMode reports whether the given kiosk mode requires fullscreen.

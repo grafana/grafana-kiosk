@@ -54,6 +54,9 @@ and this project adheres to
 - Move apikey login provider to `pkg/kiosk/login/apikey` package with public `Run()` entrypoint
 - Move aws login provider to `pkg/kiosk/login/aws` package with public `Run()` entrypoint
 - Move azuread login provider to `pkg/kiosk/login/azuread` package with public `Run()` entrypoint
+- Reorganize login providers into dedicated sub-packages under `pkg/kiosk/login/`; each provider
+  exports `Run()` and depends only on `pkg/kiosk/config` and `pkg/kiosk/login/shared`
+  ([#261](https://github.com/grafana/grafana-kiosk/issues/261))
 
 ### CI/CD
 

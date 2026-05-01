@@ -58,5 +58,30 @@ func TestAwsLoginFlow(t *testing.T) {
 			So(mock.CallCount("WaitNotVisible"), ShouldEqual, 1)
 			So(mock.CallsTo("WaitNotVisible")[0].Args[0], ShouldContainSubstring, "awsui-input-2")
 		})
+
+		Convey("Reloads on message", func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			messages := make(chan string, 1)
+			done := make(chan error, 1)
+			go func() { done <- awsLoginFlow(ctx, cfg, mock, url, messages) }()
+			time.Sleep(10 * time.Millisecond)
+			messages <- "reload"
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			<-done
+			So(mock.CallCount("Navigate"), ShouldEqual, 2)
+		})
+
+		Convey("Returns error if WaitNotVisible fails during MFA", func() {
+			cfg.Target.UseMFA = true
+			mock.Errors["WaitNotVisible"] = errors.New("timeout")
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- awsLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			err := <-done
+			So(err, ShouldNotBeNil)
+		})
 	})
 }

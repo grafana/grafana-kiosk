@@ -53,12 +53,45 @@ func TestAzureADLoginFlow(t *testing.T) {
 			So(clickCalls[1].Args[0], ShouldContainSubstring, "idSIButton9")
 		})
 
+		Convey("Returns error if WaitVisible fails", func() {
+			mock.Errors["WaitVisible"] = errors.New("timeout")
+			err := azureADLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+			So(mock.CallCount("Navigate"), ShouldEqual, 1)
+		})
+
+		Convey("Returns error if SendKeys fails", func() {
+			mock.Errors["SendKeys"] = errors.New("element not found")
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- azureADLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			err := <-done
+			So(err, ShouldNotBeNil)
+		})
+
 		Convey("Exits cleanly on context cancel", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			done := make(chan error, 1)
 			go func() { done <- azureADLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
 			cancel()
 			So(<-done, ShouldBeNil)
+		})
+
+		// Reload test waits for the full flow including 3x1s hardcoded sleeps.
+		Convey("Reloads on message after full login sequence", func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			messages := make(chan string, 1)
+			done := make(chan error, 1)
+			go func() { done <- azureADLoginFlow(ctx, cfg, mock, url, messages) }()
+			time.Sleep(4 * time.Second)
+			messages <- "reload"
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			<-done
+			So(mock.CallCount("Navigate"), ShouldEqual, 2)
 		})
 	})
 }

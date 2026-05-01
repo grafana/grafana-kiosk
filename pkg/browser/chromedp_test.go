@@ -37,5 +37,10 @@ func TestChromeDP(t *testing.T) {
 			err := b.SendKeys(ctx, `//input[@name="user"]`, "admin")
 			So(err, ShouldNotBeNil)
 		})
+
+		Convey("WaitNotVisible propagates chromedp errors", func() {
+			err := b.WaitNotVisible(ctx, `input#mfa-field`)
+			So(err, ShouldNotBeNil)
+		})
 	})
 }

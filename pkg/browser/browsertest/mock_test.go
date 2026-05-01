@@ -27,6 +27,20 @@ func TestMock(t *testing.T) {
 			So(m.CallsTo("WaitVisible"), ShouldHaveLength, 1)
 		})
 
+		Convey("Should record WaitNotVisible calls", func() {
+			err := m.WaitNotVisible(ctx, `input#mfa-field`)
+			So(err, ShouldBeNil)
+			So(m.CallsTo("WaitNotVisible"), ShouldHaveLength, 1)
+			So(m.CallsTo("WaitNotVisible")[0].Args[0], ShouldEqual, `input#mfa-field`)
+		})
+
+		Convey("Should record Click calls", func() {
+			err := m.Click(ctx, `//button[@type="submit"]`)
+			So(err, ShouldBeNil)
+			So(m.CallsTo("Click"), ShouldHaveLength, 1)
+			So(m.CallsTo("Click")[0].Args[0], ShouldEqual, `//button[@type="submit"]`)
+		})
+
 		Convey("Should record SendKeys calls", func() {
 			err := m.SendKeys(ctx, `//input[@name="user"]`, "admin")
 			So(err, ShouldBeNil)

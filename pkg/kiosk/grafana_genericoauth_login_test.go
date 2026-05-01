@@ -30,10 +30,21 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 			So(err, ShouldNotBeNil)
 		})
 
-		Convey("Full sequence: navigate → click oauth button → credentials", func() {
+		Convey("Returns error if WaitVisible oauth button fails", func() {
+			mock.Errors["WaitVisible"] = errors.New("timeout")
+			err := genericOauthLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+			So(mock.CallCount("Navigate"), ShouldEqual, 1)
+		})
+
+		Convey("Full sequence: navigate → click oauth button → credentials → reload", func() {
 			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			messages := make(chan string, 1)
 			done := make(chan error, 1)
-			go func() { done <- genericOauthLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			go func() { done <- genericOauthLoginFlow(ctx, cfg, mock, url, messages) }()
+			time.Sleep(10 * time.Millisecond)
+			messages <- "reload"
 			time.Sleep(10 * time.Millisecond)
 			cancel()
 			<-done
@@ -42,6 +53,7 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 			So(mock.CallsTo("WaitVisible")[0].Args[0], ShouldContainSubstring, "generic_oauth")
 			So(mock.CallsTo("Click")[0].Args[0], ShouldContainSubstring, "generic_oauth")
 			So(mock.CallCount("SendKeys"), ShouldEqual, 2)
+			So(mock.CallCount("Navigate"), ShouldEqual, 2)
 		})
 	})
 

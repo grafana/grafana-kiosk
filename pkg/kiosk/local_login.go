@@ -71,7 +71,7 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, b browser.B
 }
 
 // localLoginFlow drives the local-account login sequence and then blocks until
-// context is cancelled or a message triggers a reload. Extracted for testability.
+// context is cancelled or a message triggers a reload.
 func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generatedURL string, messages chan string) error {
 	log.Println("Navigating to ", generatedURL)
 	delay := time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond

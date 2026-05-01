@@ -53,6 +53,7 @@ and this project adheres to
 - Move idtoken login provider to `pkg/kiosk/login/idtoken` package with public `Run()` entrypoint
 - Move apikey login provider to `pkg/kiosk/login/apikey` package with public `Run()` entrypoint
 - Move aws login provider to `pkg/kiosk/login/aws` package with public `Run()` entrypoint
+- Move azuread login provider to `pkg/kiosk/login/azuread` package with public `Run()` entrypoint
 
 ### CI/CD
 

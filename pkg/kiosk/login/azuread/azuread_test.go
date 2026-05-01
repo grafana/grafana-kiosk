@@ -1,0 +1,92 @@
+package azuread
+
+import (
+	"context"
+	"errors"
+	"testing"
+	"time"
+
+	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
+	. "github.com/smartystreets/goconvey/convey"
+)
+
+func TestAzureADLoginFlow(t *testing.T) {
+	baseCfg := func() *config.Config {
+		return &config.Config{
+			General: config.General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
+			Target:  config.Target{URL: "https://grafana.example.com/d/abc", Username: "user@example.com", Password: "secret"},
+		}
+	}
+
+	Convey("Given azureADLoginFlow", t, func() {
+		mock := browsertest.NewMock()
+		cfg := baseCfg()
+		url := shared.GenerateURL(cfg)
+
+		Convey("Returns error if Navigate fails", func() {
+			mock.Errors["Navigate"] = errors.New("refused")
+			err := azureADLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Full sequence: navigate → azuread button → email → password → sign in", func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- azureADLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			<-done
+
+			So(mock.CallsTo("Navigate")[0].Args[0], ShouldEqual, url)
+			waitCalls := mock.CallsTo("WaitVisible")
+			So(waitCalls[0].Args[0], ShouldContainSubstring, "login/azuread")
+			So(waitCalls[1].Args[0], ShouldContainSubstring, "loginfmt")
+			So(waitCalls[2].Args[0], ShouldContainSubstring, "passwd")
+
+			sendCalls := mock.CallsTo("SendKeys")
+			So(sendCalls[0].Args[1], ShouldEqual, cfg.Target.Username)
+			So(sendCalls[1].Args[1], ShouldEqual, cfg.Target.Password)
+
+			clickCalls := mock.CallsTo("Click")
+			So(clickCalls[0].Args[0], ShouldContainSubstring, "login/azuread")
+			So(clickCalls[1].Args[0], ShouldContainSubstring, "idSIButton9")
+		})
+
+		Convey("Returns error if WaitVisible fails", func() {
+			mock.Errors["WaitVisible"] = errors.New("timeout")
+			err := azureADLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+			So(mock.CallCount("Navigate"), ShouldEqual, 1)
+		})
+
+		Convey("Returns error if SendKeys fails", func() {
+			mock.Errors["SendKeys"] = errors.New("element not found")
+			err := azureADLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Exits cleanly on context cancel", func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- azureADLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			cancel()
+			So(<-done, ShouldBeNil)
+		})
+
+		Convey("Reloads on message after login sequence", func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			messages := make(chan string, 1)
+			done := make(chan error, 1)
+			go func() { done <- azureADLoginFlow(ctx, cfg, mock, url, messages) }()
+			time.Sleep(10 * time.Millisecond)
+			messages <- "reload"
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			<-done
+			So(mock.CallCount("Navigate"), ShouldEqual, 2)
+		})
+	})
+}

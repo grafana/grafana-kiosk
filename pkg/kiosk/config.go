@@ -1,72 +1,13 @@
 package kiosk
 
-// BuildInfo contains the build version
-type BuildInfo struct {
-	Version string `yaml:"version,omitempty"`
-}
+import "github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 
-// General non-site specific configurations
-type General struct {
-	AutoFit         bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
-	HideVariables   bool   `yaml:"hide-variables" env:"KIOSK_HIDE_VARIABLES" env-default:"false" env-description:"Hide variables in the top nav bar"`
-	HideLinks       bool   `yaml:"hide-links" env:"KIOSK_HIDE_LINKS" env-default:"false" env-description:"Hide links in the top nav bar"`
-	HideLogo        bool   `yaml:"hide-logo" env:"KIOSK_HIDE_LOGO" env-default:"false" env-description:"Hide Powered by Grafana logo"`
-	HidePlaylistNav bool   `yaml:"hide-playlist-nav" env:"KIOSK_HIDE_PLAYLIST_NAV" env-default:"false" env-description:"Hide playlist navigation controls"`
-	HideTimePicker  bool   `yaml:"hide-time-picker" env:"KIOSK_HIDE_TIME_PICKER" env-default:"false" env-description:"Hide time picker in the top nav bar"`
-	Incognito       bool   `yaml:"incognito" env:"KIOSK_INCOGNITO" env-default:"true" env-description:"use incognito mode"`
-	DebugEnabled    bool   `yaml:"debug" env:"KIOSK_DEBUG" env-default:"false" env-description:"enables debug output"`
-	GPUEnabled      bool   `yaml:"gpu-enabled" env:"KIOSK_GPU_ENABLED" env-default:"false" env-description:"disable GPU support"`
-	LXDEEnabled     bool   `yaml:"lxde" env:"KIOSK_LXDE_ENABLED" env-default:"false" env-description:"initialize LXDE for kiosk mode"`
-	LXDEHome        string `yaml:"lxde-home" env:"KIOSK_LXDE_HOME" env-default:"/home/pi" env-description:"path to home directory of LXDE user running X Server"`
-	Mode            string `yaml:"kiosk-mode" env:"KIOSK_MODE" env-default:"full" env-description:"[full|tv|disabled]"`
-	OzonePlatform   string `yaml:"ozone-platform" env:"KIOSK_OZONE_PLATFORM" env-default:"" env-description:"Set ozone-platform option (wayland|cast|drm|wayland|x11)"`
-	PageLoadDelayMS  int64 `yaml:"page-load-delay-ms" env:"KIOSK_PAGE_LOAD_DELAY_MS" env-default:"2000" env-description:"milliseconds to wait before expecting page load"`
-	RestartDelayMS   int64 `yaml:"restart-delay-ms" env:"KIOSK_RESTART_DELAY_MS" env-default:"5000" env-description:"milliseconds to wait before restarting after a session error"`
-	ScaleFactor     string `yaml:"scale-factor" env:"KIOSK_SCALE_FACTOR" env-default:"1.0" env-description:"Scale factor, like zoom"`
-	WindowPosition  string `yaml:"window-position" env:"KIOSK_WINDOW_POSITION" env-default:"0,0" env-description:"Top Left Position of Kiosk"`
-	WindowSize      string `yaml:"window-size" env:"KIOSK_WINDOW_SIZE" env-default:"" env-description:"Size of Kiosk in pixels (width,height)"`
-	Browser         string `yaml:"browser" env:"KIOSK_BROWSER" env-default:"chrome" env-description:"Browser to launch [chrome|edge]"`
-	BrowserPath     string `yaml:"browser-path" env:"KIOSK_BROWSER_PATH" env-default:"" env-description:"Explicit path to a Chromium-based browser executable; overrides -browser"`
-}
-
-// Target the dashboard/playlist details
-type Target struct {
-	IgnoreCertificateErrors bool   `yaml:"ignore-certificate-errors" env:"KIOSK_IGNORE_CERTIFICATE_ERRORS" env-description:"ignore SSL/TLS certificate errors" env-default:"false"`
-	IsPlayList              bool   `yaml:"playlist" env:"KIOSK_IS_PLAYLIST" env-default:"false" env-description:"URL is a playlist"`
-	LoginMethod             string `yaml:"login-method" env:"KIOSK_LOGIN_METHOD" env-default:"anon" env-description:"[anon|local|gcom|goauth|idtoken|apikey|aws|azuread]"`
-	Password                string `yaml:"password" env:"KIOSK_LOGIN_PASSWORD" env-default:"guest" env-description:"password"`
-	URL                     string `yaml:"URL" env:"KIOSK_URL" env-default:"https://play.grafana.org" env-description:"URL to Grafana server"`
-	Username                string `yaml:"username" env:"KIOSK_LOGIN_USER" env-default:"guest" env-description:"username"`
-	UseMFA                  bool   `yaml:"use-mfa" env:"KIOSK_USE_MFA" env-default:"false" env-description:"MFA is enabled for given account"`
-}
-
-// GoAuth OAuth
-type GoAuth struct {
-	AutoLogin                       bool   `yaml:"auto-login" env:"KIOSK_GOAUTH_AUTO_LOGIN" env-description:"[false|true]"`
-	UsernameField                   string `yaml:"fieldname-username" env:"KIOSK_GOAUTH_FIELD_USER" env-description:"Username html input name value"`
-	PasswordField                   string `yaml:"fieldname-password" env:"KIOSK_GOAUTH_FIELD_PASSWORD" env-description:"Password html input name value"`
-	WaitForPasswordField            bool   `yaml:"wait-for-password-field" env:"KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD" env-description:"Indicate that it's necessary to wait for the password field"`
-	WaitForPasswordFieldIgnoreClass string `yaml:"wait-for-password-field-class" env:"KIOSK_GOAUTH_WAIT_FOR_PASSWORD_FIELD_CLASS" env-description:"Ignore this password field when waiting for it being visible"`
-	WaitForStaySignedInPrompt       bool   `yaml:"wait-for-stay-signed-in-prompt" env:"KIOSK_GOAUTH_WAIT_FOR_STAY_SIGNED_IN_PROMPT" env-description:"Indicate that it's necessary to wait for the stay signed in prompt, and will then click yes"`
-}
-
-// IDToken token based login
-type IDToken struct {
-	KeyFile  string `yaml:"idtoken-keyfile" env:"KIOSK_IDTOKEN_KEYFILE" env-default:"key.json" env-description:"JSON Credentials for idtoken"`
-	Audience string `yaml:"idtoken-audience" env:"KIOSK_IDTOKEN_AUDIENCE" env-description:"Audience for idtoken, typically your oauth client id"`
-}
-
-// APIKey APIKey for login
-type APIKey struct {
-	APIKey string `yaml:"apikey" env:"KIOSK_APIKEY_APIKEY" env-description:"APIKEY"`
-}
-
-// Config configuration for backend.
-type Config struct {
-	BuildInfo BuildInfo `yaml:"buildinfo"`
-	General   General   `yaml:"general"`
-	Target    Target    `yaml:"target"`
-	GoAuth    GoAuth    `yaml:"goauth"`
-	IDToken   IDToken   `yaml:"idtoken"`
-	APIKey    APIKey    `yaml:"apikey"`
-}
+// Type aliases — keep existing code compiling during migration.
+// Remove this file once all consumers import pkg/kiosk/config directly.
+type BuildInfo = config.BuildInfo
+type General = config.General
+type Target = config.Target
+type GoAuth = config.GoAuth
+type IDToken = config.IDToken
+type APIKey = config.APIKey
+type Config = config.Config

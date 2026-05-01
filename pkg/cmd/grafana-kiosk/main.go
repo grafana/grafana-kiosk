@@ -21,6 +21,7 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/anonymous"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/gcom"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/goauth"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/idtoken"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/local"
 )
 
@@ -381,7 +382,7 @@ func main() {
 				goauth.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "idtoken":
 				log.Printf("Launching idtoken oauth kiosk")
-				kiosk.GrafanaKioskIDToken(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				idtoken.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "apikey":
 				log.Printf("Launching apikey kiosk")
 				kiosk.GrafanaKioskAPIKey(ctx, &cfg, dir, &browser.ChromeDP{}, messages)

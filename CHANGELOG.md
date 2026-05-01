@@ -49,6 +49,7 @@ and this project adheres to
 - Move local login provider to `pkg/kiosk/login/local` package with public `Run()` entrypoint;
   `LocalLoginBypassURL` renamed to `local.BypassURL`
 - Move gcom login provider to `pkg/kiosk/login/gcom` package with public `Run()` entrypoint
+- Move generic oauth login provider to `pkg/kiosk/login/goauth` package with public `Run()` entrypoint
 
 ### CI/CD
 

@@ -20,7 +20,7 @@ and this project adheres to
 ### Chores
 
 - Cache `getVersion()` in Magefile — was called once per arch (9 git subprocesses); now called once
-- Parallelise lint and test in `Build.CI` — format runs first, then lint and test run concurrently
+- Parallelize lint and test in `Build.CI` — format runs first, then lint and test run concurrently
 
 ### CI/CD
 

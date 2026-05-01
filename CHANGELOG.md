@@ -27,6 +27,7 @@ and this project adheres to
 - Add `concurrency` group to all workflows to cancel superseded runs on push
 - Update `securego/gosec` from v2.25.0 to v2.26.1 in CI workflow
 - Update `DavidAnson/markdownlint-cli2-action` from v23.0.0 to v23.1.0 in markdownlint workflow
+- Normalize action version comments to full semver across all workflows
 
 ### Dependencies
 

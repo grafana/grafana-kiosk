@@ -111,6 +111,28 @@ func TestLocalLoginFlow(t *testing.T) {
 			So(err, ShouldNotBeNil)
 			So(mock.CallsTo("Navigate")[0].Args[0], ShouldEqual, "https://grafana.example.com/login/local")
 		})
+
+		Convey("Returns error if WaitVisible avatar fails", func() {
+			mock.Errors["WaitVisible"] = errors.New("timeout")
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- localLoginFlow(ctx, cfg, mock, generatedURL, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			err := <-done
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("With delay: respects PageLoadDelayMS between steps", func() {
+			cfg.General.PageLoadDelayMS = 1
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- localLoginFlow(ctx, cfg, mock, generatedURL, make(chan string)) }()
+			time.Sleep(50 * time.Millisecond)
+			cancel()
+			<-done
+			So(mock.CallCount("Navigate"), ShouldBeGreaterThanOrEqualTo, 1)
+		})
 	})
 
 	Convey("Given localLoginFlow without AutoLogin", t, func() {

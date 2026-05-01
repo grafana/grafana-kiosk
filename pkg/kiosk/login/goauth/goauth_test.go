@@ -100,6 +100,20 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 		})
 	})
 
+	Convey("Given genericOauthLoginFlow with WaitForPasswordField", t, func() {
+		mock := browsertest.NewMock()
+		cfg := baseCfg()
+		cfg.GoAuth.WaitForPasswordField = true
+		cfg.GoAuth.AutoLogin = true
+		url := shared.GenerateURL(cfg)
+
+		Convey("Returns error if SendKeys fails in WaitForPasswordField path", func() {
+			mock.Errors["SendKeys"] = errors.New("send failed")
+			err := genericOauthLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+		})
+	})
+
 	Convey("Given genericOauthLoginFlow with WaitForStaySignedInPrompt", t, func() {
 		mock := browsertest.NewMock()
 		cfg := baseCfg()
@@ -117,6 +131,12 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 
 			clickCalls := mock.CallsTo("Click")
 			So(clickCalls[len(clickCalls)-1].Args[0], ShouldContainSubstring, `value="Yes"`)
+		})
+
+		Convey("Returns error if WaitVisible for Yes button fails", func() {
+			mock.Errors["WaitVisible"] = errors.New("prompt not shown")
+			err := genericOauthLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
 		})
 	})
 }

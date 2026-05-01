@@ -26,6 +26,13 @@ func TestSleepPageLoad(t *testing.T) {
 			SleepPageLoad(cfg)
 			So(time.Since(start), ShouldBeLessThan, 50*time.Millisecond)
 		})
+
+		Convey("Sleeps when PageLoadDelayMS is positive", func() {
+			cfg := &config.Config{General: config.General{PageLoadDelayMS: 1}}
+			start := time.Now()
+			SleepPageLoad(cfg)
+			So(time.Since(start), ShouldBeGreaterThanOrEqualTo, 1*time.Millisecond)
+		})
 	})
 }
 

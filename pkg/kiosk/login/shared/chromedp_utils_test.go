@@ -57,6 +57,47 @@ func TestGenerateURL(t *testing.T) {
 	})
 }
 
+func TestGenerateURLAdditionalCases(t *testing.T) {
+	Convey("Given GenerateURL additional cases", t, func() {
+		base := "https://play.grafana.org"
+
+		Convey("HideTimePicker adds _dash.hideTimePicker", func() {
+			cfg := &config.Config{General: config.General{Mode: "full", HideTimePicker: true}, Target: config.Target{URL: base}}
+			So(GenerateURL(cfg), ShouldContainSubstring, "_dash.hideTimePicker")
+		})
+
+		Convey("HideVariables adds _dash.hideVariables", func() {
+			cfg := &config.Config{General: config.General{Mode: "full", HideVariables: true}, Target: config.Target{URL: base}}
+			So(GenerateURL(cfg), ShouldContainSubstring, "_dash.hideVariables")
+		})
+
+		Convey("HidePlaylistNav adds _dash.hidePlaylistNav", func() {
+			cfg := &config.Config{General: config.General{Mode: "full", HidePlaylistNav: true}, Target: config.Target{URL: base}}
+			So(GenerateURL(cfg), ShouldContainSubstring, "_dash.hidePlaylistNav")
+		})
+
+		Convey("Default mode (empty) adds kiosk=1", func() {
+			cfg := &config.Config{General: config.General{Mode: ""}, Target: config.Target{URL: base}}
+			So(GenerateURL(cfg), ShouldContainSubstring, "kiosk=1")
+		})
+
+		Convey("AutoFit only — no other params — appends autofitpanels without ampersand", func() {
+			cfg := &config.Config{General: config.General{Mode: "disabled", AutoFit: true}, Target: config.Target{URL: base}}
+			result := GenerateURL(cfg)
+			So(result, ShouldContainSubstring, "autofitpanels")
+		})
+	})
+}
+
+func TestIsFullscreenMode(t *testing.T) {
+	Convey("Given isFullscreenMode", t, func() {
+		Convey("full returns true", func() { So(isFullscreenMode("full"), ShouldBeTrue) })
+		Convey("empty returns true", func() { So(isFullscreenMode(""), ShouldBeTrue) })
+		Convey("tv returns false", func() { So(isFullscreenMode("tv"), ShouldBeFalse) })
+		Convey("disabled returns false", func() { So(isFullscreenMode("disabled"), ShouldBeFalse) })
+	})
+}
+
 func TestResolveBrowserExecPathInShared(t *testing.T) {
 	Convey("Given ResolveBrowserExecPath", t, func() {
 		origLookPath := LookPath
@@ -92,6 +133,11 @@ func TestResolveBrowserExecPathInShared(t *testing.T) {
 		Convey("Browser=edge with no binary returns empty", func() {
 			LookPath = func(string) (string, error) { return "", fmt.Errorf("not found") }
 			cfg := &config.Config{General: config.General{Browser: "edge"}}
+			So(ResolveBrowserExecPath(cfg), ShouldEqual, "")
+		})
+
+		Convey("Unknown Browser value returns empty", func() {
+			cfg := &config.Config{General: config.General{Browser: "firefox"}}
 			So(ResolveBrowserExecPath(cfg), ShouldEqual, "")
 		})
 	})

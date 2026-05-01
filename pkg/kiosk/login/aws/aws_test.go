@@ -74,6 +74,30 @@ func TestAwsLoginFlow(t *testing.T) {
 			So(mock.CallCount("Navigate"), ShouldEqual, 2)
 		})
 
+		Convey("Returns error if WaitVisible fails mid-sequence", func() {
+			mock.Errors["WaitVisible"] = errors.New("element gone")
+			err := awsLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+			So(mock.CallCount("Navigate"), ShouldEqual, 1)
+		})
+
+		Convey("Returns error if Click fails", func() {
+			mock.Errors["Click"] = errors.New("click failed")
+			err := awsLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Returns error if SendKeys fails", func() {
+			mock.Errors["SendKeys"] = errors.New("input gone")
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- awsLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			err := <-done
+			So(err, ShouldNotBeNil)
+		})
+
 		Convey("Returns error if WaitNotVisible fails during MFA", func() {
 			cfg.Target.UseMFA = true
 			mock.Errors["WaitNotVisible"] = errors.New("timeout")

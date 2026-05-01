@@ -11,6 +11,18 @@ and this project adheres to
 
 ### Features
 
+- Add `-headless` flag (env `KIOSK_HEADLESS`, default `false`) to run the browser without a display; required for
+  integration testing and useful for CI pipelines
+- Add `-disable-chromium-kiosk-optimizations` flag (env `KIOSK_DISABLE_CHROMIUM_KIOSK_OPTIMIZATIONS`, default `false`)
+  to opt out of kiosk-specific Chromium flags if they cause compatibility issues
+- Add Chrome flags for reliable kiosk operation: disable background timer throttling (keeps Grafana auto-refresh
+  running when the window loses focus), disable hang monitor (suppresses "Page Unresponsive" dialogs), disable
+  Safe Browsing updates, suppress telemetry uploads, allow drill-down popups
+- Add integration test package (`pkg/kiosk/integration`) with build tag `integration` — spins up a real Grafana
+  instance via testcontainers and runs functional and smoke tests in headless Chrome; run with
+  `mage test:integration` or `CGO_ENABLED=0 go test -tags integration ./pkg/kiosk/integration/...`
+- Add `mage test:integration` target to run integration tests via Mage
+- Functional tests assert page title contains "Grafana", URL contains `kiosk=1`, and no login form is present
 - Add `-restart-delay-ms` flag (env `KIOSK_RESTART_DELAY_MS`, default `5000`) to set the delay before automatically
   restarting after a session error; kiosk now recovers from browser crashes instead of exiting
 - Add `-browser` flag (env `KIOSK_BROWSER`, default `chrome`) to choose between Chrome and Microsoft Edge as the
@@ -68,6 +80,9 @@ and this project adheres to
 - Update `securego/gosec` from v2.25.0 to v2.26.1 in CI workflow
 - Update `DavidAnson/markdownlint-cli2-action` from v23.0.0 to v23.1.0 in markdownlint workflow
 - Normalize action version comments to full semver across all workflows
+- Add `integration` CI job running integration tests against a real Grafana container; skips forked PRs
+  to prevent Docker socket abuse
+- Enable Go build cache in CI to speed up cross-compilation of foreign OS/arch targets
 
 ### Dependencies
 

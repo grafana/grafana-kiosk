@@ -113,6 +113,10 @@ NOTE: Flags with parameters should use an "equals"
       Initialize LXDE for kiosk mode
   -lxde-home string
       Path to home directory of LXDE user running X Server (default "/home/pi")
+  -disable-chromium-kiosk-optimizations
+      Disable kiosk-specific Chromium flags; use if they cause compatibility issues
+  -headless
+      Run browser in headless mode (no display required)
   -page-load-delay-ms int
       Delay in milliseconds before navigating to URL (default 2000)
   -restart-delay-ms int
@@ -154,6 +158,7 @@ general:
   scale-factor: 1.0
   page-load-delay-ms: 2000
   restart-delay-ms: 5000
+  disable-chromium-kiosk-optimizations: false
 
 target:
   login-method: anon
@@ -239,6 +244,43 @@ They can also be used instead of a configuration file.
   KIOSK_WINDOW_SIZE string
       Size of Kiosk in pixels (width,height) (default "")
 ```
+
+### Headless mode
+
+Use `-headless` (or `KIOSK_HEADLESS=true`) to run the browser without a physical display. Useful for:
+
+- Integration testing in CI
+- Verifying dashboard URLs without a monitor attached
+- Running grafana-kiosk in a container or SSH session
+
+```bash
+grafana-kiosk -URL https://play.grafana.org -headless
+```
+
+Set `KIOSK_BROWSER_PATH` if Chrome is not on the default PATH.
+
+### Integration tests
+
+Integration tests spin up a real Grafana instance via Docker (testcontainers) and run grafana-kiosk
+in headless mode against it. Tests are split into:
+
+- **Smoke tests** — verify the kiosk session starts and completes without panicking
+- **Functional tests** — assert the browser loads Grafana in kiosk mode, the page title contains
+  "Grafana", the URL contains `kiosk=1`, and no login form is present
+
+```bash
+# Requires Docker and Chrome/Chromium
+mage test:integration
+
+# Override browser path
+KIOSK_BROWSER_PATH=/usr/bin/chromium mage test:integration
+```
+
+### Auto-refresh reliability
+
+grafana-kiosk disables Chrome's background throttling flags so Grafana auto-refresh timers continue
+firing even when the browser window loses focus. This is important for playlist rotation and
+multi-monitor setups where windows may not always be in the foreground.
 
 ### Window size and kiosk mode
 

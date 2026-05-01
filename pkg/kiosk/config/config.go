@@ -27,6 +27,8 @@ type General struct {
 	WindowSize      string `yaml:"window-size" env:"KIOSK_WINDOW_SIZE" env-default:"" env-description:"Size of Kiosk in pixels (width,height)"`
 	Browser         string `yaml:"browser" env:"KIOSK_BROWSER" env-default:"chrome" env-description:"Browser to launch [chrome|edge]"`
 	BrowserPath     string `yaml:"browser-path" env:"KIOSK_BROWSER_PATH" env-default:"" env-description:"Explicit path to a Chromium-based browser executable; overrides -browser"`
+	Headless                        bool `yaml:"headless" env:"KIOSK_HEADLESS" env-default:"false" env-description:"Run browser in headless mode (no display required)"`
+	DisableChromiumKioskOptimizations bool `yaml:"disable-chromium-kiosk-optimizations" env:"KIOSK_DISABLE_CHROMIUM_KIOSK_OPTIMIZATIONS" env-default:"false" env-description:"Disable kiosk-specific Chromium flags (auto-refresh reliability, dialog suppression, popup handling); use if flags cause compatibility issues"`
 }
 
 // Target the dashboard/playlist details

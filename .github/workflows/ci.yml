@@ -38,10 +38,13 @@ jobs:
         with:
           go-version-file: go.mod
           check-latest: true
-          cache: false
+          cache: true # zizmor: ignore[cache-poisoning] — go mod verify below checksums all cached modules against go.sum
 
       - name: Install dependencies
         run: go get .
+
+      - name: Verify dependencies
+        run: go mod verify
 
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0
@@ -166,3 +169,32 @@ jobs:
             ./grafana-kiosk-v*/**
           body: |
             ** Draft release **
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: build
+    # Skip on forked PRs — integration tests run Go code with Docker socket access,
+    # which is root-equivalent on the runner. Only run on same-repo PRs and pushes.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions: {}
+    env:
+      # Google Chrome is pre-installed on ubuntu-latest runners
+      KIOSK_BROWSER_PATH: /usr/bin/google-chrome
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: go.mod
+          check-latest: true
+          cache: true # zizmor: ignore[cache-poisoning] — go mod verify below checksums all cached modules against go.sum
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Run integration tests
+        run: CGO_ENABLED=0 go test -tags integration -v -timeout 300s ./pkg/kiosk/integration/...

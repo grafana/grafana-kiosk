@@ -94,29 +94,87 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 	}
 
 	execAllocatorOption := []chromedp.ExecAllocatorOption{
+		// Skip first-run wizard and default browser prompt on startup.
 		chromedp.NoFirstRun,
 		chromedp.NoDefaultBrowserCheck,
+		// Allow media (video, audio) to play without a user gesture — needed for
+		// dashboard panels that embed auto-playing content.
 		chromedp.Flag("autoplay-policy", "no-user-gesture-required"),
+		// Browse Without Sign In — suppress Google account sign-in prompts.
 		chromedp.Flag("bwsi", true),
+		// Set update check interval to 1 year — suppresses update-available prompts.
 		chromedp.Flag("check-for-update-interval", "31536000"),
-		chromedp.Flag("password-store", "basic"), // prevent key store popup
+		// Use the basic (non-OS) password store to prevent OS key-ring popups.
+		chromedp.Flag("password-store", "basic"),
+		// Disable translation bar and (for HTTP URLs) HTTPS upgrades.
 		chromedp.Flag("disable-features", disableFeatures),
+		// Suppress browser notification permission prompts.
 		chromedp.Flag("disable-notifications", true),
+		// Hide overlay scrollbars for a cleaner kiosk appearance.
 		chromedp.Flag("disable-overlay-scrollbar", true),
 		chromedp.Flag("hide-scrollbars", true),
+		// Suppress the one-time search engine choice dialog (Chrome 121+).
 		chromedp.Flag("disable-search-engine-choice-screen", true),
+		// No Google account sync — kiosk has no user account.
 		chromedp.Flag("disable-sync", true),
+	}
+
+	// Kiosk-specific optimizations — enabled by default, disable via
+	// -disable-chromium-kiosk-optimizations if they cause compatibility issues.
+	if !cfg.General.DisableChromiumKioskOptimizations {
+		execAllocatorOption = append(execAllocatorOption,
+			// Prevent JS timers from being throttled when the window loses focus —
+			// critical for Grafana auto-refresh on playlist or multi-monitor setups.
+			chromedp.Flag("disable-background-timer-throttling", true),
+			// Prevent the renderer from being given lower priority when unfocused.
+			chromedp.Flag("disable-renderer-backgrounding", true),
+			// Prevent backgrounding when another window covers this one.
+			chromedp.Flag("disable-backgrounding-occluded-windows", true),
+			// Suppress "Page Unresponsive" dialogs that would disrupt the kiosk
+			// display when Grafana takes time to load a heavy dashboard.
+			chromedp.Flag("disable-hang-monitor", true),
+			// Disable crash reporting — no crash dialogs or background reporter process.
+			chromedp.Flag("disable-breakpad", true),
+			// Prevent background component update checks from interfering with rendering.
+			chromedp.Flag("disable-component-update", true),
+			// Prevent Safe Browsing database updates from running in the background.
+			chromedp.Flag("safebrowsing-disable-auto-update", true),
+			// Record metrics locally only — suppresses telemetry uploads to Google.
+			chromedp.Flag("metrics-recording-only", true),
+			// Allow popups/new windows from Grafana drill-down links without prompting.
+			chromedp.Flag("disable-popup-blocking", true),
+			// Skip client-side phishing URL checks that add latency on page loads.
+			chromedp.Flag("disable-client-side-phishing-detection", true),
+			// Suppress the print preview dialog — no printing needed in a kiosk.
+			chromedp.Flag("disable-print-preview", true),
+			// Auto-accept camera/microphone permission prompts — relevant for Grafana
+			// panels that embed live camera feeds or WebRTC data sources.
+			chromedp.Flag("use-fake-ui-for-media-stream", true),
+		)
+	}
+
+	execAllocatorOption = append(execAllocatorOption,
+		// Configurable: ignore TLS certificate errors (e.g., self-signed certs).
 		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
+		// Configurable: run in incognito mode (no persistent profile state).
 		chromedp.Flag("incognito", cfg.General.Incognito),
+		// Enable Chromium kiosk mode — hides address bar and browser chrome.
 		chromedp.Flag("kiosk", true),
+		// Suppress error dialogs (e.g., renderer crash dialogs).
 		chromedp.Flag("noerrdialogs", true),
 		chromedp.Flag("start-fullscreen", true),
 		chromedp.Flag("start-maximized", true),
+		// Custom user-agent identifies the kiosk version to Grafana logs.
 		chromedp.Flag("user-agent", userAgent),
 		chromedp.Flag("window-position", cfg.General.WindowPosition),
 		chromedp.UserDataDir(dir),
-	}
+	)
 
+	if cfg.General.Headless {
+		execAllocatorOption = append(execAllocatorOption,
+			chromedp.Flag("headless", "new"),
+		)
+	}
 	if !cfg.General.GPUEnabled {
 		execAllocatorOption = append(
 			execAllocatorOption,

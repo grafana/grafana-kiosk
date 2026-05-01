@@ -19,6 +19,7 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/anonymous"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/local"
 )
 
 var (
@@ -369,7 +370,7 @@ func main() {
 			switch cfg.Target.LoginMethod {
 			case "local":
 				log.Printf("Launching local login kiosk")
-				kiosk.GrafanaKioskLocal(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				local.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "gcom":
 				log.Printf("Launching GCOM login kiosk")
 				kiosk.GrafanaKioskGCOM(ctx, &cfg, dir, &browser.ChromeDP{}, messages)

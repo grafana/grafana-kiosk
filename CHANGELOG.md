@@ -46,6 +46,8 @@ and this project adheres to
 - Cache `getVersion()` in Magefile — was called once per arch (9 git subprocesses); now called once
 - Parallelize lint and test in `Build.CI` — format runs first, then lint and test run concurrently
 - Move anonymous login provider to `pkg/kiosk/login/anonymous` package with public `Run()` entrypoint
+- Move local login provider to `pkg/kiosk/login/local` package with public `Run()` entrypoint;
+  `LocalLoginBypassURL` renamed to `local.BypassURL`
 
 ### CI/CD
 

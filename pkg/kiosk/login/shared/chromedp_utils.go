@@ -131,6 +131,12 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 		chromedp.Flag("disable-breakpad", true),
 		// Prevent background component update checks from interfering with rendering.
 		chromedp.Flag("disable-component-update", true),
+		// Prevent Safe Browsing database updates from running in the background.
+		chromedp.Flag("safebrowsing-disable-auto-update", true),
+		// Record metrics locally only — suppresses telemetry uploads to Google.
+		chromedp.Flag("metrics-recording-only", true),
+		// Allow popups/new windows from Grafana drill-down links without prompting.
+		chromedp.Flag("disable-popup-blocking", true),
 		// Configurable: ignore TLS certificate errors (e.g., self-signed certs).
 		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
 		// Configurable: run in incognito mode (no persistent profile state).

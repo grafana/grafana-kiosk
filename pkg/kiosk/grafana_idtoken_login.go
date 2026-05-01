@@ -91,7 +91,9 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, b browser
 
 // idtokenLoginFlow blocks until context is cancelled or a message triggers a
 // reload. The initial navigation is handled by the outer function to keep
-// fetch interception and navigation atomic.
+// fetch interception and navigation atomic. This wrapper exists to maintain
+// naming consistency with the other login providers and to give tests a
+// stable target.
 func idtokenLoginFlow(ctx context.Context, b browser.Browser, dashboardURL string, messages chan string) error {
 	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

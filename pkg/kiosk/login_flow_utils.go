@@ -16,7 +16,7 @@ func runMessageLoop(ctx context.Context, b browser.Browser, dashboardURL string,
 			return nil
 		case messageFromBrowser := <-messages:
 			if err := b.Navigate(ctx, dashboardURL); err != nil {
-				return nil
+				return err
 			}
 			log.Println("Browser output:", messageFromBrowser)
 		}

@@ -290,6 +290,8 @@ Key deltas from vanilla Go:
   [`.agents/readme-policy.md`](.agents/readme-policy.md).
 - **Markdown**: run `npx markdownlint-cli2` then `npx cspell` on any `.md` file
   before committing. Fix all issues before staging.
+- **Spell check**: run `npx cspell` on any `.go` file before committing. CI checks
+  all `.md` and `.go` files — fix failures before staging.
 - **Branching**: always create a feature branch (`feat/...`, `fix/...`).
   PR summaries use the same H3 categorization as the changelog and get
   updated after every push.
@@ -311,6 +313,7 @@ underlying issue goes away (model upgrades, refactors, process changes).
 
 - When releasing, remove the `[Unreleased]` header from `CHANGELOG.md` entirely — do not leave it as an empty section above
   the new version.
+- Run `npx cspell` on every `.md` and `.go` file before committing — CI checks both and will fail on unknown words.
 
 ---
 

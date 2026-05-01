@@ -115,6 +115,8 @@ NOTE: Flags with parameters should use an "equals"
       Path to home directory of LXDE user running X Server (default "/home/pi")
   -page-load-delay-ms int
       Delay in milliseconds before navigating to URL (default 2000)
+  -restart-delay-ms int
+      Delay in milliseconds before restarting after a session error (default 5000)
   -password string
       password (default "guest")
   -playlists

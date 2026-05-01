@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 
@@ -51,6 +52,7 @@ type Args struct {
 	URL                                  string
 	Username                             string
 	PageLoadDelayMS                      int64
+	RestartDelayMS                       int64
 	Password                             string
 	UsernameField                        string
 	PasswordField                        string
@@ -85,6 +87,7 @@ func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
 	flagSettings.StringVar(&processedArgs.Browser, "browser", "chrome", "Browser to launch [chrome|edge]")
 	flagSettings.StringVar(&processedArgs.BrowserPath, "browser-path", "", "Explicit path to a Chromium-based browser executable; overrides -browser")
 	flagSettings.Int64Var(&processedArgs.PageLoadDelayMS, "page-load-delay-ms", 2000, "Delay in milliseconds before navigating to URL")
+	flagSettings.Int64Var(&processedArgs.RestartDelayMS, "restart-delay-ms", 5000, "Delay in milliseconds before restarting after a session error")
 	flagSettings.BoolVar(&processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
 	flagSettings.BoolVar(&processedArgs.AutoFit, "autofit", true, "Fit panels to screen")
 	flagSettings.BoolVar(&processedArgs.HideLinks, "hide-links", false, "Hide links in the top nav bar")
@@ -159,7 +162,8 @@ func loadConfig(args Args, fs *flag.FlagSet, cfg *kiosk.Config) error {
 		"scale-factor":       func() { cfg.General.ScaleFactor = args.ScaleFactor },
 		"browser":            func() { cfg.General.Browser = args.Browser },
 		"browser-path":       func() { cfg.General.BrowserPath = args.BrowserPath },
-		"page-load-delay-ms": func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
+		"page-load-delay-ms":  func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
+		"restart-delay-ms":    func() { cfg.General.RestartDelayMS = args.RestartDelayMS },
 		"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
 		"hide-logo":          func() { cfg.General.HideLogo = args.HideLogo },
 		"hide-playlist-nav":  func() { cfg.General.HidePlaylistNav = args.HidePlaylistNav },
@@ -238,6 +242,7 @@ func logGeneralSettings(cfg *kiosk.Config) {
 	log.Println("Browser:", cfg.General.Browser)
 	log.Println("BrowserPath:", cfg.General.BrowserPath)
 	log.Println("PageLoadDelayMS:", cfg.General.PageLoadDelayMS)
+	log.Println("RestartDelayMS:", cfg.General.RestartDelayMS)
 	log.Println("HideLinks:", cfg.General.HideLinks)
 	log.Println("HideLogo:", cfg.General.HideLogo)
 	log.Println("HidePlaylistNav:", cfg.General.HidePlaylistNav)
@@ -337,30 +342,54 @@ func main() {
 	}()
 
 	messages := make(chan string)
-	switch cfg.Target.LoginMethod {
-	case "local":
-		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
-	case "gcom":
-		log.Printf("Launching GCOM login kiosk")
-		kiosk.GrafanaKioskGCOM(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
-	case "goauth":
-		log.Printf("Launching Generic Oauth login kiosk")
-		kiosk.GrafanaKioskGenericOauth(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
-	case "idtoken":
-		log.Printf("Launching idtoken oauth kiosk")
-		kiosk.GrafanaKioskIDToken(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
-	case "apikey":
-		log.Printf("Launching apikey kiosk")
-		kiosk.GrafanaKioskAPIKey(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
-	case "aws":
-		log.Printf("Launching AWS SSO kiosk")
-		kiosk.GrafanaKioskAWSLogin(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
-	case "azuread":
-		log.Printf("Launching AzureAD login kiosk")
-		kiosk.GrafanaKioskAzureAD(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
-	default:
-		log.Printf("Launching ANON login kiosk")
-		kiosk.GrafanaKioskAnonymous(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+	restartDelay := time.Duration(cfg.General.RestartDelayMS) * time.Millisecond
+
+	for {
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					log.Printf("Kiosk session error: %v", r)
+				}
+			}()
+			switch cfg.Target.LoginMethod {
+			case "local":
+				log.Printf("Launching local login kiosk")
+				kiosk.GrafanaKioskLocal(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+			case "gcom":
+				log.Printf("Launching GCOM login kiosk")
+				kiosk.GrafanaKioskGCOM(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+			case "goauth":
+				log.Printf("Launching Generic Oauth login kiosk")
+				kiosk.GrafanaKioskGenericOauth(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+			case "idtoken":
+				log.Printf("Launching idtoken oauth kiosk")
+				kiosk.GrafanaKioskIDToken(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+			case "apikey":
+				log.Printf("Launching apikey kiosk")
+				kiosk.GrafanaKioskAPIKey(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+			case "aws":
+				log.Printf("Launching AWS SSO kiosk")
+				kiosk.GrafanaKioskAWSLogin(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+			case "azuread":
+				log.Printf("Launching AzureAD login kiosk")
+				kiosk.GrafanaKioskAzureAD(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+			default:
+				log.Printf("Launching ANON login kiosk")
+				kiosk.GrafanaKioskAnonymous(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+			}
+		}()
+
+		// Exit on clean shutdown; otherwise wait before restarting.
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			log.Printf("Kiosk session ended — restarting in %.0f seconds", restartDelay.Seconds())
+			select {
+			case <-time.After(restartDelay):
+			case <-ctx.Done():
+				return
+			}
+		}
 	}
 }

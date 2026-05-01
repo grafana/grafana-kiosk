@@ -11,6 +11,8 @@ and this project adheres to
 
 ### Features
 
+- Add `-restart-delay-ms` flag (env `KIOSK_RESTART_DELAY_MS`, default `5000`) to set the delay before automatically
+  restarting after a session error; kiosk now recovers from browser crashes instead of exiting
 - Add `-browser` flag (env `KIOSK_BROWSER`, default `chrome`) to choose between Chrome and Microsoft Edge as the
   launched browser
 - Add `-browser-path` flag (env `KIOSK_BROWSER_PATH`) to point at an explicit Chromium-based browser executable;

@@ -20,7 +20,8 @@ type General struct {
 	LXDEHome        string `yaml:"lxde-home" env:"KIOSK_LXDE_HOME" env-default:"/home/pi" env-description:"path to home directory of LXDE user running X Server"`
 	Mode            string `yaml:"kiosk-mode" env:"KIOSK_MODE" env-default:"full" env-description:"[full|tv|disabled]"`
 	OzonePlatform   string `yaml:"ozone-platform" env:"KIOSK_OZONE_PLATFORM" env-default:"" env-description:"Set ozone-platform option (wayland|cast|drm|wayland|x11)"`
-	PageLoadDelayMS int64  `yaml:"page-load-delay-ms" env:"KIOSK_PAGE_LOAD_DELAY_MS" env-default:"2000" env-description:"milliseconds to wait before expecting page load"`
+	PageLoadDelayMS  int64 `yaml:"page-load-delay-ms" env:"KIOSK_PAGE_LOAD_DELAY_MS" env-default:"2000" env-description:"milliseconds to wait before expecting page load"`
+	RestartDelayMS   int64 `yaml:"restart-delay-ms" env:"KIOSK_RESTART_DELAY_MS" env-default:"5000" env-description:"milliseconds to wait before restarting after a session error"`
 	ScaleFactor     string `yaml:"scale-factor" env:"KIOSK_SCALE_FACTOR" env-default:"1.0" env-description:"Scale factor, like zoom"`
 	WindowPosition  string `yaml:"window-position" env:"KIOSK_WINDOW_POSITION" env-default:"0,0" env-description:"Top Left Position of Kiosk"`
 	WindowSize      string `yaml:"window-size" env:"KIOSK_WINDOW_SIZE" env-default:"" env-description:"Size of Kiosk in pixels (width,height)"`

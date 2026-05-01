@@ -17,13 +17,6 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 )
 
-// kioskVersion holds the user-agent version string set by SetVersion.
-var kioskVersion string
-
-// SetVersion injects the binary build version into the shared package so it
-// can be included in the browser user-agent string.
-func SetVersion(v string) { kioskVersion = v }
-
 // edgeBinaryCandidates lists executable names to look up on PATH when the
 // user requests the Edge browser. Order matters: first match wins.
 var edgeBinaryCandidates = []string{
@@ -89,10 +82,7 @@ func GenerateURL(cfg *config.Config) string {
 func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllocatorOption {
 	// agent should not have the v prefix
 	buildVersion := strings.TrimPrefix(cfg.BuildInfo.Version, "v")
-	versionTag := kioskVersion
-	if versionTag == "" {
-		versionTag = fmt.Sprintf("GrafanaKiosk/%s (%s %s)", buildVersion, runtime.GOOS, runtime.GOARCH)
-	}
+	versionTag := fmt.Sprintf("GrafanaKiosk/%s (%s %s)", buildVersion, runtime.GOOS, runtime.GOARCH)
 	userAgent := fmt.Sprintf("Mozilla/5.0 (X11; CrOS armv7l 13597.84.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 %s", versionTag)
 
 	// Chromium 130+ enables HTTPS-First Mode by default, which blocks

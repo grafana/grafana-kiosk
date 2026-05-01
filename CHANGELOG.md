@@ -13,6 +13,8 @@ and this project adheres to
 
 - Add `-headless` flag (env `KIOSK_HEADLESS`, default `false`) to run the browser without a display; required for
   integration testing and useful for CI pipelines
+- Add `-disable-chromium-kiosk-optimizations` flag (env `KIOSK_DISABLE_CHROMIUM_KIOSK_OPTIMIZATIONS`, default `false`)
+  to opt out of kiosk-specific Chromium flags if they cause compatibility issues
 - Add Chrome flags for reliable kiosk operation: disable background timer throttling (keeps Grafana auto-refresh
   running when the window loses focus), disable hang monitor (suppresses "Page Unresponsive" dialogs), disable
   Safe Browsing updates, suppress telemetry uploads, allow drill-down popups

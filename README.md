@@ -113,6 +113,8 @@ NOTE: Flags with parameters should use an "equals"
       Initialize LXDE for kiosk mode
   -lxde-home string
       Path to home directory of LXDE user running X Server (default "/home/pi")
+  -disable-chromium-kiosk-optimizations
+      Disable kiosk-specific Chromium flags; use if they cause compatibility issues
   -headless
       Run browser in headless mode (no display required)
   -page-load-delay-ms int
@@ -156,6 +158,7 @@ general:
   scale-factor: 1.0
   page-load-delay-ms: 2000
   restart-delay-ms: 5000
+  disable-chromium-kiosk-optimizations: false
 
 target:
   login-method: anon

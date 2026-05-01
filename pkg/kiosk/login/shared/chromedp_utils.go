@@ -17,16 +17,16 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 )
 
-// edgeBinaryCandidates lists executable names to look up on PATH when the
+// EdgeBinaryCandidates lists executable names to look up on PATH when the
 // user requests the Edge browser. Order matters: first match wins.
-var edgeBinaryCandidates = []string{
+var EdgeBinaryCandidates = []string{
 	"msedge",
 	"microsoft-edge",
 	"microsoft-edge-stable",
 }
 
-// sharedLookPath is overridable in tests.
-var sharedLookPath = exec.LookPath
+// LookPath is overridable in tests.
+var LookPath = exec.LookPath
 
 // GenerateURL constructs URL with appropriate parameters for kiosk mode.
 func GenerateURL(cfg *config.Config) string {
@@ -146,7 +146,7 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 			chromedp.Flag("force-device-scale-factor", cfg.General.ScaleFactor))
 	}
 
-	if path := resolveBrowserExecPath(cfg); path != "" {
+	if path := ResolveBrowserExecPath(cfg); path != "" {
 		log.Printf("Using browser executable: %s", path)
 		execAllocatorOption = append(execAllocatorOption, chromedp.ExecPath(path))
 	}
@@ -154,10 +154,11 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 	return execAllocatorOption
 }
 
-// resolveBrowserExecPath returns the explicit browser executable path that
-// should be passed to chromedp.ExecPath. An empty string means "let chromedp
-// auto-detect" (the default Chrome lookup).
-func resolveBrowserExecPath(cfg *config.Config) string {
+// ResolveBrowserExecPath returns the explicit browser executable path to pass to
+// chromedp.ExecPath. An empty string means "let chromedp auto-detect".
+// ResolveBrowserExecPath returns the explicit browser executable path to pass to
+// chromedp.ExecPath. An empty string means "let chromedp auto-detect".
+func ResolveBrowserExecPath(cfg *config.Config) string {
 	if cfg.General.BrowserPath != "" {
 		return cfg.General.BrowserPath
 	}
@@ -165,8 +166,8 @@ func resolveBrowserExecPath(cfg *config.Config) string {
 	case "", "chrome":
 		return ""
 	case "edge":
-		for _, name := range edgeBinaryCandidates {
-			if p, err := sharedLookPath(name); err == nil {
+		for _, name := range EdgeBinaryCandidates {
+			if p, err := LookPath(name); err == nil {
 				return p
 			}
 		}

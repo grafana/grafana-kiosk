@@ -17,6 +17,7 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/browser"
 	"github.com/grafana/grafana-kiosk/pkg/initialize"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 )
 
 var (
@@ -130,7 +131,7 @@ func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
 
 // loadConfig reads configuration from a file or environment, then applies
 // CLI flag overrides. Flags always take precedence.
-func loadConfig(args Args, fs *flag.FlagSet, cfg *kiosk.Config) error {
+func loadConfig(args Args, fs *flag.FlagSet, cfg *config.Config) error {
 	if args.ConfigPath != "" {
 		// read configuration from the file and then override with environment variables
 		if err := cleanenv.ReadConfig(args.ConfigPath, cfg); err != nil {
@@ -222,7 +223,7 @@ func setEnvironment() {
 	log.Println("XAUTHORITY=", sanitize(xAuthorityEnv)) // #nosec G706 -- sanitized before logging
 }
 
-func summary(cfg *kiosk.Config) {
+func summary(cfg *config.Config) {
 	log.Println("*************************************************************")
 	logGeneralSettings(cfg)
 	logTargetSettings(cfg)
@@ -230,7 +231,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("*************************************************************")
 }
 
-func logGeneralSettings(cfg *kiosk.Config) {
+func logGeneralSettings(cfg *config.Config) {
 	log.Println("--- General -------------------------------------------------")
 	log.Println("AutoFit:", cfg.General.AutoFit)
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
@@ -251,7 +252,7 @@ func logGeneralSettings(cfg *kiosk.Config) {
 	log.Println("HideVariables:", cfg.General.HideVariables)
 }
 
-func logTargetSettings(cfg *kiosk.Config) {
+func logTargetSettings(cfg *config.Config) {
 	log.Println("--- Target --------------------------------------------------")
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
@@ -262,7 +263,7 @@ func logTargetSettings(cfg *kiosk.Config) {
 	log.Println("UseMFA:", cfg.Target.UseMFA)
 }
 
-func logGoAuthSettings(cfg *kiosk.Config) {
+func logGoAuthSettings(cfg *config.Config) {
 	log.Println("--- GoAuth --------------------------------------------------")
 	log.Println("Fieldname AutoLogin:", cfg.GoAuth.AutoLogin)
 	log.Println("Fieldname Username:", cfg.GoAuth.UsernameField)
@@ -270,7 +271,7 @@ func logGoAuthSettings(cfg *kiosk.Config) {
 }
 
 func main() {
-	var cfg kiosk.Config
+	var cfg config.Config
 	fmt.Println("GrafanaKiosk Version:", Version)
 	// set the version
 	cfg.BuildInfo.Version = Version

@@ -62,7 +62,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 
 	waitForBrowserStartup(cfg)
 
-	u, err := url.Parse(cfg.Target.URL)
+	targetURL, err := url.Parse(cfg.Target.URL)
 	if err != nil {
 		panic(fmt.Errorf("url.Parse: %w", err))
 	}
@@ -77,7 +77,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 					panic(fmt.Errorf("url.Parse: %w", err))
 				}
 				// Add Content-Type header only for datasource query API calls
-				if IsDataSourceQueryRequest(ev.Request.URL, u.Scheme, u.Host) {
+				if IsDataSourceQueryRequest(ev.Request.URL, targetURL.Scheme, targetURL.Host) {
 					if cfg.General.DebugEnabled {
 						log.Println("Appending Content-Type Header for Metric Query")
 					}
@@ -87,7 +87,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 					)
 				}
 				// Append Bearer token to all requests matching the target host
-				if IsTargetHostRequest(requestURL.Host, u.Host) {
+				if IsTargetHostRequest(requestURL.Host, targetURL.Host) {
 					if cfg.General.DebugEnabled {
 						log.Println("Appending Header Authorization: Bearer REDACTED")
 					}
@@ -106,7 +106,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 
 	if err := chromedp.Run(taskCtx,
 		cycleWindowState(cfg),
-		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
+		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: targetURL.Scheme + "://" + targetURL.Host + "/*"}}),
 	); err != nil {
 		panic(err)
 	}
@@ -119,9 +119,9 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 // apikeyLoginFlow navigates to url (with fetch interception already enabled),
 // waits for page load, then blocks until context is cancelled or a message
 // triggers a reload.
-func apikeyLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
-	log.Println("Navigating to ", url)
-	if err := b.Navigate(ctx, url); err != nil {
+func apikeyLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+	log.Println("Navigating to ", dashboardURL)
+	if err := b.Navigate(ctx, dashboardURL); err != nil {
 		return err
 	}
 	if cfg.General.PageLoadDelayMS > 0 {
@@ -133,7 +133,7 @@ func apikeyLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url st
 		case <-ctx.Done():
 			return nil
 		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, url); err != nil {
+			if err := b.Navigate(ctx, dashboardURL); err != nil {
 				return nil
 			}
 			log.Println("Browser output:", messageFromBrowser)

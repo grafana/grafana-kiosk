@@ -51,11 +51,11 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, b browser
 //	email:    input[name="loginfmt"]  (type="email")
 //	password: input[name="passwd"]    (type="password")
 //	next/submit button: input[id="idSIButton9"]
-func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
-	log.Println("Navigating to ", url)
+func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+	log.Println("Navigating to ", dashboardURL)
 
 	log.Println("waiting for azuread login button")
-	if err := b.Navigate(ctx, url); err != nil {
+	if err := b.Navigate(ctx, dashboardURL); err != nil {
 		return err
 	}
 	if err := b.WaitVisible(ctx, `//a[contains(@href,'login/azuread')]`); err != nil {
@@ -103,7 +103,7 @@ func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url s
 		case <-ctx.Done():
 			return nil
 		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, url); err != nil {
+			if err := b.Navigate(ctx, dashboardURL); err != nil {
 				return nil
 			}
 			log.Println("Browser output:", messageFromBrowser)

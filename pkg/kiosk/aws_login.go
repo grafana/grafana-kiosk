@@ -45,9 +45,9 @@ func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, b browse
 // awsLoginFlow navigates to the AWS Managed Grafana login page, accepts the
 // cookie banner, clicks the SSO button, fills in credentials, waits for MFA
 // if enabled, then blocks until context is cancelled or a message triggers a reload.
-func awsLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
-	log.Println("Navigating to ", url)
-	if err := b.Navigate(ctx, url); err != nil {
+func awsLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+	log.Println("Navigating to ", dashboardURL)
+	if err := b.Navigate(ctx, dashboardURL); err != nil {
 		return err
 	}
 	if err := b.WaitVisible(ctx, `//a[contains(@href,'login/sso')]`); err != nil {
@@ -84,7 +84,7 @@ func awsLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url strin
 		case <-ctx.Done():
 			return nil
 		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, url); err != nil {
+			if err := b.Navigate(ctx, dashboardURL); err != nil {
 				return nil
 			}
 			log.Println("Browser output:", messageFromBrowser)

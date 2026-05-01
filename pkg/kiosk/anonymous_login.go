@@ -38,11 +38,11 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, b brows
 	}
 }
 
-// anonymousLoginFlow navigates to url, waits for page load, then blocks until
+// anonymousLoginFlow navigates to dashboardURL, waits for page load, then blocks until
 // context is cancelled or a message triggers a reload.
-func anonymousLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
-	log.Println("Navigating to ", url)
-	if err := b.Navigate(ctx, url); err != nil {
+func anonymousLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+	log.Println("Navigating to ", dashboardURL)
+	if err := b.Navigate(ctx, dashboardURL); err != nil {
 		return err
 	}
 	if cfg.General.PageLoadDelayMS > 0 {
@@ -54,7 +54,7 @@ func anonymousLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url
 		case <-ctx.Done():
 			return nil
 		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, url); err != nil {
+			if err := b.Navigate(ctx, dashboardURL); err != nil {
 				return nil
 			}
 			log.Println("Browser output:", messageFromBrowser)

@@ -46,11 +46,11 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, b browser.Br
 // gcomLoginFlow navigates to the Grafana login page, clicks the grafana.com
 // login button, fills in credentials, then blocks until context is cancelled
 // or a message triggers a reload.
-func gcomLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
-	log.Println("Navigating to ", url)
+func gcomLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+	log.Println("Navigating to ", dashboardURL)
 
 	// XPATH for grafana.com login button = //a[contains(@href,'login/grafana_com')]
-	if err := b.Navigate(ctx, url); err != nil {
+	if err := b.Navigate(ctx, dashboardURL); err != nil {
 		return err
 	}
 
@@ -85,7 +85,7 @@ func gcomLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url stri
 		case <-ctx.Done():
 			return nil
 		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, url); err != nil {
+			if err := b.Navigate(ctx, dashboardURL); err != nil {
 				return nil
 			}
 			log.Println("Browser output:", messageFromBrowser)

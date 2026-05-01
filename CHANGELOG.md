@@ -17,6 +17,10 @@ and this project adheres to
   overrides `-browser`
 - Extract `browser.Browser` interface to decouple login providers from chromedp ([#257](https://github.com/grafana/grafana-kiosk/issues/257))
 
+### CI/CD
+
+- Add `concurrency` group to all workflows to cancel superseded runs on push
+
 ### Tests
 
 - Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers

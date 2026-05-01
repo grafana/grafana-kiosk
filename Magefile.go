@@ -103,7 +103,11 @@ func buildCommandWithVersion(command, arch, version string) error {
 		return fmt.Errorf("unknown arch %s", arch)
 	}
 	log.Printf("Building %s/%s\n", arch, command)
-	outDir := fmt.Sprintf("./bin/%s/%s", arch, command)
+	binary := command
+	if env["GOOS"] == "windows" {
+		binary += ".exe"
+	}
+	outDir := fmt.Sprintf("./bin/%s/%s", arch, binary)
 	cmdDir := fmt.Sprintf("./pkg/cmd/%s", command)
 	return sh.RunWith(
 		env,

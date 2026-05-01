@@ -51,6 +51,8 @@ and this project adheres to
 
 ### Bug Fixes
 
+- Fix Windows binary missing `.exe` suffix in Mage build output
+
 - Fix `hideLogo` query parameter from `_dash.hideLogo` to `hideLogo` to match Grafana's native format
 - Fix Grafana 12+ scenes viewport changes causing kiosk to not autofit panels ([#177](https://github.com/grafana/grafana-kiosk/issues/177))
 - Fix `cycleWindowToSize` unconditionally cycling to fullscreen when kiosk mode is `tv` or `disabled` ([#177](https://github.com/grafana/grafana-kiosk/issues/177))

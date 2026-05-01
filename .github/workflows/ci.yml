@@ -140,7 +140,7 @@ jobs:
           cp -p bin/linux_armv5/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.armv5"
           cp -p bin/linux_armv6/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.armv6"
           cp -p bin/linux_armv7/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.linux.armv7"
-          cp -p bin/windows_amd64/grafana-kiosk "$RELEASE_TARGET_DIR/grafana-kiosk.windows.amd64.exe"
+          cp -p bin/windows_amd64/grafana-kiosk.exe "$RELEASE_TARGET_DIR/grafana-kiosk.windows.amd64.exe"
           zip -r "grafana-kiosk-${SOURCE_TAG}.zip" "$RELEASE_TARGET_DIR"
           tar cf "grafana-kiosk-${SOURCE_TAG}.tar" "$RELEASE_TARGET_DIR"
           gzip "grafana-kiosk-${SOURCE_TAG}.tar"

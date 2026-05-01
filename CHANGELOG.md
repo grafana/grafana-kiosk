@@ -51,6 +51,7 @@ and this project adheres to
 - Move gcom login provider to `pkg/kiosk/login/gcom` package with public `Run()` entrypoint
 - Move generic oauth login provider to `pkg/kiosk/login/goauth` package with public `Run()` entrypoint
 - Move idtoken login provider to `pkg/kiosk/login/idtoken` package with public `Run()` entrypoint
+- Move apikey login provider to `pkg/kiosk/login/apikey` package with public `Run()` entrypoint
 
 ### CI/CD
 

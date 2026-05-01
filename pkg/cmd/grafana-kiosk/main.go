@@ -19,6 +19,7 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/anonymous"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/apikey"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/gcom"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/goauth"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/idtoken"
@@ -385,7 +386,7 @@ func main() {
 				idtoken.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "apikey":
 				log.Printf("Launching apikey kiosk")
-				kiosk.GrafanaKioskAPIKey(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				apikey.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "aws":
 				log.Printf("Launching AWS SSO kiosk")
 				kiosk.GrafanaKioskAWSLogin(ctx, &cfg, dir, &browser.ChromeDP{}, messages)

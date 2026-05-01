@@ -71,7 +71,7 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, b browser
 	})
 
 	generatedURL := GenerateURL(cfg)
-	log.Println("Navigating to ", generatedURL)
+	log.Printf("Navigating to %s", generatedURL)
 
 	// fetch.Enable and Navigate must be in the same chromedp.Run batch so no
 	// unfiltered request can slip through the interception window.

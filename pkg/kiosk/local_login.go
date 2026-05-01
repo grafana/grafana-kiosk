@@ -73,7 +73,7 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, b browser.B
 // localLoginFlow drives the local-account login sequence and then blocks until
 // context is cancelled or a message triggers a reload.
 func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
-	log.Println("Navigating to ", dashboardURL)
+	log.Printf("Navigating to %s", dashboardURL)
 	delay := time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond
 
 	// Login form fields: name=user (text), name=password (password, id=inputPassword)
@@ -81,7 +81,7 @@ func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboa
 		// AutoLogin bypasses OAuth by navigating to /login/local before the dashboard URL
 		bypassURL := LocalLoginBypassURL(cfg.Target.URL)
 
-		log.Println("Bypassing autoLogin using URL ", bypassURL)
+		log.Printf("Bypassing autoLogin using URL %s", bypassURL)
 
 		if err := b.Navigate(ctx, bypassURL); err != nil {
 			return err

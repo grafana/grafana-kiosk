@@ -33,6 +33,9 @@ and this project adheres to
   to prevent unfiltered requests slipping through the interception window
 - Fix silent exits on bad config — all startup validation failures now log a descriptive message with a fix
   suggestion before exiting
+- Replace hardcoded `time.Sleep` with `WaitVisible` in azuread and gcom login flows — sleeps were redundant
+  since the next step already calls `WaitVisible`; removes 3 s from azuread and 3 s from gcom per session
+- Fix double-space in log messages across all login flow files (`"Navigating to "` → `log.Printf`)
 
 ### Chores
 

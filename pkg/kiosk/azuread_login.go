@@ -52,7 +52,7 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, b browser
 //	password: input[name="passwd"]    (type="password")
 //	next/submit button: input[id="idSIButton9"]
 func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
-	log.Println("Navigating to ", dashboardURL)
+	log.Printf("Navigating to %s", dashboardURL)
 
 	log.Println("waiting for azuread login button")
 	if err := b.Navigate(ctx, dashboardURL); err != nil {

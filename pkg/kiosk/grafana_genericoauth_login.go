@@ -46,7 +46,7 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, b br
 // the OAuth button, fills in credentials, handles stay-signed-in prompts, then
 // blocks until context is cancelled or a message triggers a reload.
 func genericOauthLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
-	log.Println("Navigating to ", dashboardURL)
+	log.Printf("Navigating to %s", dashboardURL)
 	log.Println("Oauth_Auto_Login enabled: ", cfg.GoAuth.AutoLogin)
 
 	if err := b.Navigate(ctx, dashboardURL); err != nil {

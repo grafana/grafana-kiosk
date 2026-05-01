@@ -1,4 +1,4 @@
-package kiosk
+package local
 
 import (
 	"context"
@@ -8,12 +8,15 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
+
 	"github.com/grafana/grafana-kiosk/pkg/browser"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 )
 
-// LocalLoginBypassURL extracts the base URL and appends /login/local to bypass
+// BypassURL extracts the base URL and appends /login/local to bypass
 // OAuth auto-login and use a local account instead.
-func LocalLoginBypassURL(rawURL string) string {
+func BypassURL(rawURL string) string {
 	startIndex := strings.Index(rawURL, "://") + 3
 	slashIndex := strings.Index(rawURL[startIndex:], "/")
 
@@ -38,48 +41,31 @@ func loginWithCredentials(ctx context.Context, b browser.Browser, username, pass
 	return b.SendKeys(ctx, `//input[@name="password"]`, password+kb.Enter)
 }
 
-// GrafanaKioskLocal creates a chrome-based kiosk using a local grafana-server account.
-func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
-	opts := generateExecutorOptions(dir, cfg)
-
-	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+// Run creates a chrome-based kiosk using a local grafana-server account.
+func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser, messages chan string) {
+	taskCtx, cancel := shared.NewBrowserContext(ctx, cfg, dir, shared.TargetCrashed)
 	defer cancel()
-
-	// also set up a custom logger
-	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	defer cancel()
-
-	listenBrowserEvents(taskCtx, cfg, targetCrashed)
-
-	// ensure that the browser process is started
-	if err := chromedp.Run(taskCtx); err != nil {
-		panic(err)
-	}
-
-	waitForBrowserStartup(cfg)
 
 	if err := chromedp.Run(taskCtx,
-		waitForPageLoad(cfg),
-		cycleWindowState(cfg),
+		shared.WaitForPageLoad(cfg),
+		shared.CycleWindowState(cfg),
 	); err != nil {
 		panic(err)
 	}
 
-	if err := localLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+	if err := localLoginFlow(taskCtx, cfg, b, shared.GenerateURL(cfg), messages); err != nil {
 		panic(err)
 	}
 }
 
 // localLoginFlow drives the local-account login sequence and then blocks until
 // context is cancelled or a message triggers a reload.
-func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+func localLoginFlow(ctx context.Context, cfg *config.Config, b browser.Browser, dashboardURL string, messages chan string) error {
 	log.Printf("Navigating to %s", dashboardURL)
 	delay := time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond
 
-	// Login form fields: name=user (text), name=password (password, id=inputPassword)
 	if cfg.GoAuth.AutoLogin {
-		// AutoLogin bypasses OAuth by navigating to /login/local before the dashboard URL
-		bypassURL := LocalLoginBypassURL(cfg.Target.URL)
+		bypassURL := BypassURL(cfg.Target.URL)
 
 		log.Printf("Bypassing autoLogin using URL %s", bypassURL)
 
@@ -133,5 +119,5 @@ func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboa
 		}
 	}
 
-	return runMessageLoop(ctx, b, dashboardURL, messages)
+	return shared.RunMessageLoop(ctx, b, dashboardURL, messages)
 }

@@ -1,4 +1,4 @@
-package kiosk
+package gcom
 
 import (
 	"context"
@@ -8,36 +8,23 @@ import (
 	"github.com/chromedp/chromedp/kb"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 )
 
-// GrafanaKioskGCOM creates a chrome-based kiosk using a grafana.com authenticated account.
-func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
-	opts := generateExecutorOptions(dir, cfg)
-
-	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+// Run creates a chrome-based kiosk using a grafana.com authenticated account.
+func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser, messages chan string) {
+	taskCtx, cancel := shared.NewBrowserContext(ctx, cfg, dir, shared.TargetCrashed)
 	defer cancel()
-
-	// also set up a custom logger
-	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	defer cancel()
-
-	listenBrowserEvents(taskCtx, cfg, targetCrashed)
-
-	// ensure that the browser process is started
-	if err := chromedp.Run(taskCtx); err != nil {
-		panic(err)
-	}
-
-	waitForBrowserStartup(cfg)
 
 	if err := chromedp.Run(taskCtx,
-		waitForPageLoad(cfg),
-		cycleWindowState(cfg),
+		shared.WaitForPageLoad(cfg),
+		shared.CycleWindowState(cfg),
 	); err != nil {
 		panic(err)
 	}
 
-	if err := gcomLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+	if err := gcomLoginFlow(taskCtx, cfg, b, shared.GenerateURL(cfg), messages); err != nil {
 		panic(err)
 	}
 }
@@ -45,7 +32,7 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, b browser.Br
 // gcomLoginFlow navigates to the Grafana login page, clicks the grafana.com
 // login button, fills in credentials, then blocks until context is cancelled
 // or a message triggers a reload.
-func gcomLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+func gcomLoginFlow(ctx context.Context, cfg *config.Config, b browser.Browser, dashboardURL string, messages chan string) error {
 	log.Printf("Navigating to %s", dashboardURL)
 
 	if err := b.Navigate(ctx, dashboardURL); err != nil {
@@ -74,5 +61,5 @@ func gcomLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboar
 		return err
 	}
 
-	return runMessageLoop(ctx, b, dashboardURL, messages)
+	return shared.RunMessageLoop(ctx, b, dashboardURL, messages)
 }

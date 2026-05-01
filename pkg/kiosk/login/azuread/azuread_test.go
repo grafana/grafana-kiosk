@@ -1,4 +1,4 @@
-package kiosk
+package azuread
 
 import (
 	"context"
@@ -7,21 +7,23 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestAzureADLoginFlow(t *testing.T) {
-	baseCfg := func() *Config {
-		return &Config{
-			General: General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
-			Target:  Target{URL: "https://grafana.example.com/d/abc", Username: "user@example.com", Password: "secret"},
+	baseCfg := func() *config.Config {
+		return &config.Config{
+			General: config.General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
+			Target:  config.Target{URL: "https://grafana.example.com/d/abc", Username: "user@example.com", Password: "secret"},
 		}
 	}
 
 	Convey("Given azureADLoginFlow", t, func() {
 		mock := browsertest.NewMock()
 		cfg := baseCfg()
-		url := GenerateURL(cfg)
+		url := shared.GenerateURL(cfg)
 
 		Convey("Returns error if Navigate fails", func() {
 			mock.Errors["Navigate"] = errors.New("refused")

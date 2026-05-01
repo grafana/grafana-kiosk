@@ -1,4 +1,4 @@
-package kiosk
+package local
 
 import (
 	"context"
@@ -7,33 +7,35 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestLocalLoginBypassURL(t *testing.T) {
+func TestBypassURL(t *testing.T) {
 	Convey("Given a URL for local login bypass", t, func() {
 		Convey("When URL has a path", func() {
-			result := LocalLoginBypassURL("https://grafana.example.com/dashboard/db/test")
+			result := BypassURL("https://grafana.example.com/dashboard/db/test")
 			So(result, ShouldEqual, "https://grafana.example.com/login/local")
 		})
 
 		Convey("When URL has no path", func() {
-			result := LocalLoginBypassURL("https://grafana.example.com")
+			result := BypassURL("https://grafana.example.com")
 			So(result, ShouldEqual, "https://grafana.example.com/login/local")
 		})
 
 		Convey("When URL has a port", func() {
-			result := LocalLoginBypassURL("https://localhost:3000/d/abc123")
+			result := BypassURL("https://localhost:3000/d/abc123")
 			So(result, ShouldEqual, "https://localhost:3000/login/local")
 		})
 
 		Convey("When URL uses http", func() {
-			result := LocalLoginBypassURL("http://grafana.local/playlists/play/1")
+			result := BypassURL("http://grafana.local/playlists/play/1")
 			So(result, ShouldEqual, "http://grafana.local/login/local")
 		})
 
 		Convey("When URL has a deep path", func() {
-			result := LocalLoginBypassURL("https://bkgann3.grafana.net/dashboard/db/sensu-summary")
+			result := BypassURL("https://bkgann3.grafana.net/dashboard/db/sensu-summary")
 			So(result, ShouldEqual, "https://bkgann3.grafana.net/login/local")
 		})
 	})
@@ -74,18 +76,18 @@ func TestLoginWithCredentials(t *testing.T) {
 }
 
 func TestLocalLoginFlow(t *testing.T) {
-	baseCfg := func() *Config {
-		return &Config{
-			General: General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
-			Target:  Target{URL: "https://grafana.example.com/d/abc/dashboard", Username: "admin", Password: "secret"},
+	baseCfg := func() *config.Config {
+		return &config.Config{
+			General: config.General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
+			Target:  config.Target{URL: "https://grafana.example.com/d/abc/dashboard", Username: "admin", Password: "secret"},
 		}
 	}
 
 	Convey("Given localLoginFlow with AutoLogin", t, func() {
 		mock := browsertest.NewMock()
 		cfg := baseCfg()
-		cfg.GoAuth = GoAuth{AutoLogin: true}
-		generatedURL := GenerateURL(cfg)
+		cfg.GoAuth = config.GoAuth{AutoLogin: true}
+		generatedURL := shared.GenerateURL(cfg)
 
 		Convey("Full sequence: bypass URL → credentials → avatar wait → dashboard", func() {
 			ctx, cancel := context.WithCancel(context.Background())
@@ -99,8 +101,8 @@ func TestLocalLoginFlow(t *testing.T) {
 			So(nav, ShouldHaveLength, 2)
 			So(nav[0].Args[0], ShouldEqual, "https://grafana.example.com/login/local")
 			So(nav[1].Args[0], ShouldContainSubstring, "kiosk=1")
-			So(mock.CallsTo("WaitVisible"), ShouldHaveLength, 2) // user field + avatar
-			So(mock.CallsTo("SendKeys"), ShouldHaveLength, 2)    // username + password
+			So(mock.CallsTo("WaitVisible"), ShouldHaveLength, 2)
+			So(mock.CallsTo("SendKeys"), ShouldHaveLength, 2)
 		})
 
 		Convey("Returns error if Navigate to bypass URL fails", func() {
@@ -109,12 +111,34 @@ func TestLocalLoginFlow(t *testing.T) {
 			So(err, ShouldNotBeNil)
 			So(mock.CallsTo("Navigate")[0].Args[0], ShouldEqual, "https://grafana.example.com/login/local")
 		})
+
+		Convey("Returns error if WaitVisible avatar fails", func() {
+			mock.Errors["WaitVisible"] = errors.New("timeout")
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- localLoginFlow(ctx, cfg, mock, generatedURL, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			err := <-done
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("With delay: respects PageLoadDelayMS between steps", func() {
+			cfg.General.PageLoadDelayMS = 1
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- localLoginFlow(ctx, cfg, mock, generatedURL, make(chan string)) }()
+			time.Sleep(50 * time.Millisecond)
+			cancel()
+			<-done
+			So(mock.CallCount("Navigate"), ShouldBeGreaterThanOrEqualTo, 1)
+		})
 	})
 
 	Convey("Given localLoginFlow without AutoLogin", t, func() {
 		mock := browsertest.NewMock()
 		cfg := baseCfg()
-		generatedURL := GenerateURL(cfg)
+		generatedURL := shared.GenerateURL(cfg)
 
 		Convey("Full sequence: dashboard URL → credentials", func() {
 			ctx, cancel := context.WithCancel(context.Background())
@@ -127,7 +151,7 @@ func TestLocalLoginFlow(t *testing.T) {
 			nav := mock.CallsTo("Navigate")
 			So(nav, ShouldHaveLength, 1)
 			So(nav[0].Args[0], ShouldContainSubstring, "kiosk=1")
-			So(mock.CallsTo("WaitVisible"), ShouldHaveLength, 1) // user field only
+			So(mock.CallsTo("WaitVisible"), ShouldHaveLength, 1)
 			So(mock.CallsTo("SendKeys"), ShouldHaveLength, 2)
 		})
 

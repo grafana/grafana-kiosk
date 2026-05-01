@@ -1,4 +1,4 @@
-package kiosk
+package idtoken
 
 import (
 	"context"

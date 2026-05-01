@@ -1,4 +1,4 @@
-package kiosk
+package goauth
 
 import (
 	"context"
@@ -8,36 +8,23 @@ import (
 	"github.com/chromedp/chromedp/kb"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 )
 
-// GrafanaKioskGenericOauth creates a chrome-based kiosk using a oauth2 authenticated account.
-func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
-	opts := generateExecutorOptions(dir, cfg)
-
-	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+// Run creates a chrome-based kiosk using a oauth2 authenticated account.
+func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser, messages chan string) {
+	taskCtx, cancel := shared.NewBrowserContext(ctx, cfg, dir, shared.TargetCrashed)
 	defer cancel()
-
-	// also set up a custom logger
-	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	defer cancel()
-
-	listenBrowserEvents(taskCtx, cfg, targetCrashed)
-
-	// ensure that the browser process is started
-	if err := chromedp.Run(taskCtx); err != nil {
-		panic(err)
-	}
-
-	waitForBrowserStartup(cfg)
 
 	if err := chromedp.Run(taskCtx,
-		waitForPageLoad(cfg),
-		cycleWindowState(cfg),
+		shared.WaitForPageLoad(cfg),
+		shared.CycleWindowState(cfg),
 	); err != nil {
 		panic(err)
 	}
 
-	if err := genericOauthLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+	if err := genericOauthLoginFlow(taskCtx, cfg, b, shared.GenerateURL(cfg), messages); err != nil {
 		panic(err)
 	}
 }
@@ -45,7 +32,7 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, b br
 // genericOauthLoginFlow navigates to the Grafana login page, optionally clicks
 // the OAuth button, fills in credentials, handles stay-signed-in prompts, then
 // blocks until context is cancelled or a message triggers a reload.
-func genericOauthLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+func genericOauthLoginFlow(ctx context.Context, cfg *config.Config, b browser.Browser, dashboardURL string, messages chan string) error {
 	log.Printf("Navigating to %s", dashboardURL)
 	log.Println("Oauth_Auto_Login enabled: ", cfg.GoAuth.AutoLogin)
 
@@ -62,9 +49,8 @@ func genericOauthLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, 
 		}
 	}
 
-	waitForBrowserStartup(cfg)
+	shared.WaitForBrowserStartup(cfg)
 
-	// Fill out OAuth login page
 	if cfg.GoAuth.WaitForPasswordField {
 		if err := b.WaitVisible(ctx, `//input[@name="`+cfg.GoAuth.UsernameField+`"]`); err != nil {
 			return err
@@ -99,5 +85,5 @@ func genericOauthLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, 
 		}
 	}
 
-	return runMessageLoop(ctx, b, dashboardURL, messages)
+	return shared.RunMessageLoop(ctx, b, dashboardURL, messages)
 }

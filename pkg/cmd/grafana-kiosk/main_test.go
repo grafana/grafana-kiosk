@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/grafana/grafana-kiosk/pkg/kiosk"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 	"github.com/ilyakaznacheev/cleanenv"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -70,7 +70,7 @@ general:
 				"-c", tmpFile.Name(),
 				"-ignore-certificate-errors",
 			}
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
@@ -84,7 +84,7 @@ general:
 				"grafana-kiosk",
 				"-c", tmpFile.Name(),
 			}
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
@@ -101,7 +101,7 @@ general:
 				"-kiosk-mode", "tv",
 				"-incognito=false",
 			}
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
@@ -120,7 +120,7 @@ general:
 				"grafana-kiosk",
 				"-c", "/nonexistent/config.yaml",
 			}
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldNotBeNil)
@@ -135,7 +135,7 @@ func TestLoadConfigEnvOnly(t *testing.T) {
 		os.Args = []string{"grafana-kiosk"}
 
 		Convey("Should load defaults from environment", func() {
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
@@ -152,7 +152,7 @@ func TestLoadConfigEnvOnly(t *testing.T) {
 				"-URL", "http://localhost:3000",
 				"-kiosk-mode", "tv",
 			}
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
@@ -175,7 +175,7 @@ func TestLoadConfigMalformedYAML(t *testing.T) {
 		}
 
 		Convey("Should return error", func() {
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldNotBeNil)
@@ -194,7 +194,7 @@ func TestLoadConfigFromTestdata(t *testing.T) {
 		}
 
 		Convey("Should load all values from config file", func() {
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
@@ -223,7 +223,7 @@ func TestLoadConfigFromTestdata(t *testing.T) {
 		}
 
 		Convey("Should load login-method as local", func() {
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
@@ -246,7 +246,7 @@ func TestLoadConfigEnvOverridesFile(t *testing.T) {
 			defer func() { _ = os.Setenv("KIOSK_URL", oldVal) }()
 			_ = os.Setenv("KIOSK_URL", "https://env-override.example.com")
 
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
@@ -296,7 +296,7 @@ func TestProcessArgsAllFlags(t *testing.T) {
 			"-apikey", "secret123",
 		}
 
-		var cfg kiosk.Config
+		var cfg config.Config
 		result, _ := ProcessArgs(&cfg)
 
 		Convey("Should parse target flags", func() {
@@ -382,7 +382,7 @@ func TestLoadConfigAllFlagsOverride(t *testing.T) {
 		}
 
 		Convey("All CLI flags should override config file", func() {
-			var cfg kiosk.Config
+			var cfg config.Config
 			args, fs := ProcessArgs(&cfg)
 			err := loadConfig(args, fs, &cfg)
 			So(err, ShouldBeNil)
@@ -415,11 +415,11 @@ func TestLoadConfigAllFlagsOverride(t *testing.T) {
 
 func TestMain(t *testing.T) {
 	Convey("Given Default Configuration", t, func() {
-		cfg := kiosk.Config{
-			BuildInfo: kiosk.BuildInfo{
+		cfg := config.Config{
+			BuildInfo: config.BuildInfo{
 				Version: "1.0.0",
 			},
-			General: kiosk.General{
+			General: config.General{
 				AutoFit:        true,
 				LXDEEnabled:    true,
 				LXDEHome:       "/home/pi",
@@ -428,7 +428,7 @@ func TestMain(t *testing.T) {
 				WindowSize:     "1920,1080",
 				ScaleFactor:    "1.0",
 			},
-			Target: kiosk.Target{
+			Target: config.Target{
 				IgnoreCertificateErrors: false,
 				IsPlayList:              false,
 				UseMFA:                  false,
@@ -437,16 +437,16 @@ func TestMain(t *testing.T) {
 				URL:                     "http://localhost:3000",
 				Username:                "admin",
 			},
-			GoAuth: kiosk.GoAuth{
+			GoAuth: config.GoAuth{
 				AutoLogin:     false,
 				UsernameField: "user",
 				PasswordField: "password",
 			},
-			IDToken: kiosk.IDToken{
+			IDToken: config.IDToken{
 				KeyFile:  "/tmp/key.json",
 				Audience: "clientid",
 			},
-			APIKey: kiosk.APIKey{
+			APIKey: config.APIKey{
 				APIKey: "abc",
 			},
 		}
@@ -475,7 +475,7 @@ func TestMain(t *testing.T) {
 				if err != nil {
 					log.Println("Error setting environment KIOSK_AUTOFIT", err)
 				}
-				cfg := kiosk.Config{}
+				cfg := config.Config{}
 				if err := cleanenv.ReadEnv(&cfg); err != nil {
 					log.Println("Error reading config from environment", err)
 				}
@@ -516,8 +516,8 @@ func captureLogOutput(fn func()) string {
 
 func TestLogGeneralSettings(t *testing.T) {
 	Convey("Given a config with general settings", t, func() {
-		cfg := &kiosk.Config{
-			General: kiosk.General{
+		cfg := &config.Config{
+			General: config.General{
 				AutoFit:         true,
 				Mode:            "full",
 				Incognito:       true,
@@ -553,8 +553,8 @@ func TestLogGeneralSettings(t *testing.T) {
 
 func TestLogTargetSettings(t *testing.T) {
 	Convey("Given a config with target settings", t, func() {
-		cfg := &kiosk.Config{
-			Target: kiosk.Target{
+		cfg := &config.Config{
+			Target: config.Target{
 				URL:         "https://grafana.example.com",
 				LoginMethod: "local",
 				Username:    "admin",
@@ -580,8 +580,8 @@ func TestLogTargetSettings(t *testing.T) {
 
 func TestLogGoAuthSettings(t *testing.T) {
 	Convey("Given a config with GoAuth settings", t, func() {
-		cfg := &kiosk.Config{
-			GoAuth: kiosk.GoAuth{
+		cfg := &config.Config{
+			GoAuth: config.GoAuth{
 				AutoLogin:     true,
 				UsernameField: "email",
 				PasswordField: "passwd",

@@ -1,4 +1,4 @@
-package kiosk
+package apikey
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -129,7 +130,7 @@ func TestIsTargetHostRequest(t *testing.T) {
 func TestApikeyLoginFlow(t *testing.T) {
 	Convey("Given apikeyLoginFlow", t, func() {
 		mock := browsertest.NewMock()
-		cfg := &Config{General: General{PageLoadDelayMS: 0}}
+		cfg := &config.Config{General: config.General{PageLoadDelayMS: 0}}
 		url := "https://grafana.example.com/d/abc?kiosk=1"
 
 		Convey("Navigates to provided URL", func() {

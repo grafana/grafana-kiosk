@@ -1,4 +1,4 @@
-package kiosk
+package azuread
 
 import (
 	"context"
@@ -7,36 +7,23 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 )
 
-// GrafanaKioskAzureAD creates a chrome-based kiosk using an Azure Active Directory authenticated account.
-func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
-	opts := generateExecutorOptions(dir, cfg)
-
-	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+// Run creates a chrome-based kiosk using an Azure Active Directory authenticated account.
+func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser, messages chan string) {
+	taskCtx, cancel := shared.NewBrowserContext(ctx, cfg, dir, shared.TargetCrashed)
 	defer cancel()
-
-	// also set up a custom logger
-	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	defer cancel()
-
-	listenBrowserEvents(taskCtx, cfg, targetCrashed)
-
-	// ensure that the browser process is started
-	if err := chromedp.Run(taskCtx); err != nil {
-		panic(err)
-	}
-
-	waitForBrowserStartup(cfg)
 
 	if err := chromedp.Run(taskCtx,
-		waitForPageLoad(cfg),
-		cycleWindowState(cfg),
+		shared.WaitForPageLoad(cfg),
+		shared.CycleWindowState(cfg),
 	); err != nil {
 		panic(err)
 	}
 
-	if err := azureADLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+	if err := azureADLoginFlow(taskCtx, cfg, b, shared.GenerateURL(cfg), messages); err != nil {
 		panic(err)
 	}
 }
@@ -50,7 +37,7 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, b browser
 //	email:    input[name="loginfmt"]  (type="email")
 //	password: input[name="passwd"]    (type="password")
 //	next/submit button: input[id="idSIButton9"]
-func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+func azureADLoginFlow(ctx context.Context, cfg *config.Config, b browser.Browser, dashboardURL string, messages chan string) error {
 	log.Printf("Navigating to %s", dashboardURL)
 
 	log.Println("waiting for azuread login button")
@@ -91,7 +78,7 @@ func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashb
 		return err
 	}
 	log.Println("sign in button clicked")
-	sleepPageLoad(cfg)
+	shared.SleepPageLoad(cfg)
 
-	return runMessageLoop(ctx, b, dashboardURL, messages)
+	return shared.RunMessageLoop(ctx, b, dashboardURL, messages)
 }

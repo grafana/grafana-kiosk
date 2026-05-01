@@ -1,4 +1,4 @@
-package kiosk
+package goauth
 
 import (
 	"context"
@@ -7,22 +7,24 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestGenericOauthLoginFlow(t *testing.T) {
-	baseCfg := func() *Config {
-		return &Config{
-			General: General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
-			Target:  Target{URL: "https://grafana.example.com/d/abc", Username: "admin", Password: "secret"},
-			GoAuth:  GoAuth{UsernameField: "username", PasswordField: "password"},
+	baseCfg := func() *config.Config {
+		return &config.Config{
+			General: config.General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
+			Target:  config.Target{URL: "https://grafana.example.com/d/abc", Username: "admin", Password: "secret"},
+			GoAuth:  config.GoAuth{UsernameField: "username", PasswordField: "password"},
 		}
 	}
 
 	Convey("Given genericOauthLoginFlow without AutoLogin", t, func() {
 		mock := browsertest.NewMock()
 		cfg := baseCfg()
-		url := GenerateURL(cfg)
+		url := shared.GenerateURL(cfg)
 
 		Convey("Returns error if Navigate fails", func() {
 			mock.Errors["Navigate"] = errors.New("refused")
@@ -61,7 +63,7 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 		mock := browsertest.NewMock()
 		cfg := baseCfg()
 		cfg.GoAuth.AutoLogin = true
-		url := GenerateURL(cfg)
+		url := shared.GenerateURL(cfg)
 
 		Convey("Skips OAuth button click", func() {
 			ctx, cancel := context.WithCancel(context.Background())
@@ -71,7 +73,6 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 			cancel()
 			<-done
 
-			// No Click on generic_oauth button
 			for _, c := range mock.CallsTo("Click") {
 				So(c.Args[0], ShouldNotContainSubstring, "generic_oauth")
 			}
@@ -83,7 +84,7 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 		cfg := baseCfg()
 		cfg.GoAuth.WaitForPasswordField = true
 		cfg.GoAuth.AutoLogin = true
-		url := GenerateURL(cfg)
+		url := shared.GenerateURL(cfg)
 
 		Convey("Sends username with Enter then waits for password field", func() {
 			ctx, cancel := context.WithCancel(context.Background())
@@ -95,8 +96,21 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 
 			sendCalls := mock.CallsTo("SendKeys")
 			So(sendCalls, ShouldHaveLength, 2)
-			// username sent with Enter appended
 			So(sendCalls[0].Args[1], ShouldContainSubstring, cfg.Target.Username)
+		})
+	})
+
+	Convey("Given genericOauthLoginFlow with WaitForPasswordField", t, func() {
+		mock := browsertest.NewMock()
+		cfg := baseCfg()
+		cfg.GoAuth.WaitForPasswordField = true
+		cfg.GoAuth.AutoLogin = true
+		url := shared.GenerateURL(cfg)
+
+		Convey("Returns error if SendKeys fails in WaitForPasswordField path", func() {
+			mock.Errors["SendKeys"] = errors.New("send failed")
+			err := genericOauthLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
 		})
 	})
 
@@ -105,7 +119,7 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 		cfg := baseCfg()
 		cfg.GoAuth.AutoLogin = true
 		cfg.GoAuth.WaitForStaySignedInPrompt = true
-		url := GenerateURL(cfg)
+		url := shared.GenerateURL(cfg)
 
 		Convey("Clicks Yes button after credentials", func() {
 			ctx, cancel := context.WithCancel(context.Background())
@@ -117,6 +131,12 @@ func TestGenericOauthLoginFlow(t *testing.T) {
 
 			clickCalls := mock.CallsTo("Click")
 			So(clickCalls[len(clickCalls)-1].Args[0], ShouldContainSubstring, `value="Yes"`)
+		})
+
+		Convey("Returns error if WaitVisible for Yes button fails", func() {
+			mock.Errors["WaitVisible"] = errors.New("prompt not shown")
+			err := genericOauthLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
 		})
 	})
 }

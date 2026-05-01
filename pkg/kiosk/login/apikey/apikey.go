@@ -1,4 +1,4 @@
-package kiosk
+package apikey
 
 import (
 	"context"
@@ -11,6 +11,8 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 )
 
 // IsDataSourceQueryRequest checks if the request URL is a datasource query API
@@ -21,8 +23,6 @@ func IsDataSourceQueryRequest(requestURL, targetScheme, targetHost string) bool 
 	if !strings.HasPrefix(requestURL, prefix) {
 		return false
 	}
-	// Ensure the prefix is followed by "/" or end of string to prevent
-	// matching against hosts that share a prefix (e.g., example.com.evil.com)
 	rest := requestURL[len(prefix):]
 	if len(rest) > 0 && rest[0] != '/' {
 		return false
@@ -41,32 +41,17 @@ func IsTargetHostRequest(requestHost, targetHost string) bool {
 	return requestHost == targetHost
 }
 
-// GrafanaKioskAPIKey creates a chrome-based kiosk using a grafana api key.
-func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
-	opts := generateExecutorOptions(dir, cfg)
-
-	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+// Run creates a chrome-based kiosk using a grafana api key.
+func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser, messages chan string) {
+	taskCtx, cancel := shared.NewBrowserContext(ctx, cfg, dir, shared.ConsoleAPICall|shared.TargetCrashed)
 	defer cancel()
-
-	// also set up a custom logger
-	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	defer cancel()
-
-	listenBrowserEvents(taskCtx, cfg, consoleAPICall|targetCrashed)
-
-	// ensure that the browser process is started
-	if err := chromedp.Run(taskCtx); err != nil {
-		panic(err)
-	}
-
-	waitForBrowserStartup(cfg)
 
 	targetURL, err := url.Parse(cfg.Target.URL)
 	if err != nil {
 		panic(fmt.Errorf("url.Parse: %w", err))
 	}
 
-	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
+	chromedp.ListenTarget(taskCtx, func(ev any) {
 		switch ev := ev.(type) {
 		case *fetch.EventRequestPaused:
 			go func() {
@@ -81,7 +66,6 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 					log.Printf("apikey url.Parse error: %v", err)
 					return
 				}
-				// Add Content-Type header only for datasource query API calls
 				if IsDataSourceQueryRequest(ev.Request.URL, targetURL.Scheme, targetURL.Host) {
 					if cfg.General.DebugEnabled {
 						log.Println("Appending Content-Type Header for Metric Query")
@@ -91,7 +75,6 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 						&fetch.HeaderEntry{Name: "Content-Type", Value: "application/json"},
 					)
 				}
-				// Append Bearer token to all requests matching the target host
 				if IsTargetHostRequest(requestURL.Host, targetURL.Host) {
 					if cfg.General.DebugEnabled {
 						log.Println("Appending Header Authorization: Bearer REDACTED")
@@ -101,7 +84,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 						&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
 					)
 				}
-				if err = fetchReq.Do(GetExecutor(taskCtx)); err != nil {
+				if err = fetchReq.Do(shared.GetExecutor(taskCtx)); err != nil {
 					log.Printf("apikey fetchReq error: %v", err)
 				}
 			}()
@@ -109,13 +92,13 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 	})
 
 	if err := chromedp.Run(taskCtx,
-		cycleWindowState(cfg),
+		shared.CycleWindowState(cfg),
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: targetURL.Scheme + "://" + targetURL.Host + "/*"}}),
 	); err != nil {
 		panic(err)
 	}
 
-	if err := apikeyLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+	if err := apikeyLoginFlow(taskCtx, cfg, b, shared.GenerateURL(cfg), messages); err != nil {
 		panic(err)
 	}
 }
@@ -123,11 +106,11 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 // apikeyLoginFlow navigates to url (with fetch interception already enabled),
 // waits for page load, then blocks until context is cancelled or a message
 // triggers a reload.
-func apikeyLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+func apikeyLoginFlow(ctx context.Context, cfg *config.Config, b browser.Browser, dashboardURL string, messages chan string) error {
 	log.Printf("Navigating to %s", dashboardURL)
 	if err := b.Navigate(ctx, dashboardURL); err != nil {
 		return err
 	}
-	sleepPageLoad(cfg)
-	return runMessageLoop(ctx, b, dashboardURL, messages)
+	shared.SleepPageLoad(cfg)
+	return shared.RunMessageLoop(ctx, b, dashboardURL, messages)
 }

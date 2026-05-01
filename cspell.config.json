@@ -90,7 +90,8 @@
     "overrideuser",
     "slimbean",
     "testpass",
-    "testuser"
+    "testuser",
+    "gidtoken"
   ],
   "ignoreRegExpList": [
     "@[\\w]+"

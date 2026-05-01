@@ -1,4 +1,4 @@
-package kiosk
+package aws
 
 import (
 	"context"
@@ -8,38 +8,23 @@ import (
 	"github.com/chromedp/chromedp/kb"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 )
 
-// GrafanaKioskAWSLogin Provides login for AWS Managed Grafana instances
-func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
-	opts := generateExecutorOptions(dir, cfg)
-
-	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+// Run provides login for AWS Managed Grafana instances.
+func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser, messages chan string) {
+	taskCtx, cancel := shared.NewBrowserContext(ctx, cfg, dir, shared.TargetCrashed)
 	defer cancel()
 
-	// also set up a custom logger
-	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	defer cancel()
-
-	listenBrowserEvents(taskCtx, cfg, targetCrashed)
-
-	// ensure that the browser process is started
-	if err := chromedp.Run(taskCtx); err != nil {
-		panic(err)
-	}
-
-	waitForBrowserStartup(cfg)
-
-	// cycleWindowState runs before awsLoginFlow's Navigate — no fetch
-	// interception is involved so the two-step ordering is safe.
 	if err := chromedp.Run(taskCtx,
-		waitForPageLoad(cfg),
-		cycleWindowState(cfg),
+		shared.WaitForPageLoad(cfg),
+		shared.CycleWindowState(cfg),
 	); err != nil {
 		panic(err)
 	}
 
-	if err := awsLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+	if err := awsLoginFlow(taskCtx, cfg, b, shared.GenerateURL(cfg), messages); err != nil {
 		panic(err)
 	}
 }
@@ -47,7 +32,7 @@ func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, b browse
 // awsLoginFlow navigates to the AWS Managed Grafana login page, accepts the
 // cookie banner, clicks the SSO button, fills in credentials, waits for MFA
 // if enabled, then blocks until context is cancelled or a message triggers a reload.
-func awsLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+func awsLoginFlow(ctx context.Context, cfg *config.Config, b browser.Browser, dashboardURL string, messages chan string) error {
 	log.Printf("Navigating to %s", dashboardURL)
 	if err := b.Navigate(ctx, dashboardURL); err != nil {
 		return err
@@ -81,5 +66,5 @@ func awsLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboard
 			return err
 		}
 	}
-	return runMessageLoop(ctx, b, dashboardURL, messages)
+	return shared.RunMessageLoop(ctx, b, dashboardURL, messages)
 }

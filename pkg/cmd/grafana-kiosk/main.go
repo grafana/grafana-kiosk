@@ -17,6 +17,15 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/browser"
 	"github.com/grafana/grafana-kiosk/pkg/initialize"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/anonymous"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/apikey"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/aws"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/azuread"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/gcom"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/goauth"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/idtoken"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/local"
 )
 
 var (
@@ -70,7 +79,7 @@ type Args struct {
 }
 
 // ProcessArgs processes and handles CLI arguments.
-func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
+func ProcessArgs(cfg any) (Args, *flag.FlagSet) {
 	var processedArgs Args
 
 	flagSettings := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)
@@ -130,7 +139,7 @@ func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
 
 // loadConfig reads configuration from a file or environment, then applies
 // CLI flag overrides. Flags always take precedence.
-func loadConfig(args Args, fs *flag.FlagSet, cfg *kiosk.Config) error {
+func loadConfig(args Args, fs *flag.FlagSet, cfg *config.Config) error {
 	if args.ConfigPath != "" {
 		// read configuration from the file and then override with environment variables
 		if err := cleanenv.ReadConfig(args.ConfigPath, cfg); err != nil {
@@ -222,7 +231,7 @@ func setEnvironment() {
 	log.Println("XAUTHORITY=", sanitize(xAuthorityEnv)) // #nosec G706 -- sanitized before logging
 }
 
-func summary(cfg *kiosk.Config) {
+func summary(cfg *config.Config) {
 	log.Println("*************************************************************")
 	logGeneralSettings(cfg)
 	logTargetSettings(cfg)
@@ -230,7 +239,7 @@ func summary(cfg *kiosk.Config) {
 	log.Println("*************************************************************")
 }
 
-func logGeneralSettings(cfg *kiosk.Config) {
+func logGeneralSettings(cfg *config.Config) {
 	log.Println("--- General -------------------------------------------------")
 	log.Println("AutoFit:", cfg.General.AutoFit)
 	log.Println("LXDEEnabled:", cfg.General.LXDEEnabled)
@@ -251,7 +260,7 @@ func logGeneralSettings(cfg *kiosk.Config) {
 	log.Println("HideVariables:", cfg.General.HideVariables)
 }
 
-func logTargetSettings(cfg *kiosk.Config) {
+func logTargetSettings(cfg *config.Config) {
 	log.Println("--- Target --------------------------------------------------")
 	log.Println("URL:", cfg.Target.URL)
 	log.Println("LoginMethod:", cfg.Target.LoginMethod)
@@ -262,7 +271,7 @@ func logTargetSettings(cfg *kiosk.Config) {
 	log.Println("UseMFA:", cfg.Target.UseMFA)
 }
 
-func logGoAuthSettings(cfg *kiosk.Config) {
+func logGoAuthSettings(cfg *config.Config) {
 	log.Println("--- GoAuth --------------------------------------------------")
 	log.Println("Fieldname AutoLogin:", cfg.GoAuth.AutoLogin)
 	log.Println("Fieldname Username:", cfg.GoAuth.UsernameField)
@@ -270,7 +279,7 @@ func logGoAuthSettings(cfg *kiosk.Config) {
 }
 
 func main() {
-	var cfg kiosk.Config
+	var cfg config.Config
 	fmt.Println("GrafanaKiosk Version:", Version)
 	// set the version
 	cfg.BuildInfo.Version = Version
@@ -367,28 +376,28 @@ func main() {
 			switch cfg.Target.LoginMethod {
 			case "local":
 				log.Printf("Launching local login kiosk")
-				kiosk.GrafanaKioskLocal(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				local.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "gcom":
 				log.Printf("Launching GCOM login kiosk")
-				kiosk.GrafanaKioskGCOM(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				gcom.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "goauth":
 				log.Printf("Launching Generic Oauth login kiosk")
-				kiosk.GrafanaKioskGenericOauth(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				goauth.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "idtoken":
 				log.Printf("Launching idtoken oauth kiosk")
-				kiosk.GrafanaKioskIDToken(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				idtoken.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "apikey":
 				log.Printf("Launching apikey kiosk")
-				kiosk.GrafanaKioskAPIKey(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				apikey.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "aws":
 				log.Printf("Launching AWS SSO kiosk")
-				kiosk.GrafanaKioskAWSLogin(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				aws.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			case "azuread":
 				log.Printf("Launching AzureAD login kiosk")
-				kiosk.GrafanaKioskAzureAD(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				azuread.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			default:
 				log.Printf("Launching ANON login kiosk")
-				kiosk.GrafanaKioskAnonymous(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
+				anonymous.Run(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 			}
 		}()
 

@@ -1,4 +1,4 @@
-package kiosk
+package gcom
 
 import (
 	"context"
@@ -7,14 +7,15 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestGcomLoginFlow(t *testing.T) {
-	baseCfg := func() *Config {
-		return &Config{
-			General: General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
-			Target:  Target{URL: "https://grafana.example.com/d/abc", Username: "user@example.com", Password: "secret"},
+	baseCfg := func() *config.Config {
+		return &config.Config{
+			General: config.General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
+			Target:  config.Target{URL: "https://grafana.example.com/d/abc", Username: "user@example.com", Password: "secret"},
 		}
 	}
 
@@ -62,7 +63,6 @@ func TestGcomLoginFlow(t *testing.T) {
 			So(mock.CallsTo("WaitVisible")[1].Args[0], ShouldContainSubstring, `name="login"`)
 			So(mock.CallsTo("SendKeys")[0].Args[1], ShouldEqual, cfg.Target.Username)
 			So(mock.CallsTo("Click")[1].Args[0], ShouldEqual, `#submit`)
-			// Reload Navigate is the second Navigate call
 			So(mock.CallCount("Navigate"), ShouldEqual, 2)
 		})
 	})

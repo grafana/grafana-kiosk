@@ -1,4 +1,4 @@
-package kiosk
+package aws
 
 import (
 	"context"
@@ -7,21 +7,23 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestAwsLoginFlow(t *testing.T) {
-	baseCfg := func() *Config {
-		return &Config{
-			General: General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
-			Target:  Target{URL: "https://grafana.example.com/d/abc", Username: "admin", Password: "secret"},
+	baseCfg := func() *config.Config {
+		return &config.Config{
+			General: config.General{Mode: "full", AutoFit: true, PageLoadDelayMS: 0},
+			Target:  config.Target{URL: "https://grafana.example.com/d/abc", Username: "admin", Password: "secret"},
 		}
 	}
 
 	Convey("Given awsLoginFlow", t, func() {
 		mock := browsertest.NewMock()
 		cfg := baseCfg()
-		url := GenerateURL(cfg)
+		url := shared.GenerateURL(cfg)
 
 		Convey("Returns error if Navigate fails", func() {
 			mock.Errors["Navigate"] = errors.New("refused")
@@ -70,6 +72,30 @@ func TestAwsLoginFlow(t *testing.T) {
 			cancel()
 			<-done
 			So(mock.CallCount("Navigate"), ShouldEqual, 2)
+		})
+
+		Convey("Returns error if WaitVisible fails mid-sequence", func() {
+			mock.Errors["WaitVisible"] = errors.New("element gone")
+			err := awsLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+			So(mock.CallCount("Navigate"), ShouldEqual, 1)
+		})
+
+		Convey("Returns error if Click fails", func() {
+			mock.Errors["Click"] = errors.New("click failed")
+			err := awsLoginFlow(context.Background(), cfg, mock, url, make(chan string))
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Returns error if SendKeys fails", func() {
+			mock.Errors["SendKeys"] = errors.New("input gone")
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- awsLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			err := <-done
+			So(err, ShouldNotBeNil)
 		})
 
 		Convey("Returns error if WaitNotVisible fails during MFA", func() {

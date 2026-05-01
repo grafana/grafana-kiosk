@@ -1,4 +1,4 @@
-package kiosk
+package config
 
 // BuildInfo contains the build version
 type BuildInfo struct {

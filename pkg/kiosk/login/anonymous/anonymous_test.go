@@ -1,4 +1,4 @@
-package kiosk
+package anonymous
 
 import (
 	"context"
@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
+	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestAnonymousLoginFlow(t *testing.T) {
 	Convey("Given anonymousLoginFlow", t, func() {
 		mock := browsertest.NewMock()
-		cfg := &Config{General: General{PageLoadDelayMS: 0}}
+		cfg := &config.Config{General: config.General{PageLoadDelayMS: 0}}
 		url := "https://play.grafana.org?kiosk=1&autofitpanels"
 
 		Convey("Navigates to the provided URL", func() {

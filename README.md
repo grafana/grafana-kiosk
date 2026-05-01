@@ -259,6 +259,23 @@ grafana-kiosk -URL https://play.grafana.org -headless
 
 Set `KIOSK_BROWSER_PATH` if Chrome is not on the default PATH.
 
+### Integration tests
+
+Integration tests spin up a real Grafana instance via Docker (testcontainers) and run grafana-kiosk
+in headless mode against it. Tests are split into:
+
+- **Smoke tests** — verify the kiosk session starts and completes without panicking
+- **Functional tests** — assert the browser loads Grafana in kiosk mode, the page title contains
+  "Grafana", the URL contains `kiosk=1`, and no login form is present
+
+```bash
+# Requires Docker and Chrome/Chromium
+mage test:integration
+
+# Override browser path
+KIOSK_BROWSER_PATH=/usr/bin/chromium mage test:integration
+```
+
 ### Auto-refresh reliability
 
 grafana-kiosk disables Chrome's background throttling flags so Grafana auto-refresh timers continue

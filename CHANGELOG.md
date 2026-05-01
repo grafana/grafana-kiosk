@@ -19,8 +19,10 @@ and this project adheres to
   running when the window loses focus), disable hang monitor (suppresses "Page Unresponsive" dialogs), disable
   Safe Browsing updates, suppress telemetry uploads, allow drill-down popups
 - Add integration test package (`pkg/kiosk/integration`) with build tag `integration` — spins up a real Grafana
-  instance via testcontainers and runs anonymous and local login in headless Chrome; run with
-  `CGO_ENABLED=0 go test -tags integration ./pkg/kiosk/integration/...`
+  instance via testcontainers and runs functional and smoke tests in headless Chrome; run with
+  `mage test:integration` or `CGO_ENABLED=0 go test -tags integration ./pkg/kiosk/integration/...`
+- Add `mage test:integration` target to run integration tests via Mage
+- Functional tests assert page title contains "Grafana", URL contains `kiosk=1`, and no login form is present
 - Add `-restart-delay-ms` flag (env `KIOSK_RESTART_DELAY_MS`, default `5000`) to set the delay before automatically
   restarting after a session error; kiosk now recovers from browser crashes instead of exiting
 - Add `-browser` flag (env `KIOSK_BROWSER`, default `chrome`) to choose between Chrome and Microsoft Edge as the

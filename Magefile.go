@@ -97,7 +97,7 @@ func getVersion() string {
 // If not set, running mage will list available targets
 var Default = Build.Local
 
-func buildCommand(command string, arch string) error {
+func buildCommandWithVersion(command, arch, version string) error {
 	env, ok := archTargets[arch]
 	if !ok {
 		return fmt.Errorf("unknown arch %s", arch)
@@ -105,28 +105,25 @@ func buildCommand(command string, arch string) error {
 	log.Printf("Building %s/%s\n", arch, command)
 	outDir := fmt.Sprintf("./bin/%s/%s", arch, command)
 	cmdDir := fmt.Sprintf("./pkg/cmd/%s", command)
-	if err := sh.RunWith(
+	return sh.RunWith(
 		env,
 		"go",
 		"build",
 		"-ldflags",
-		fmt.Sprintf("-X main.Version=%s", getVersion()),
-		"-o", outDir, cmdDir); err != nil {
-		return err
-	}
-
-	return nil
+		fmt.Sprintf("-X main.Version=%s", version),
+		"-o", outDir, cmdDir)
 }
 
 func kioskCmd() error {
-	return buildCommand("grafana-kiosk", runtime.GOOS+"_"+runtime.GOARCH)
+	return buildCommandWithVersion("grafana-kiosk", runtime.GOOS+"_"+runtime.GOARCH, getVersion())
 }
 
 func buildCmdAll() error {
+	version := getVersion()
 	errs := make(chan error, len(archTargets))
 	for anArch := range archTargets {
 		go func(arch string) {
-			errs <- buildCommand("grafana-kiosk", arch)
+			errs <- buildCommandWithVersion("grafana-kiosk", arch, version)
 		}(anArch)
 	}
 	for range archTargets {
@@ -169,15 +166,9 @@ func (Build) Local(ctx context.Context) {
 
 // CI Lint/Format/Test/Build
 func (Build) CI(ctx context.Context) {
-	mg.SerialDeps(
-		Build.Lint,
-		Build.Format,
-		Test.Verbose,
-	)
-	mg.Deps(
-		Clean,
-		buildCmdAll,
-	)
+	mg.Deps(Build.Format)
+	mg.Deps(Build.Lint, Test.Verbose)
+	mg.Deps(Clean, buildCmdAll)
 }
 
 // All build all

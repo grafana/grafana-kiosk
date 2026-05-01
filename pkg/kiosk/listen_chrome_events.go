@@ -10,14 +10,14 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-type chromeEvents int
+type browserEvents int
 
 const (
-	consoleAPICall chromeEvents = 1 << iota
+	consoleAPICall browserEvents = 1 << iota
 	targetCrashed
 )
 
-func listenChromeEvents(taskCtx context.Context, cfg *Config, events chromeEvents) {
+func listenBrowserEvents(taskCtx context.Context, cfg *Config, events browserEvents) {
 	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
 		switch ev := ev.(type) {
 		case *runtime.EventConsoleAPICalled:

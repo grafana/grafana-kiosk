@@ -137,6 +137,13 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 		chromedp.Flag("metrics-recording-only", true),
 		// Allow popups/new windows from Grafana drill-down links without prompting.
 		chromedp.Flag("disable-popup-blocking", true),
+		// Skip client-side phishing URL checks that add latency on page loads.
+		chromedp.Flag("disable-client-side-phishing-detection", true),
+		// Suppress the print preview dialog — no printing needed in a kiosk.
+		chromedp.Flag("disable-print-preview", true),
+		// Auto-accept camera/microphone permission prompts — relevant for Grafana
+		// panels that embed live camera feeds or WebRTC data sources.
+		chromedp.Flag("use-fake-ui-for-media-stream", true),
 		// Configurable: ignore TLS certificate errors (e.g., self-signed certs).
 		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
 		// Configurable: run in incognito mode (no persistent profile state).

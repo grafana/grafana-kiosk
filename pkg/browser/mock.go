@@ -1,9 +1,6 @@
 package browser
 
-import (
-	"context"
-	"fmt"
-)
+import "context"
 
 // Call records a single method invocation on the mock.
 type Call struct {
@@ -75,11 +72,3 @@ func (m *Mock) Reset() {
 	m.Calls = nil
 }
 
-// String returns a human-readable summary of recorded calls.
-func (m *Mock) String() string {
-	s := fmt.Sprintf("Mock: %d calls\n", len(m.Calls))
-	for i, c := range m.Calls {
-		s += fmt.Sprintf("  %d: %s(%v)\n", i, c.Method, c.Args)
-	}
-	return s
-}

@@ -76,14 +76,9 @@ func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generat
 	log.Println("Navigating to ", generatedURL)
 	delay := time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond
 
-	/*
-		Launch chrome and login with local user account
-
-		name=user, type=text
-		id=inputPassword, type=password, name=password
-	*/
+	// Login form fields: name=user (text), name=password (password, id=inputPassword)
 	if cfg.GoAuth.AutoLogin {
-		// if AutoLogin is set, get the base URL and append the local login bypass before navigating to the full url
+		// AutoLogin bypasses OAuth by navigating to /login/local before the dashboard URL
 		bypassURL := LocalLoginBypassURL(cfg.Target.URL)
 
 		log.Println("Bypassing autoLogin using URL ", bypassURL)
@@ -92,36 +87,46 @@ func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generat
 			return err
 		}
 
-		log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
-		time.Sleep(delay)
+		if delay > 0 {
+			log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
+			time.Sleep(delay)
+		}
 
 		if err := loginWithCredentials(ctx, b, cfg.Target.Username, cfg.Target.Password); err != nil {
 			return err
 		}
 
-		log.Printf("Sleeping %d MS before checking for topnav", cfg.General.PageLoadDelayMS)
-		time.Sleep(delay)
+		if delay > 0 {
+			log.Printf("Sleeping %d MS before checking for topnav", cfg.General.PageLoadDelayMS)
+			time.Sleep(delay)
+		}
 
 		if err := b.WaitVisible(ctx, `//img[@alt="User avatar"]`); err != nil {
 			return err
 		}
 
-		log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
-		time.Sleep(delay)
+		if delay > 0 {
+			log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
+			time.Sleep(delay)
+		}
 
 		if err := b.Navigate(ctx, generatedURL); err != nil {
 			return err
 		}
 	} else {
-		log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
-		time.Sleep(delay)
+		if delay > 0 {
+			log.Printf("Sleeping %d MS before navigating to final url", cfg.General.PageLoadDelayMS)
+			time.Sleep(delay)
+		}
 
 		if err := b.Navigate(ctx, generatedURL); err != nil {
 			return err
 		}
 
-		log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
-		time.Sleep(delay)
+		if delay > 0 {
+			log.Printf("Sleeping %d MS before checking for login fields", cfg.General.PageLoadDelayMS)
+			time.Sleep(delay)
+		}
 
 		if err := loginWithCredentials(ctx, b, cfg.Target.Username, cfg.Target.Password); err != nil {
 			return err

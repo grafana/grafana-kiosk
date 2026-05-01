@@ -17,6 +17,11 @@ and this project adheres to
   overrides `-browser`
 - Extract `browser.Browser` interface to decouple login providers from chromedp ([#257](https://github.com/grafana/grafana-kiosk/issues/257))
 
+### Chores
+
+- Cache `getVersion()` in Magefile — was called once per arch (9 git subprocesses); now called once
+- Parallelise lint and test in `Build.CI` — format runs first, then lint and test run concurrently
+
 ### CI/CD
 
 - Add `concurrency` group to all workflows to cancel superseded runs on push

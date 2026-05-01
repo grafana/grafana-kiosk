@@ -57,6 +57,10 @@ and this project adheres to
 - Reorganize login providers into dedicated sub-packages under `pkg/kiosk/login/`; each provider
   exports `Run()` and depends only on `pkg/kiosk/config` and `pkg/kiosk/login/shared`
   ([#261](https://github.com/grafana/grafana-kiosk/issues/261))
+- Extract `shared.NewBrowserContext` helper — identical 10-line chromedp lifecycle setup removed
+  from all 8 provider `Run()` functions
+- Eliminate duplicate `resolveBrowserExecPath` — `ValidateBrowserConfig` now delegates to
+  `shared.ResolveBrowserExecPath`; single source of truth for Edge binary lookup
 
 ### CI/CD
 
@@ -75,6 +79,10 @@ and this project adheres to
 - Add unit tests for `anonymousLoginFlow` and `localLoginFlow` calling real production functions via mock browser
 - Add unit tests for all six new login flow functions: gcom, generic oauth, idtoken, apikey, aws (with and without MFA),
   azuread
+- Add unit tests for `shared` package: `GenerateURL`, `ResolveBrowserExecPath`, `SleepPageLoad`, `RunMessageLoop`,
+  `isFullscreenMode`
+- Expand login flow tests: aws WaitVisible/Click/SendKeys errors, goauth SendKeys and WaitForStaySignedInPrompt
+  errors, local AutoLogin WaitVisible error and delay path
 
 ## [1.0.12] - 2026-04-29
 

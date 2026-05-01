@@ -26,6 +26,13 @@ and this project adheres to
 
 - Fix azuread message loop missing `ctx.Done()` case — loop previously could not exit cleanly on shutdown
 - Remove dead `enableFetch` helper in idtoken login — no longer called after fetch setup moved to outer function
+- Fix goroutine panics in apikey and idtoken fetch interceptors — panics inside `go func()` blocks escape
+  `defer/recover` in the outer function and crash the process; replaced with `log+return`
+- Fix `gcomLoginFlow` `#submit` selector — XPath full-document scan restored to CSS ID selector
+- Restore `fetch.Enable() + Navigate` atomicity in idtoken — original `enableFetch` bundled them intentionally
+  to prevent unfiltered requests slipping through the interception window
+- Fix silent exits on bad config — all startup validation failures now log a descriptive message with a fix
+  suggestion before exiting
 
 ### Chores
 

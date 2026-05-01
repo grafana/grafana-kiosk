@@ -152,6 +152,8 @@ general:
   lxde: true
   lxde-home: /home/pi
   scale-factor: 1.0
+  page-load-delay-ms: 2000
+  restart-delay-ms: 5000
 
 target:
   login-method: anon

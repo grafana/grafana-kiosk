@@ -273,6 +273,7 @@ func TestProcessArgsAllFlags(t *testing.T) {
 			"-browser", "edge",
 			"-browser-path", "/opt/edge/msedge",
 			"-page-load-delay-ms", "5000",
+				"-restart-delay-ms", "10000",
 			"-playlists",
 			"-autofit=false",
 			"-hide-links",
@@ -318,6 +319,7 @@ func TestProcessArgsAllFlags(t *testing.T) {
 			So(result.Browser, ShouldEqual, "edge")
 			So(result.BrowserPath, ShouldEqual, "/opt/edge/msedge")
 			So(result.PageLoadDelayMS, ShouldEqual, 5000)
+			So(result.RestartDelayMS, ShouldEqual, 10000)
 			So(result.HideLinks, ShouldBeTrue)
 			So(result.HideLogo, ShouldBeTrue)
 			So(result.HidePlaylistNav, ShouldBeTrue)

@@ -2,7 +2,6 @@ package kiosk
 
 import (
 	"context"
-	"errors"
 	"testing"
 	"time"
 
@@ -13,25 +12,12 @@ import (
 func TestIdtokenLoginFlow(t *testing.T) {
 	Convey("Given idtokenLoginFlow", t, func() {
 		mock := browsertest.NewMock()
-		cfg := &Config{General: General{PageLoadDelayMS: 0}}
-		url := "https://grafana.example.com/d/abc?kiosk=1"
-
-		Convey("Navigates to provided URL", func() {
-			mock.Errors["Navigate"] = errors.New("stop")
-			_ = idtokenLoginFlow(context.Background(), cfg, mock, url, make(chan string))
-			So(mock.Calls[0].Args[0], ShouldEqual, url)
-		})
-
-		Convey("Returns error if Navigate fails", func() {
-			mock.Errors["Navigate"] = errors.New("refused")
-			err := idtokenLoginFlow(context.Background(), cfg, mock, url, make(chan string))
-			So(err, ShouldNotBeNil)
-		})
+		dashboardURL := "https://grafana.example.com/d/abc?kiosk=1"
 
 		Convey("Exits cleanly on context cancel", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			done := make(chan error, 1)
-			go func() { done <- idtokenLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			go func() { done <- idtokenLoginFlow(ctx, mock, dashboardURL, make(chan string)) }()
 			cancel()
 			So(<-done, ShouldBeNil)
 		})
@@ -40,12 +26,13 @@ func TestIdtokenLoginFlow(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			messages := make(chan string, 1)
 			done := make(chan error, 1)
-			go func() { done <- idtokenLoginFlow(ctx, cfg, mock, url, messages) }()
+			go func() { done <- idtokenLoginFlow(ctx, mock, dashboardURL, messages) }()
 			messages <- "reload"
 			time.Sleep(10 * time.Millisecond)
 			cancel()
 			<-done
-			So(mock.CallCount("Navigate"), ShouldEqual, 2)
+			So(mock.CallCount("Navigate"), ShouldEqual, 1)
+			So(mock.CallsTo("Navigate")[0].Args[0], ShouldEqual, dashboardURL)
 		})
 	})
 }

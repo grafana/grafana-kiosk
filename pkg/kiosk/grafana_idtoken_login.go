@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/fetch"
@@ -66,30 +65,29 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, b browser
 		}
 	})
 
+	generatedURL := GenerateURL(cfg)
+	log.Println("Navigating to ", generatedURL)
+
+	// fetch.Enable and Navigate must be in the same chromedp.Run batch so no
+	// unfiltered request can slip through the interception window.
 	if err := chromedp.Run(taskCtx,
 		waitForPageLoad(cfg),
 		cycleWindowState(cfg),
 		fetch.Enable(),
+		chromedp.Navigate(generatedURL),
 	); err != nil {
 		panic(err)
 	}
 
-	if err := idtokenLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+	if err := idtokenLoginFlow(taskCtx, b, generatedURL, messages); err != nil {
 		panic(err)
 	}
 }
 
-// idtokenLoginFlow navigates to url (with fetch interception already enabled),
-// then blocks until context is cancelled or a message triggers a reload.
-func idtokenLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
-	log.Println("Navigating to ", dashboardURL)
-	if err := b.Navigate(ctx, dashboardURL); err != nil {
-		return err
-	}
-	if cfg.General.PageLoadDelayMS > 0 {
-		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
-		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
-	}
+// idtokenLoginFlow blocks until context is cancelled or a message triggers a
+// reload. The initial navigation is handled by the outer function to keep
+// fetch interception and navigation atomic.
+func idtokenLoginFlow(ctx context.Context, b browser.Browser, dashboardURL string, messages chan string) error {
 	for {
 		select {
 		case <-ctx.Done():

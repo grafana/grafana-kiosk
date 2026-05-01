@@ -30,6 +30,8 @@ func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, b browse
 
 	waitForBrowserStartup(cfg)
 
+	// cycleWindowState runs before awsLoginFlow's Navigate — no fetch
+	// interception is involved so the two-step ordering is safe.
 	if err := chromedp.Run(taskCtx,
 		waitForPageLoad(cfg),
 		cycleWindowState(cfg),

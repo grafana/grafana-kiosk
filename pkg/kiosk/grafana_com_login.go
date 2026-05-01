@@ -73,7 +73,7 @@ func gcomLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboar
 	if err := b.SendKeys(ctx, `//input[@name="login"]`, cfg.Target.Username); err != nil {
 		return err
 	}
-	if err := b.Click(ctx, `//*[@id="submit"]`); err != nil {
+	if err := b.Click(ctx, `#submit`); err != nil {
 		return err
 	}
 	if err := b.SendKeys(ctx, `//input[@name="password"]`, cfg.Target.Password+kb.Enter); err != nil {

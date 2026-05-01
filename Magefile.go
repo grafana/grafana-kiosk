@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -109,13 +110,16 @@ func buildCommandWithVersion(command, arch, version string) error {
 	}
 	outDir := fmt.Sprintf("./bin/%s/%s", arch, binary)
 	cmdDir := fmt.Sprintf("./pkg/cmd/%s", command)
-	return sh.RunWith(
+	start := time.Now()
+	err := sh.RunWith(
 		env,
 		"go",
 		"build",
 		"-ldflags",
 		fmt.Sprintf("-X main.Version=%s", version),
 		"-o", outDir, cmdDir)
+	log.Printf("Built %s/%s in %s\n", arch, binary, time.Since(start).Round(time.Millisecond))
+	return err
 }
 
 func kioskCmd() error {

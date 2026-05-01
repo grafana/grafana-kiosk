@@ -11,11 +11,31 @@ and this project adheres to
 
 ### Features
 
+- Add `-restart-delay-ms` flag (env `KIOSK_RESTART_DELAY_MS`, default `5000`) to set the delay before automatically
+  restarting after a session error; kiosk now recovers from browser crashes instead of exiting
 - Add `-browser` flag (env `KIOSK_BROWSER`, default `chrome`) to choose between Chrome and Microsoft Edge as the
   launched browser
 - Add `-browser-path` flag (env `KIOSK_BROWSER_PATH`) to point at an explicit Chromium-based browser executable;
   overrides `-browser`
 - Extract `browser.Browser` interface to decouple login providers from chromedp ([#257](https://github.com/grafana/grafana-kiosk/issues/257))
+- Add `WaitNotVisible` to `browser.Browser` interface and `ChromeDP`/`Mock` implementations (required for AWS MFA path)
+- Extract inner flow functions for all remaining login providers: `gcomLoginFlow`, `genericOauthLoginFlow`,
+  `idtokenLoginFlow`, `apikeyLoginFlow`, `awsLoginFlow`, `azureADLoginFlow` ([#274](https://github.com/grafana/grafana-kiosk/issues/274))
+
+### Bug Fixes
+
+- Fix azuread message loop missing `ctx.Done()` case — loop previously could not exit cleanly on shutdown
+- Remove dead `enableFetch` helper in idtoken login — no longer called after fetch setup moved to outer function
+- Fix goroutine panics in apikey and idtoken fetch interceptors — panics inside `go func()` blocks escape
+  `defer/recover` in the outer function and crash the process; replaced with `log+return`
+- Fix `gcomLoginFlow` `#submit` selector — XPath full-document scan restored to CSS ID selector
+- Restore `fetch.Enable() + Navigate` atomicity in idtoken — original `enableFetch` bundled them intentionally
+  to prevent unfiltered requests slipping through the interception window
+- Fix silent exits on bad config — all startup validation failures now log a descriptive message with a fix
+  suggestion before exiting
+- Replace hardcoded `time.Sleep` with `WaitVisible` in azuread and gcom login flows — sleeps were redundant
+  since the next step already calls `WaitVisible`; removes 3 s from azuread and 3 s from gcom per session
+- Fix double-space in log messages across all login flow files (`"Navigating to "` → `log.Printf`)
 
 ### Chores
 
@@ -37,6 +57,8 @@ and this project adheres to
 
 - Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers
 - Add unit tests for `anonymousLoginFlow` and `localLoginFlow` calling real production functions via mock browser
+- Add unit tests for all six new login flow functions: gcom, generic oauth, idtoken, apikey, aws (with and without MFA),
+  azuread
 
 ## [1.0.12] - 2026-04-29
 

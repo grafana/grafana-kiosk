@@ -6,10 +6,12 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
+
+	"github.com/grafana/grafana-kiosk/pkg/browser"
 )
 
 // GrafanaKioskAWSLogin Provides login for AWS Managed Grafana instances
-func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, messages chan string) {
+func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -28,45 +30,56 @@ func GrafanaKioskAWSLogin(ctx context.Context, cfg *Config, dir string, messages
 
 	waitForBrowserStartup(cfg)
 
-	var generatedURL = GenerateURL(cfg)
-
-	log.Println("Navigating to ", generatedURL)
-
+	// cycleWindowState runs before awsLoginFlow's Navigate — no fetch
+	// interception is involved so the two-step ordering is safe.
 	if err := chromedp.Run(taskCtx,
 		waitForPageLoad(cfg),
 		cycleWindowState(cfg),
-		chromedp.Navigate(generatedURL),
-		chromedp.WaitVisible(`//a[contains(@href,'login/sso')]`, chromedp.BySearch),
-		chromedp.WaitVisible(`div#awsccc-cb-buttons`, chromedp.BySearch),
-		chromedp.Click(`//button[contains(@data-id,'awsccc-cb-btn-accept')]`, chromedp.BySearch),
-		chromedp.Click(`//a[contains(@href,'login/sso')]`, chromedp.BySearch),
-		chromedp.WaitVisible(`input#awsui-input-0`, chromedp.BySearch),
-		chromedp.SendKeys(`input#awsui-input-0`, cfg.Target.Username+kb.Enter, chromedp.BySearch),
-		chromedp.WaitVisible(`input#awsui-input-1`, chromedp.BySearch),
-		chromedp.SendKeys(`input#awsui-input-1`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
 	); err != nil {
 		panic(err)
 	}
 
+	if err := awsLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+		panic(err)
+	}
+}
+
+// awsLoginFlow navigates to the AWS Managed Grafana login page, accepts the
+// cookie banner, clicks the SSO button, fills in credentials, waits for MFA
+// if enabled, then blocks until context is cancelled or a message triggers a reload.
+func awsLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+	log.Printf("Navigating to %s", dashboardURL)
+	if err := b.Navigate(ctx, dashboardURL); err != nil {
+		return err
+	}
+	if err := b.WaitVisible(ctx, `//a[contains(@href,'login/sso')]`); err != nil {
+		return err
+	}
+	if err := b.WaitVisible(ctx, `div#awsccc-cb-buttons`); err != nil {
+		return err
+	}
+	if err := b.Click(ctx, `//button[contains(@data-id,'awsccc-cb-btn-accept')]`); err != nil {
+		return err
+	}
+	if err := b.Click(ctx, `//a[contains(@href,'login/sso')]`); err != nil {
+		return err
+	}
+	if err := b.WaitVisible(ctx, `input#awsui-input-0`); err != nil {
+		return err
+	}
+	if err := b.SendKeys(ctx, `input#awsui-input-0`, cfg.Target.Username+kb.Enter); err != nil {
+		return err
+	}
+	if err := b.WaitVisible(ctx, `input#awsui-input-1`); err != nil {
+		return err
+	}
+	if err := b.SendKeys(ctx, `input#awsui-input-1`, cfg.Target.Password+kb.Enter); err != nil {
+		return err
+	}
 	if cfg.Target.UseMFA {
-		if err := chromedp.Run(taskCtx,
-			chromedp.WaitNotVisible(`input#awsui-input-2`, chromedp.BySearch),
-		); err != nil {
-			panic(err)
+		if err := b.WaitNotVisible(ctx, `input#awsui-input-2`); err != nil {
+			return err
 		}
 	}
-	// blocking wait until context is cancelled or a message triggers a reload
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case messageFromChrome := <-messages:
-			if err := chromedp.Run(taskCtx,
-				chromedp.Navigate(generatedURL),
-			); err != nil {
-				return
-			}
-			log.Println("Browser output:", messageFromChrome)
-		}
-	}
+	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

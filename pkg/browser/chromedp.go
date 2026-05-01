@@ -17,6 +17,10 @@ func (c *ChromeDP) WaitVisible(ctx context.Context, sel string) error {
 	return chromedp.Run(ctx, chromedp.WaitVisible(sel, chromedp.BySearch))
 }
 
+func (c *ChromeDP) WaitNotVisible(ctx context.Context, sel string) error {
+	return chromedp.Run(ctx, chromedp.WaitNotVisible(sel, chromedp.BySearch))
+}
+
 func (c *ChromeDP) Click(ctx context.Context, sel string) error {
 	return chromedp.Run(ctx, chromedp.Click(sel, chromedp.BySearch))
 }

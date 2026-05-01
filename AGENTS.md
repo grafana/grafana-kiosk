@@ -314,6 +314,8 @@ underlying issue goes away (model upgrades, refactors, process changes).
 - When releasing, remove the `[Unreleased]` header from `CHANGELOG.md` entirely — do not leave it as an empty section above
   the new version.
 - Run `npx cspell` on every `.md` and `.go` file before committing — CI checks both and will fail on unknown words.
+- Use `WaitVisible` instead of `time.Sleep` for browser page transitions — `WaitVisible` blocks until the DOM is ready,
+  eliminating arbitrary delays and making flows faster and more reliable.
 
 ---
 

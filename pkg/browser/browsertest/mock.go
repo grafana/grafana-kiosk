@@ -42,6 +42,10 @@ func (m *Mock) WaitVisible(_ context.Context, sel string) error {
 	return m.record("WaitVisible", sel)
 }
 
+func (m *Mock) WaitNotVisible(_ context.Context, sel string) error {
+	return m.record("WaitNotVisible", sel)
+}
+
 func (m *Mock) Click(_ context.Context, sel string) error {
 	return m.record("Click", sel)
 }

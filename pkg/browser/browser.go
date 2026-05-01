@@ -7,6 +7,7 @@ import "context"
 type Browser interface {
 	Navigate(ctx context.Context, url string) error
 	WaitVisible(ctx context.Context, sel string) error
+	WaitNotVisible(ctx context.Context, sel string) error
 	Click(ctx context.Context, sel string) error
 	SendKeys(ctx context.Context, sel string, value string) error
 }

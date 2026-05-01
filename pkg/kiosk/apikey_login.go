@@ -9,6 +9,8 @@ import (
 
 	"github.com/chromedp/cdproto/fetch"
 	"github.com/chromedp/chromedp"
+
+	"github.com/grafana/grafana-kiosk/pkg/browser"
 )
 
 // IsDataSourceQueryRequest checks if the request URL is a datasource query API
@@ -40,7 +42,7 @@ func IsTargetHostRequest(requestHost, targetHost string) bool {
 }
 
 // GrafanaKioskAPIKey creates a chrome-based kiosk using a grafana api key.
-func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages chan string) {
+func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -59,25 +61,28 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 
 	waitForBrowserStartup(cfg)
 
-	var generatedURL = GenerateURL(cfg)
-
-	log.Println("Navigating to ", generatedURL)
-
-	u, err := url.Parse(cfg.Target.URL)
+	targetURL, err := url.Parse(cfg.Target.URL)
 	if err != nil {
 		panic(fmt.Errorf("url.Parse: %w", err))
 	}
+
 	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
 		switch ev := ev.(type) {
 		case *fetch.EventRequestPaused:
 			go func() {
+				defer func() {
+					if r := recover(); r != nil {
+						log.Printf("apikey fetch handler error: %v", r)
+					}
+				}()
 				fetchReq := fetch.ContinueRequest(ev.RequestID)
 				requestURL, err := url.Parse(ev.Request.URL)
 				if err != nil {
-					panic(fmt.Errorf("url.Parse: %w", err))
+					log.Printf("apikey url.Parse error: %v", err)
+					return
 				}
 				// Add Content-Type header only for datasource query API calls
-				if IsDataSourceQueryRequest(ev.Request.URL, u.Scheme, u.Host) {
+				if IsDataSourceQueryRequest(ev.Request.URL, targetURL.Scheme, targetURL.Host) {
 					if cfg.General.DebugEnabled {
 						log.Println("Appending Content-Type Header for Metric Query")
 					}
@@ -87,7 +92,7 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 					)
 				}
 				// Append Bearer token to all requests matching the target host
-				if IsTargetHostRequest(requestURL.Host, u.Host) {
+				if IsTargetHostRequest(requestURL.Host, targetURL.Host) {
 					if cfg.General.DebugEnabled {
 						log.Println("Appending Header Authorization: Bearer REDACTED")
 					}
@@ -96,34 +101,33 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 						&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
 					)
 				}
-				err = fetchReq.Do(GetExecutor(taskCtx))
-				if err != nil {
-					panic(fmt.Errorf("apikey fetchReq error: %w", err))
+				if err = fetchReq.Do(GetExecutor(taskCtx)); err != nil {
+					log.Printf("apikey fetchReq error: %v", err)
 				}
 			}()
 		}
 	})
-	if err := chromedp.Run(
-		taskCtx,
+
+	if err := chromedp.Run(taskCtx,
 		cycleWindowState(cfg),
-		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
-		chromedp.Navigate(generatedURL),
-		waitForPageLoad(cfg),
+		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: targetURL.Scheme + "://" + targetURL.Host + "/*"}}),
 	); err != nil {
 		panic(err)
 	}
-	// blocking wait until context is cancelled or a message triggers a reload
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case messageFromChrome := <-messages:
-			if err := chromedp.Run(taskCtx,
-				chromedp.Navigate(generatedURL),
-			); err != nil {
-				return
-			}
-			log.Println("Browser output:", messageFromChrome)
-		}
+
+	if err := apikeyLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+		panic(err)
 	}
+}
+
+// apikeyLoginFlow navigates to url (with fetch interception already enabled),
+// waits for page load, then blocks until context is cancelled or a message
+// triggers a reload.
+func apikeyLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+	log.Printf("Navigating to %s", dashboardURL)
+	if err := b.Navigate(ctx, dashboardURL); err != nil {
+		return err
+	}
+	sleepPageLoad(cfg)
+	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

@@ -10,12 +10,14 @@ import (
 
 	"github.com/chromedp/chromedp"
 
+	"github.com/grafana/grafana-kiosk/pkg/browser"
+
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
 )
 
 // GrafanaKioskIDToken creates a chrome-based kiosk using a oauth2 authenticated account.
-func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages chan string) {
+func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -34,10 +36,6 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 
 	waitForBrowserStartup(cfg)
 
-	var generatedURL = GenerateURL(cfg)
-
-	log.Println("Navigating to ", generatedURL)
-
 	log.Printf("Token is using audience %s and reading from %s", cfg.IDToken.Audience, cfg.IDToken.KeyFile)
 	tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IDToken.Audience, option.WithAuthCredentialsFile(option.ServiceAccount, cfg.IDToken.KeyFile))
 
@@ -50,45 +48,54 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 		switch ev := ev.(type) {
 		case *fetch.EventRequestPaused:
 			go func() {
+				defer func() {
+					if r := recover(); r != nil {
+						log.Printf("idtoken fetch handler error: %v", r)
+					}
+				}()
 				fetchReq := fetch.ContinueRequest(ev.RequestID)
 				for k, v := range ev.Request.Headers {
 					fetchReq.Headers = append(fetchReq.Headers, &fetch.HeaderEntry{Name: k, Value: fmt.Sprintf("%v", v)})
 				}
 				token, err := tokenSource.Token()
 				if err != nil {
-					panic(fmt.Errorf("idtoken.NewClient: %w", err))
+					log.Printf("idtoken token fetch error: %v", err)
+					return
 				}
 				fetchReq.Headers = append(fetchReq.Headers, &fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + token.AccessToken})
-				err = fetchReq.Do(GetExecutor(taskCtx))
-				if err != nil {
-					panic(fmt.Errorf("idtoken.NewClient fetchReq error: %w", err))
+				if err = fetchReq.Do(GetExecutor(taskCtx)); err != nil {
+					log.Printf("idtoken fetchReq error: %v", err)
 				}
 			}()
 		}
 	})
 
+	generatedURL := GenerateURL(cfg)
+	log.Printf("Navigating to %s", generatedURL)
+
+	// fetch.Enable and Navigate must be in the same chromedp.Run batch so no
+	// unfiltered request can slip through the interception window.
 	if err := chromedp.Run(taskCtx,
 		waitForPageLoad(cfg),
 		cycleWindowState(cfg),
-		enableFetch(generatedURL),
+		fetch.Enable(),
+		chromedp.Navigate(generatedURL),
 	); err != nil {
 		panic(err)
 	}
 
-	// blocking wait until context is cancelled or a message triggers a reload
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case messageFromChrome := <-messages:
-			if err := chromedp.Run(taskCtx,
-				chromedp.Navigate(generatedURL),
-			); err != nil {
-				return
-			}
-			log.Println("Browser output:", messageFromChrome)
-		}
+	if err := idtokenLoginFlow(taskCtx, b, generatedURL, messages); err != nil {
+		panic(err)
 	}
+}
+
+// idtokenLoginFlow blocks until context is cancelled or a message triggers a
+// reload. The initial navigation is handled by the outer function to keep
+// fetch interception and navigation atomic. This wrapper exists to maintain
+// naming consistency with the other login providers and to give tests a
+// stable target.
+func idtokenLoginFlow(ctx context.Context, b browser.Browser, dashboardURL string, messages chan string) error {
+	return runMessageLoop(ctx, b, dashboardURL, messages)
 }
 
 // GetExecutor returns executor for chromedp
@@ -98,9 +105,3 @@ func GetExecutor(ctx context.Context) context.Context {
 	return cdp.WithExecutor(ctx, c.Target)
 }
 
-func enableFetch(url string) chromedp.Tasks {
-	return chromedp.Tasks{
-		fetch.Enable(),
-		chromedp.Navigate(url),
-	}
-}

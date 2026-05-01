@@ -83,11 +83,11 @@ func awsLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url strin
 		select {
 		case <-ctx.Done():
 			return nil
-		case msg := <-messages:
+		case messageFromBrowser := <-messages:
 			if err := b.Navigate(ctx, url); err != nil {
 				return nil
 			}
-			log.Println("Browser output:", msg)
+			log.Println("Browser output:", messageFromBrowser)
 		}
 	}
 }

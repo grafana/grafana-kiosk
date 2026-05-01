@@ -138,11 +138,11 @@ func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generat
 		select {
 		case <-ctx.Done():
 			return nil
-		case msg := <-messages:
+		case messageFromBrowser := <-messages:
 			if err := b.Navigate(ctx, generatedURL); err != nil {
 				return nil
 			}
-			log.Println("Browser output:", msg)
+			log.Println("Browser output:", messageFromBrowser)
 		}
 	}
 }

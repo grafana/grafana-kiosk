@@ -38,12 +38,13 @@ jobs:
         with:
           go-version-file: go.mod
           check-latest: true
-          # cache: false — this job publishes release artifacts; cached state could
-          # contain poisoned dependencies that end up in published binaries.
-          cache: false
+          cache: true
 
       - name: Install dependencies
         run: go get .
+
+      - name: Verify dependencies
+        run: go mod verify
 
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0

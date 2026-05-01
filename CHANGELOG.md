@@ -15,10 +15,12 @@ and this project adheres to
   launched browser
 - Add `-browser-path` flag (env `KIOSK_BROWSER_PATH`) to point at an explicit Chromium-based browser executable;
   overrides `-browser`
+- Extract `browser.Browser` interface to decouple login providers from chromedp ([#257](https://github.com/grafana/grafana-kiosk/issues/257))
 
 ### Tests
 
 - Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers
+- Add unit tests for `anonymousLoginFlow` and `localLoginFlow` calling real production functions via mock browser
 
 ## [1.0.12] - 2026-04-29
 
@@ -30,7 +32,6 @@ and this project adheres to
 - Update `_dash.hideLinks`, `_dash.hideTimePicker`, `_dash.hideVariables` query param values to match Grafana's native format
 - Add hide flags to startup config summary logging with visual section separators
 - Refactor `summary()` into `logGeneralSettings`, `logTargetSettings`, `logGoAuthSettings`
-- Extract `browser.Browser` interface to decouple login providers from chromedp ([#257](https://github.com/grafana/grafana-kiosk/issues/257))
 
 ### Bug Fixes
 
@@ -53,7 +54,6 @@ and this project adheres to
 - Add tests for `loadConfig`: malformed YAML, testdata fixtures, env var overrides,
   all CLI flag overrides (37.5% -> 82.5%)
 - Add tests for `ProcessArgs` with all CLI flags
-- Add unit tests for `anonymousLoginFlow` and `localLoginFlow` calling real production functions via mock browser
 
 ### CI/CD
 

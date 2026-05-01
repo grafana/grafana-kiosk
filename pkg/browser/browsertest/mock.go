@@ -1,6 +1,11 @@
-package browser
+// Package browsertest provides test helpers for the browser package.
+package browsertest
 
-import "context"
+import (
+	"context"
+
+	"github.com/grafana/grafana-kiosk/pkg/browser"
+)
 
 // Call records a single method invocation on the mock.
 type Call struct {
@@ -8,7 +13,7 @@ type Call struct {
 	Args   []string
 }
 
-// Mock implements Browser by recording calls for test assertions.
+// Mock implements browser.Browser by recording calls for test assertions.
 type Mock struct {
 	Calls  []Call
 	Errors map[string]error
@@ -72,3 +77,5 @@ func (m *Mock) Reset() {
 	m.Calls = nil
 }
 
+// Verify Mock implements browser.Browser at compile time.
+var _ browser.Browser = (*Mock)(nil)

@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grafana/grafana-kiosk/pkg/browser"
+	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestAnonymousLoginFlow(t *testing.T) {
 	Convey("Given anonymousLoginFlow", t, func() {
-		mock := browser.NewMock()
+		mock := browsertest.NewMock()
 		cfg := &Config{General: General{PageLoadDelayMS: 0}}
 		url := "https://play.grafana.org?kiosk=1&autofitpanels"
 

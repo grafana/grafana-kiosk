@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grafana/grafana-kiosk/pkg/browser"
+	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -41,7 +41,7 @@ func TestLocalLoginBypassURL(t *testing.T) {
 
 func TestLoginWithCredentials(t *testing.T) {
 	Convey("Given loginWithCredentials", t, func() {
-		mock := browser.NewMock()
+		mock := browsertest.NewMock()
 		ctx := context.Background()
 
 		Convey("Should wait for user field then send credentials", func() {
@@ -82,7 +82,7 @@ func TestLocalLoginFlow(t *testing.T) {
 	}
 
 	Convey("Given localLoginFlow with AutoLogin", t, func() {
-		mock := browser.NewMock()
+		mock := browsertest.NewMock()
 		cfg := baseCfg()
 		cfg.GoAuth = GoAuth{AutoLogin: true}
 		generatedURL := GenerateURL(cfg)
@@ -112,7 +112,7 @@ func TestLocalLoginFlow(t *testing.T) {
 	})
 
 	Convey("Given localLoginFlow without AutoLogin", t, func() {
-		mock := browser.NewMock()
+		mock := browsertest.NewMock()
 		cfg := baseCfg()
 		generatedURL := GenerateURL(cfg)
 

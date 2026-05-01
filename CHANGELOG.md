@@ -23,6 +23,10 @@ and this project adheres to
 - Update `securego/gosec` from v2.25.0 to v2.26.1 in CI workflow
 - Update `DavidAnson/markdownlint-cli2-action` from v23.0.0 to v23.1.0 in markdownlint workflow
 
+### Dependencies
+
+- Update `google.golang.org/api` to v0.277.0
+
 ### Tests
 
 - Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers

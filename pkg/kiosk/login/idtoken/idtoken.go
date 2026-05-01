@@ -18,21 +18,8 @@ import (
 
 // Run creates a chrome-based kiosk using a oauth2 authenticated account.
 func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser, messages chan string) {
-	opts := shared.GenerateExecutorOptions(dir, cfg)
-
-	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+	taskCtx, cancel := shared.NewBrowserContext(ctx, cfg, dir, shared.TargetCrashed)
 	defer cancel()
-
-	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	defer cancel()
-
-	shared.ListenBrowserEvents(taskCtx, cfg, shared.TargetCrashed)
-
-	if err := chromedp.Run(taskCtx); err != nil {
-		panic(err)
-	}
-
-	shared.WaitForBrowserStartup(cfg)
 
 	log.Printf("Token is using audience %s and reading from %s", cfg.IDToken.Audience, cfg.IDToken.KeyFile)
 	tokenSource, err := gidtoken.NewTokenSource(context.Background(), cfg.IDToken.Audience, option.WithAuthCredentialsFile(option.ServiceAccount, cfg.IDToken.KeyFile))

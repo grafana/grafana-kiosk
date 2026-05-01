@@ -11,23 +11,10 @@ import (
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/login/shared"
 )
 
-// Run creates a chrome-based kiosk using a local grafana-server account.
+// Run starts an anonymous kiosk session without login.
 func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser, messages chan string) {
-	opts := shared.GenerateExecutorOptions(dir, cfg)
-
-	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+	taskCtx, cancel := shared.NewBrowserContext(ctx, cfg, dir, shared.ConsoleAPICall|shared.TargetCrashed)
 	defer cancel()
-
-	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	defer cancel()
-
-	shared.ListenBrowserEvents(taskCtx, cfg, shared.ConsoleAPICall|shared.TargetCrashed)
-
-	if err := chromedp.Run(taskCtx); err != nil {
-		panic(err)
-	}
-
-	shared.WaitForBrowserStartup(cfg)
 
 	if err := chromedp.Run(taskCtx, shared.CycleWindowState(cfg)); err != nil {
 		panic(err)

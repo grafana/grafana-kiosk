@@ -25,7 +25,7 @@ const (
 
 // ListenBrowserEvents subscribes to chromedp target events for the given context.
 func ListenBrowserEvents(taskCtx context.Context, cfg *config.Config, events BrowserEvents) {
-	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
+	chromedp.ListenTarget(taskCtx, func(ev any) {
 		switch ev := ev.(type) {
 		case *runtime.EventConsoleAPICalled:
 			if events&ConsoleAPICall != 0 {
@@ -56,6 +56,26 @@ func ListenBrowserEvents(taskCtx context.Context, cfg *config.Config, events Bro
 			}
 		}
 	})
+}
+
+// NewBrowserContext creates a chromedp allocator and task context, starts the
+// browser, registers event listeners, and waits for browser startup. The
+// returned cancel must be deferred by the caller.
+func NewBrowserContext(ctx context.Context, cfg *config.Config, dir string, events BrowserEvents) (taskCtx context.Context, cancel func()) {
+	opts := GenerateExecutorOptions(dir, cfg)
+	allocCtx, cancelAlloc := chromedp.NewExecAllocator(ctx, opts...)
+	taskCtx, cancelTask := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+	ListenBrowserEvents(taskCtx, cfg, events)
+	if err := chromedp.Run(taskCtx); err != nil {
+		cancelTask()
+		cancelAlloc()
+		panic(err)
+	}
+	WaitForBrowserStartup(cfg)
+	return taskCtx, func() {
+		cancelTask()
+		cancelAlloc()
+	}
 }
 
 // GetExecutor returns executor for chromedp.

@@ -11,6 +11,14 @@ and this project adheres to
 
 ### Features
 
+- Add `-headless` flag (env `KIOSK_HEADLESS`, default `false`) to run the browser without a display; required for
+  integration testing and useful for CI pipelines
+- Add Chrome flags for reliable kiosk operation: disable background timer throttling (keeps Grafana auto-refresh
+  running when the window loses focus), disable hang monitor (suppresses "Page Unresponsive" dialogs), disable
+  Safe Browsing updates, suppress telemetry uploads, allow drill-down popups
+- Add integration test package (`pkg/kiosk/integration`) with build tag `integration` — spins up a real Grafana
+  instance via testcontainers and runs anonymous and local login in headless Chrome; run with
+  `CGO_ENABLED=0 go test -tags integration ./pkg/kiosk/integration/...`
 - Add `-restart-delay-ms` flag (env `KIOSK_RESTART_DELAY_MS`, default `5000`) to set the delay before automatically
   restarting after a session error; kiosk now recovers from browser crashes instead of exiting
 - Add `-browser` flag (env `KIOSK_BROWSER`, default `chrome`) to choose between Chrome and Microsoft Edge as the

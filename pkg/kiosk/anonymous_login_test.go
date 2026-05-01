@@ -37,7 +37,7 @@ func TestAnonymousLoginFlow(t *testing.T) {
 			So(<-done, ShouldBeNil)
 		})
 
-		Convey("Navigates again on message from Chrome", func() {
+		Convey("Navigates again on message from browser", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			messages := make(chan string, 1)
 			done := make(chan error, 1)

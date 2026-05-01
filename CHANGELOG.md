@@ -45,7 +45,7 @@ and this project adheres to
 - Add tests for `loadConfig`: malformed YAML, testdata fixtures, env var overrides,
   all CLI flag overrides (37.5% -> 82.5%)
 - Add tests for `ProcessArgs` with all CLI flags
-- Add unit tests for anonymous login mock browser interaction patterns
+- Add unit tests for `anonymousLoginFlow` and `localLoginFlow` calling real production functions via mock browser
 
 ### CI/CD
 

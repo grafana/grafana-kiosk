@@ -117,6 +117,11 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 		chromedp.UserDataDir(dir),
 	}
 
+	if cfg.General.Headless {
+		execAllocatorOption = append(execAllocatorOption,
+			chromedp.Flag("headless", "new"),
+		)
+	}
 	if !cfg.General.GPUEnabled {
 		execAllocatorOption = append(
 			execAllocatorOption,

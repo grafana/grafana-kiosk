@@ -70,6 +70,7 @@ type Args struct {
 	ScaleFactor                          string
 	Browser                              string
 	BrowserPath                          string
+	Headless                             bool
 	HideLinks                            bool
 	HideLogo                             bool
 	HidePlaylistNav                      bool
@@ -95,6 +96,7 @@ func ProcessArgs(cfg any) (Args, *flag.FlagSet) {
 	flagSettings.StringVar(&processedArgs.ScaleFactor, "scale-factor", "1.0", "Scale factor, sort of zoom")
 	flagSettings.StringVar(&processedArgs.Browser, "browser", "chrome", "Browser to launch [chrome|edge]")
 	flagSettings.StringVar(&processedArgs.BrowserPath, "browser-path", "", "Explicit path to a Chromium-based browser executable; overrides -browser")
+	flagSettings.BoolVar(&processedArgs.Headless, "headless", false, "Run browser in headless mode (no display required)")
 	flagSettings.Int64Var(&processedArgs.PageLoadDelayMS, "page-load-delay-ms", 2000, "Delay in milliseconds before navigating to URL")
 	flagSettings.Int64Var(&processedArgs.RestartDelayMS, "restart-delay-ms", 5000, "Delay in milliseconds before restarting after a session error")
 	flagSettings.BoolVar(&processedArgs.IsPlayList, "playlists", false, "URL is a playlist")
@@ -172,6 +174,7 @@ func loadConfig(args Args, fs *flag.FlagSet, cfg *config.Config) error {
 		"scale-factor":       func() { cfg.General.ScaleFactor = args.ScaleFactor },
 		"browser":            func() { cfg.General.Browser = args.Browser },
 		"browser-path":       func() { cfg.General.BrowserPath = args.BrowserPath },
+		"headless":           func() { cfg.General.Headless = args.Headless },
 		"page-load-delay-ms":  func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
 		"restart-delay-ms":    func() { cfg.General.RestartDelayMS = args.RestartDelayMS },
 		"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
@@ -251,6 +254,7 @@ func logGeneralSettings(cfg *config.Config) {
 	log.Println("ScaleFactor:", cfg.General.ScaleFactor)
 	log.Println("Browser:", cfg.General.Browser)
 	log.Println("BrowserPath:", cfg.General.BrowserPath)
+	log.Println("Headless:", cfg.General.Headless)
 	log.Println("PageLoadDelayMS:", cfg.General.PageLoadDelayMS)
 	log.Println("RestartDelayMS:", cfg.General.RestartDelayMS)
 	log.Println("HideLinks:", cfg.General.HideLinks)

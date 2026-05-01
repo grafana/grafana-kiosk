@@ -3,7 +3,6 @@ package kiosk
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
@@ -62,10 +61,6 @@ func gcomLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboar
 		return err
 	}
 	log.Println("gcom button clicked")
-
-	// Give browser time to load next page
-	time.Sleep(3 * time.Second)
-
 	if err := b.WaitVisible(ctx, `//input[@name="login"]`); err != nil {
 		return err
 	}

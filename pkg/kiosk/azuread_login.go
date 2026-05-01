@@ -66,8 +66,6 @@ func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashb
 		return err
 	}
 	log.Println("azuread button clicked, waiting for Microsoft login page")
-	time.Sleep(1 * time.Second)
-
 	if err := b.WaitVisible(ctx, `//input[@name="loginfmt"]`); err != nil {
 		return err
 	}
@@ -79,8 +77,6 @@ func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashb
 		return err
 	}
 	log.Println("username submitted, waiting for password field")
-	time.Sleep(1 * time.Second)
-
 	if err := b.WaitVisible(ctx, `//input[@name="passwd"]`); err != nil {
 		return err
 	}
@@ -96,7 +92,9 @@ func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashb
 		return err
 	}
 	log.Println("sign in button clicked")
-	time.Sleep(1 * time.Second)
+	if cfg.General.PageLoadDelayMS > 0 {
+		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+	}
 
 	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

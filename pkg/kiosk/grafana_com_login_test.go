@@ -44,18 +44,13 @@ func TestGcomLoginFlow(t *testing.T) {
 			So(mock.CallCount("WaitVisible"), ShouldEqual, 1)
 		})
 
-		// Full sequence test waits for the goroutine to complete the full flow
-		// including the 3-second hardcoded sleep before credential fields appear.
 		Convey("Full sequence: navigate → click gcom button → credentials → message loop", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 			messages := make(chan string, 1)
 			done := make(chan error, 1)
 			go func() { done <- gcomLoginFlow(ctx, cfg, mock, dashboardURL, messages) }()
-
-			// Wait for the full login flow to complete (3s sleep + credential steps)
-			// then verify sequence before cancelling.
-			time.Sleep(4 * time.Second)
+			time.Sleep(10 * time.Millisecond)
 			messages <- "reload"
 			time.Sleep(10 * time.Millisecond)
 			cancel()

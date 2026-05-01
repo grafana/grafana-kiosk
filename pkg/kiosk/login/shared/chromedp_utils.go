@@ -106,6 +106,16 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 		chromedp.Flag("hide-scrollbars", true),
 		chromedp.Flag("disable-search-engine-choice-screen", true),
 		chromedp.Flag("disable-sync", true),
+		// Prevent JS timers from being throttled when the window loses focus —
+		// critical for Grafana auto-refresh on playlist or multi-monitor setups.
+		chromedp.Flag("disable-background-timer-throttling", true),
+		chromedp.Flag("disable-renderer-backgrounding", true),
+		chromedp.Flag("disable-backgrounding-occluded-windows", true),
+		// Suppress "Page Unresponsive" dialogs that would disrupt kiosk display
+		// when Grafana takes time to load a heavy dashboard.
+		chromedp.Flag("disable-hang-monitor", true),
+		chromedp.Flag("disable-breakpad", true),
+		chromedp.Flag("disable-component-update", true),
 		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
 		chromedp.Flag("incognito", cfg.General.Incognito),
 		chromedp.Flag("kiosk", true),

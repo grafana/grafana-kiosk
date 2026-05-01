@@ -293,8 +293,8 @@ Key deltas from vanilla Go:
 - **Spell check**: run `npx cspell` on any `.go` file before committing. CI checks
   all `.md` and `.go` files — fix failures before staging.
 - **Branching**: always create a feature branch (`feat/...`, `fix/...`).
-  PR summaries use the same H3 categorization as the changelog and get
-  updated after every push.
+- **PR summaries**: update the PR body after every push without waiting to
+  be asked. Use the same H3 categorization as the changelog.
 - **CI and action pinning**: [`.agents/ci.md`](.agents/ci.md).
 - **Releases**: [`.agents/release.md`](.agents/release.md).
 

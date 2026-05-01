@@ -42,7 +42,9 @@ func GrafanaKioskAnonymous(ctx context.Context, cfg *Config, dir string, b brows
 		panic(err)
 	}
 
-	waitForPageLoad(cfg)
+	if err := chromedp.Run(taskCtx, waitForPageLoad(cfg)); err != nil {
+		panic(err)
+	}
 	// blocking wait until context is cancelled or a message triggers a reload
 	for {
 		select {

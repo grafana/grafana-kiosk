@@ -214,6 +214,13 @@ func (Test) Default() error {
 	return runTests(false)
 }
 
+// Integration Run integration tests (requires Docker and Chrome/Chromium)
+func (Test) Integration() error {
+	os.Setenv("GO111MODULE", "on")
+	os.Setenv("CGO_ENABLED", "0")
+	return sh.RunV("go", "test", "-tags", "integration", "-v", "-timeout", "120s", "./pkg/kiosk/integration/...")
+}
+
 // Clean Removes built files
 func Clean() {
 	log.Printf("Cleaning all")

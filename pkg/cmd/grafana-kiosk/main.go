@@ -305,7 +305,8 @@ func main() {
 	// validate url
 	_, err := url.ParseRequestURI(cfg.Target.URL)
 	if err != nil {
-		panic(err)
+		log.Println("Invalid URL:", err)
+		os.Exit(-1)
 	}
 
 	summary(&cfg)

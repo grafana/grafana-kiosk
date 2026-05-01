@@ -48,18 +48,23 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, b browser
 		switch ev := ev.(type) {
 		case *fetch.EventRequestPaused:
 			go func() {
+				defer func() {
+					if r := recover(); r != nil {
+						log.Printf("idtoken fetch handler error: %v", r)
+					}
+				}()
 				fetchReq := fetch.ContinueRequest(ev.RequestID)
 				for k, v := range ev.Request.Headers {
 					fetchReq.Headers = append(fetchReq.Headers, &fetch.HeaderEntry{Name: k, Value: fmt.Sprintf("%v", v)})
 				}
 				token, err := tokenSource.Token()
 				if err != nil {
-					panic(fmt.Errorf("idtoken.NewClient: %w", err))
+					log.Printf("idtoken token fetch error: %v", err)
+					return
 				}
 				fetchReq.Headers = append(fetchReq.Headers, &fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + token.AccessToken})
-				err = fetchReq.Do(GetExecutor(taskCtx))
-				if err != nil {
-					panic(fmt.Errorf("idtoken.NewClient fetchReq error: %w", err))
+				if err = fetchReq.Do(GetExecutor(taskCtx)); err != nil {
+					log.Printf("idtoken fetchReq error: %v", err)
 				}
 			}()
 		}

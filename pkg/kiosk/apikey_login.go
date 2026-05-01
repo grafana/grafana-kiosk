@@ -71,10 +71,16 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 		switch ev := ev.(type) {
 		case *fetch.EventRequestPaused:
 			go func() {
+				defer func() {
+					if r := recover(); r != nil {
+						log.Printf("apikey fetch handler error: %v", r)
+					}
+				}()
 				fetchReq := fetch.ContinueRequest(ev.RequestID)
 				requestURL, err := url.Parse(ev.Request.URL)
 				if err != nil {
-					panic(fmt.Errorf("url.Parse: %w", err))
+					log.Printf("apikey url.Parse error: %v", err)
+					return
 				}
 				// Add Content-Type header only for datasource query API calls
 				if IsDataSourceQueryRequest(ev.Request.URL, targetURL.Scheme, targetURL.Host) {
@@ -96,9 +102,8 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.
 						&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
 					)
 				}
-				err = fetchReq.Do(GetExecutor(taskCtx))
-				if err != nil {
-					panic(fmt.Errorf("apikey fetchReq error: %w", err))
+				if err = fetchReq.Do(GetExecutor(taskCtx)); err != nil {
+					log.Printf("apikey fetchReq error: %v", err)
 				}
 			}()
 		}

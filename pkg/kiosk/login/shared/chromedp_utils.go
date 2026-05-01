@@ -117,33 +117,43 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 		chromedp.Flag("disable-search-engine-choice-screen", true),
 		// No Google account sync — kiosk has no user account.
 		chromedp.Flag("disable-sync", true),
-		// Prevent JS timers from being throttled when the window loses focus —
-		// critical for Grafana auto-refresh on playlist or multi-monitor setups.
-		chromedp.Flag("disable-background-timer-throttling", true),
-		// Prevent the renderer from being given lower priority when unfocused.
-		chromedp.Flag("disable-renderer-backgrounding", true),
-		// Prevent backgrounding when another window covers this one.
-		chromedp.Flag("disable-backgrounding-occluded-windows", true),
-		// Suppress "Page Unresponsive" dialogs that would disrupt the kiosk
-		// display when Grafana takes time to load a heavy dashboard.
-		chromedp.Flag("disable-hang-monitor", true),
-		// Disable crash reporting — no crash dialogs or background reporter process.
-		chromedp.Flag("disable-breakpad", true),
-		// Prevent background component update checks from interfering with rendering.
-		chromedp.Flag("disable-component-update", true),
-		// Prevent Safe Browsing database updates from running in the background.
-		chromedp.Flag("safebrowsing-disable-auto-update", true),
-		// Record metrics locally only — suppresses telemetry uploads to Google.
-		chromedp.Flag("metrics-recording-only", true),
-		// Allow popups/new windows from Grafana drill-down links without prompting.
-		chromedp.Flag("disable-popup-blocking", true),
-		// Skip client-side phishing URL checks that add latency on page loads.
-		chromedp.Flag("disable-client-side-phishing-detection", true),
-		// Suppress the print preview dialog — no printing needed in a kiosk.
-		chromedp.Flag("disable-print-preview", true),
-		// Auto-accept camera/microphone permission prompts — relevant for Grafana
-		// panels that embed live camera feeds or WebRTC data sources.
-		chromedp.Flag("use-fake-ui-for-media-stream", true),
+	}
+
+	// Kiosk-specific optimizations — enabled by default, disable via
+	// -disable-chromium-kiosk-optimizations if they cause compatibility issues.
+	if !cfg.General.DisableChromiumKioskOptimizations {
+		execAllocatorOption = append(execAllocatorOption,
+			// Prevent JS timers from being throttled when the window loses focus —
+			// critical for Grafana auto-refresh on playlist or multi-monitor setups.
+			chromedp.Flag("disable-background-timer-throttling", true),
+			// Prevent the renderer from being given lower priority when unfocused.
+			chromedp.Flag("disable-renderer-backgrounding", true),
+			// Prevent backgrounding when another window covers this one.
+			chromedp.Flag("disable-backgrounding-occluded-windows", true),
+			// Suppress "Page Unresponsive" dialogs that would disrupt the kiosk
+			// display when Grafana takes time to load a heavy dashboard.
+			chromedp.Flag("disable-hang-monitor", true),
+			// Disable crash reporting — no crash dialogs or background reporter process.
+			chromedp.Flag("disable-breakpad", true),
+			// Prevent background component update checks from interfering with rendering.
+			chromedp.Flag("disable-component-update", true),
+			// Prevent Safe Browsing database updates from running in the background.
+			chromedp.Flag("safebrowsing-disable-auto-update", true),
+			// Record metrics locally only — suppresses telemetry uploads to Google.
+			chromedp.Flag("metrics-recording-only", true),
+			// Allow popups/new windows from Grafana drill-down links without prompting.
+			chromedp.Flag("disable-popup-blocking", true),
+			// Skip client-side phishing URL checks that add latency on page loads.
+			chromedp.Flag("disable-client-side-phishing-detection", true),
+			// Suppress the print preview dialog — no printing needed in a kiosk.
+			chromedp.Flag("disable-print-preview", true),
+			// Auto-accept camera/microphone permission prompts — relevant for Grafana
+			// panels that embed live camera feeds or WebRTC data sources.
+			chromedp.Flag("use-fake-ui-for-media-stream", true),
+		)
+	}
+
+	execAllocatorOption = append(execAllocatorOption,
 		// Configurable: ignore TLS certificate errors (e.g., self-signed certs).
 		chromedp.Flag("ignore-certificate-errors", cfg.Target.IgnoreCertificateErrors),
 		// Configurable: run in incognito mode (no persistent profile state).
@@ -158,7 +168,7 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 		chromedp.Flag("user-agent", userAgent),
 		chromedp.Flag("window-position", cfg.General.WindowPosition),
 		chromedp.UserDataDir(dir),
-	}
+	)
 
 	if cfg.General.Headless {
 		execAllocatorOption = append(execAllocatorOption,

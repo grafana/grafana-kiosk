@@ -24,6 +24,10 @@ and this project adheres to
 
 ### Bug Fixes
 
+- Fix browser validation blocking `-browser-path` escape hatch — validation now skipped when `BrowserPath` is set,
+  allowing arbitrary Chromium-based binaries via `-browser-path` regardless of `-browser` value
+- Fix silent Chrome fallback when Edge binary missing — startup now exits with a clear error message instead of
+  silently launching Chrome when `browser=edge` is set but no Edge binary is found on PATH
 - Fix azuread message loop missing `ctx.Done()` case — loop previously could not exit cleanly on shutdown
 - Remove dead `enableFetch` helper in idtoken login — no longer called after fetch setup moved to outer function
 - Fix goroutine panics in apikey and idtoken fetch interceptors — panics inside `go func()` blocks escape

@@ -721,3 +721,45 @@ func TestResolveBrowserExecPath(t *testing.T) {
 		})
 	})
 }
+
+func TestValidateBrowserConfig(t *testing.T) {
+	Convey("Given ValidateBrowserConfig", t, func() {
+		origLookPath := lookPath
+		defer func() { lookPath = origLookPath }()
+
+		Convey("Returns nil for chrome", func() {
+			cfg := &Config{General: General{Browser: "chrome"}}
+			So(ValidateBrowserConfig(cfg), ShouldBeNil)
+		})
+
+		Convey("Returns nil for empty browser (chromedp default)", func() {
+			cfg := &Config{General: General{Browser: ""}}
+			So(ValidateBrowserConfig(cfg), ShouldBeNil)
+		})
+
+		Convey("Returns nil when BrowserPath is set regardless of Browser", func() {
+			lookPath = func(string) (string, error) { return "", fmt.Errorf("not found") }
+			cfg := &Config{General: General{Browser: "edge", BrowserPath: "/custom/msedge"}}
+			So(ValidateBrowserConfig(cfg), ShouldBeNil)
+		})
+
+		Convey("Returns nil when edge binary found on PATH", func() {
+			lookPath = func(name string) (string, error) {
+				if name == "msedge" {
+					return "/usr/bin/msedge", nil
+				}
+				return "", fmt.Errorf("not found")
+			}
+			cfg := &Config{General: General{Browser: "edge"}}
+			So(ValidateBrowserConfig(cfg), ShouldBeNil)
+		})
+
+		Convey("Returns error when edge requested but no binary found", func() {
+			lookPath = func(string) (string, error) { return "", fmt.Errorf("not found") }
+			cfg := &Config{General: General{Browser: "edge"}}
+			err := ValidateBrowserConfig(cfg)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, "edge")
+		})
+	})
+}

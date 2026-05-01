@@ -291,11 +291,18 @@ func main() {
 		os.Exit(-1)
 	}
 
-	// validate browser selection
-	switch strings.ToLower(cfg.General.Browser) {
-	case "", "chrome", "edge":
-	default:
-		log.Printf("Invalid browser %q — supported values: chrome, edge (or use -browser-path for a custom binary)", cfg.General.Browser)
+	// validate browser selection; skip when BrowserPath is set since it
+	// overrides Browser entirely and supports arbitrary Chromium binaries.
+	if cfg.General.BrowserPath == "" {
+		switch strings.ToLower(cfg.General.Browser) {
+		case "", "chrome", "edge":
+		default:
+			log.Printf("Invalid browser %q — supported values: chrome, edge (or use -browser-path for a custom binary)", cfg.General.Browser)
+			os.Exit(-1)
+		}
+	}
+	if err := kiosk.ValidateBrowserConfig(&cfg); err != nil {
+		log.Printf("Browser configuration error: %v", err)
 		os.Exit(-1)
 	}
 

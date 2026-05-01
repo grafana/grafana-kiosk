@@ -187,6 +187,25 @@ func resolveBrowserExecPath(cfg *Config) string {
 	return ""
 }
 
+// ValidateBrowserConfig returns an error if the browser configuration cannot
+// be satisfied: specifically when "edge" is requested but no Edge binary is
+// found on PATH and no explicit BrowserPath is set.
+func ValidateBrowserConfig(cfg *Config) error {
+	if cfg.General.BrowserPath != "" {
+		return nil
+	}
+	if strings.ToLower(cfg.General.Browser) != "edge" {
+		return nil
+	}
+	for _, name := range edgeBinaryCandidates {
+		if _, err := lookPath(name); err == nil {
+			return nil
+		}
+	}
+	return fmt.Errorf("browser 'edge' requested but no Edge binary found on PATH (tried: %v) — install Edge or use -browser-path to specify the executable",
+		edgeBinaryCandidates)
+}
+
 // isFullscreenMode reports whether the given kiosk mode requires fullscreen.
 // "full" and the empty default both mean fullscreen; "tv" and "disabled" do not.
 func isFullscreenMode(mode string) bool {

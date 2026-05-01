@@ -170,6 +170,9 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     needs: build
+    # Skip on forked PRs — integration tests run Go code with Docker socket access,
+    # which is root-equivalent on the runner. Only run on same-repo PRs and pushes.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     permissions: {}
     env:
       # Google Chrome is pre-installed on ubuntu-latest runners
@@ -184,8 +187,8 @@ jobs:
           check-latest: true
           cache: false
 
-      - name: Install dependencies
-        run: go get .
+      - name: Download dependencies
+        run: go mod download
 
       - name: Run integration tests
         run: CGO_ENABLED=0 go test -tags integration -v -timeout 300s ./pkg/kiosk/integration/...

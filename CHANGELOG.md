@@ -80,6 +80,9 @@ and this project adheres to
 - Update `securego/gosec` from v2.25.0 to v2.26.1 in CI workflow
 - Update `DavidAnson/markdownlint-cli2-action` from v23.0.0 to v23.1.0 in markdownlint workflow
 - Normalize action version comments to full semver across all workflows
+- Add `integration` CI job running integration tests against a real Grafana container; skips forked PRs
+  to prevent Docker socket abuse
+- Enable Go build cache in CI to speed up cross-compilation of foreign OS/arch targets
 
 ### Dependencies
 

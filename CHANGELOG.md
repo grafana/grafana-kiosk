@@ -16,6 +16,14 @@ and this project adheres to
 - Add `-browser-path` flag (env `KIOSK_BROWSER_PATH`) to point at an explicit Chromium-based browser executable;
   overrides `-browser`
 - Extract `browser.Browser` interface to decouple login providers from chromedp ([#257](https://github.com/grafana/grafana-kiosk/issues/257))
+- Add `WaitNotVisible` to `browser.Browser` interface and `ChromeDP`/`Mock` implementations (required for AWS MFA path)
+- Extract inner flow functions for all remaining login providers: `gcomLoginFlow`, `genericOauthLoginFlow`,
+  `idtokenLoginFlow`, `apikeyLoginFlow`, `awsLoginFlow`, `azureADLoginFlow` ([#274](https://github.com/grafana/grafana-kiosk/issues/274))
+
+### Bug Fixes
+
+- Fix azuread message loop missing `ctx.Done()` case — loop previously could not exit cleanly on shutdown
+- Remove dead `enableFetch` helper in idtoken login — no longer called after fetch setup moved to outer function
 
 ### Chores
 
@@ -37,6 +45,8 @@ and this project adheres to
 
 - Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers
 - Add unit tests for `anonymousLoginFlow` and `localLoginFlow` calling real production functions via mock browser
+- Add unit tests for all six new login flow functions: gcom, generic oauth, idtoken, apikey, aws (with and without MFA),
+  azuread
 
 ## [1.0.12] - 2026-04-29
 

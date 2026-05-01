@@ -4,18 +4,21 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/fetch"
 
 	"github.com/chromedp/chromedp"
 
+	"github.com/grafana/grafana-kiosk/pkg/browser"
+
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
 )
 
 // GrafanaKioskIDToken creates a chrome-based kiosk using a oauth2 authenticated account.
-func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages chan string) {
+func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -33,10 +36,6 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 	}
 
 	waitForBrowserStartup(cfg)
-
-	var generatedURL = GenerateURL(cfg)
-
-	log.Println("Navigating to ", generatedURL)
 
 	log.Printf("Token is using audience %s and reading from %s", cfg.IDToken.Audience, cfg.IDToken.KeyFile)
 	tokenSource, err := idtoken.NewTokenSource(context.Background(), cfg.IDToken.Audience, option.WithAuthCredentialsFile(option.ServiceAccount, cfg.IDToken.KeyFile))
@@ -70,23 +69,36 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, messages 
 	if err := chromedp.Run(taskCtx,
 		waitForPageLoad(cfg),
 		cycleWindowState(cfg),
-		enableFetch(generatedURL),
+		fetch.Enable(),
 	); err != nil {
 		panic(err)
 	}
 
-	// blocking wait until context is cancelled or a message triggers a reload
+	if err := idtokenLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+		panic(err)
+	}
+}
+
+// idtokenLoginFlow navigates to url (with fetch interception already enabled),
+// then blocks until context is cancelled or a message triggers a reload.
+func idtokenLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
+	log.Println("Navigating to ", url)
+	if err := b.Navigate(ctx, url); err != nil {
+		return err
+	}
+	if cfg.General.PageLoadDelayMS > 0 {
+		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
+		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+	}
 	for {
 		select {
 		case <-ctx.Done():
-			return
-		case messageFromChrome := <-messages:
-			if err := chromedp.Run(taskCtx,
-				chromedp.Navigate(generatedURL),
-			); err != nil {
-				return
+			return nil
+		case msg := <-messages:
+			if err := b.Navigate(ctx, url); err != nil {
+				return nil
 			}
-			log.Println("Browser output:", messageFromChrome)
+			log.Println("Browser output:", msg)
 		}
 	}
 }
@@ -98,9 +110,3 @@ func GetExecutor(ctx context.Context) context.Context {
 	return cdp.WithExecutor(ctx, c.Target)
 }
 
-func enableFetch(url string) chromedp.Tasks {
-	return chromedp.Tasks{
-		fetch.Enable(),
-		chromedp.Navigate(url),
-	}
-}

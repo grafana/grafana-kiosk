@@ -6,9 +6,12 @@ import (
 	"log"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/chromedp/cdproto/fetch"
 	"github.com/chromedp/chromedp"
+
+	"github.com/grafana/grafana-kiosk/pkg/browser"
 )
 
 // IsDataSourceQueryRequest checks if the request URL is a datasource query API
@@ -40,7 +43,7 @@ func IsTargetHostRequest(requestHost, targetHost string) bool {
 }
 
 // GrafanaKioskAPIKey creates a chrome-based kiosk using a grafana api key.
-func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages chan string) {
+func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -59,14 +62,11 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 
 	waitForBrowserStartup(cfg)
 
-	var generatedURL = GenerateURL(cfg)
-
-	log.Println("Navigating to ", generatedURL)
-
 	u, err := url.Parse(cfg.Target.URL)
 	if err != nil {
 		panic(fmt.Errorf("url.Parse: %w", err))
 	}
+
 	chromedp.ListenTarget(taskCtx, func(ev interface{}) {
 		switch ev := ev.(type) {
 		case *fetch.EventRequestPaused:
@@ -103,27 +103,40 @@ func GrafanaKioskAPIKey(ctx context.Context, cfg *Config, dir string, messages c
 			}()
 		}
 	})
-	if err := chromedp.Run(
-		taskCtx,
+
+	if err := chromedp.Run(taskCtx,
 		cycleWindowState(cfg),
 		fetch.Enable().WithPatterns([]*fetch.RequestPattern{{URLPattern: u.Scheme + "://" + u.Host + "/*"}}),
-		chromedp.Navigate(generatedURL),
-		waitForPageLoad(cfg),
 	); err != nil {
 		panic(err)
 	}
-	// blocking wait until context is cancelled or a message triggers a reload
+
+	if err := apikeyLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+		panic(err)
+	}
+}
+
+// apikeyLoginFlow navigates to url (with fetch interception already enabled),
+// waits for page load, then blocks until context is cancelled or a message
+// triggers a reload.
+func apikeyLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
+	log.Println("Navigating to ", url)
+	if err := b.Navigate(ctx, url); err != nil {
+		return err
+	}
+	if cfg.General.PageLoadDelayMS > 0 {
+		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
+		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
+	}
 	for {
 		select {
 		case <-ctx.Done():
-			return
-		case messageFromChrome := <-messages:
-			if err := chromedp.Run(taskCtx,
-				chromedp.Navigate(generatedURL),
-			); err != nil {
-				return
+			return nil
+		case msg := <-messages:
+			if err := b.Navigate(ctx, url); err != nil {
+				return nil
 			}
-			log.Println("Browser output:", messageFromChrome)
+			log.Println("Browser output:", msg)
 		}
 	}
 }

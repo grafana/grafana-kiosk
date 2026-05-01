@@ -7,10 +7,12 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
+
+	"github.com/grafana/grafana-kiosk/pkg/browser"
 )
 
 // GrafanaKioskGCOM creates a chrome-based kiosk using a grafana.com authenticated account.
-func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages chan string) {
+func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -29,62 +31,64 @@ func GrafanaKioskGCOM(ctx context.Context, cfg *Config, dir string, messages cha
 
 	waitForBrowserStartup(cfg)
 
-	var generatedURL = GenerateURL(cfg)
-
-	log.Println("Navigating to ", generatedURL)
-	/*
-		Launch chrome, click the grafana.com button, fill out login form and submit
-	*/
-	// XPATH of grafana.com login button = //*[@href="login/grafana_com"]/i
-	// XPATH for grafana.com login (new) = //a[contains(@href,'login/grafana_com')]
-
-	// chromedp.WaitVisible(`//*[@href="login/grafana_com"]/i`, chromedp.BySearch),
-
-	// Click the grafana_com login button
 	if err := chromedp.Run(taskCtx,
 		waitForPageLoad(cfg),
 		cycleWindowState(cfg),
-		chromedp.Navigate(generatedURL),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("waiting for login dialog")
-			return nil
-		}),
-		chromedp.WaitVisible(`//a[contains(@href,'login/grafana_com')]`, chromedp.BySearch),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("gcom login dialog detected")
-			return nil
-		}),
-		chromedp.Click(`//a[contains(@href,'login/grafana_com')]`, chromedp.BySearch),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("gcom button clicked")
-			return nil
-		}),
 	); err != nil {
 		panic(err)
 	}
-	// Give browser time to load next page (this can be prone to failure, explore different options vs sleeping)
-	time.Sleep(3000 * time.Millisecond)
-	// Fill out grafana_com login page
-	if err := chromedp.Run(taskCtx,
-		chromedp.WaitVisible(`//input[@name="login"]`, chromedp.BySearch),
-		chromedp.SendKeys(`//input[@name="login"]`, cfg.Target.Username, chromedp.BySearch),
-		chromedp.Click(`#submit`, chromedp.ByID),
-		chromedp.SendKeys(`//input[@name="password"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-	); err != nil {
+
+	if err := gcomLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
 		panic(err)
 	}
-	// blocking wait until context is cancelled or a message triggers a reload
+}
+
+// gcomLoginFlow navigates to the Grafana login page, clicks the grafana.com
+// login button, fills in credentials, then blocks until context is cancelled
+// or a message triggers a reload.
+func gcomLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
+	log.Println("Navigating to ", url)
+
+	// XPATH for grafana.com login button = //a[contains(@href,'login/grafana_com')]
+	if err := b.Navigate(ctx, url); err != nil {
+		return err
+	}
+
+	log.Println("waiting for login dialog")
+	if err := b.WaitVisible(ctx, `//a[contains(@href,'login/grafana_com')]`); err != nil {
+		return err
+	}
+	log.Println("gcom login dialog detected")
+	if err := b.Click(ctx, `//a[contains(@href,'login/grafana_com')]`); err != nil {
+		return err
+	}
+	log.Println("gcom button clicked")
+
+	// Give browser time to load next page
+	time.Sleep(3 * time.Second)
+
+	if err := b.WaitVisible(ctx, `//input[@name="login"]`); err != nil {
+		return err
+	}
+	if err := b.SendKeys(ctx, `//input[@name="login"]`, cfg.Target.Username); err != nil {
+		return err
+	}
+	if err := b.Click(ctx, `//*[@id="submit"]`); err != nil {
+		return err
+	}
+	if err := b.SendKeys(ctx, `//input[@name="password"]`, cfg.Target.Password+kb.Enter); err != nil {
+		return err
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
-			return
-		case messageFromChrome := <-messages:
-			if err := chromedp.Run(taskCtx,
-				chromedp.Navigate(generatedURL),
-			); err != nil {
-				return
+			return nil
+		case msg := <-messages:
+			if err := b.Navigate(ctx, url); err != nil {
+				return nil
 			}
-			log.Println("Browser output:", messageFromChrome)
+			log.Println("Browser output:", msg)
 		}
 	}
 }

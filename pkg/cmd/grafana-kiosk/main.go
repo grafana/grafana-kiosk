@@ -343,22 +343,22 @@ func main() {
 		kiosk.GrafanaKioskLocal(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	case "gcom":
 		log.Printf("Launching GCOM login kiosk")
-		kiosk.GrafanaKioskGCOM(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskGCOM(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	case "goauth":
 		log.Printf("Launching Generic Oauth login kiosk")
-		kiosk.GrafanaKioskGenericOauth(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskGenericOauth(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	case "idtoken":
 		log.Printf("Launching idtoken oauth kiosk")
-		kiosk.GrafanaKioskIDToken(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskIDToken(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	case "apikey":
 		log.Printf("Launching apikey kiosk")
-		kiosk.GrafanaKioskAPIKey(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskAPIKey(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	case "aws":
 		log.Printf("Launching AWS SSO kiosk")
-		kiosk.GrafanaKioskAWSLogin(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskAWSLogin(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	case "azuread":
 		log.Printf("Launching AzureAD login kiosk")
-		kiosk.GrafanaKioskAzureAD(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskAzureAD(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	default:
 		log.Printf("Launching ANON login kiosk")
 		kiosk.GrafanaKioskAnonymous(ctx, &cfg, dir, &browser.ChromeDP{}, messages)

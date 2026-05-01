@@ -6,10 +6,12 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/kb"
+
+	"github.com/grafana/grafana-kiosk/pkg/browser"
 )
 
 // GrafanaKioskGenericOauth creates a chrome-based kiosk using a oauth2 authenticated account.
-func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, messages chan string) {
+func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -28,80 +30,85 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 
 	waitForBrowserStartup(cfg)
 
-	var generatedURL = GenerateURL(cfg)
+	if err := chromedp.Run(taskCtx,
+		waitForPageLoad(cfg),
+		cycleWindowState(cfg),
+	); err != nil {
+		panic(err)
+	}
 
-	log.Println("Navigating to ", generatedURL)
+	if err := genericOauthLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
+		panic(err)
+	}
+}
 
-	/*
-		Launch chrome, click the GENERIC OAUTH button, fill out login form and submit
-	*/
-	// XPATH of grafana.com for Generic OAUTH login button = //*[@href="login/grafana_com"]/i
-
-	// Click the OAUTH login button
+// genericOauthLoginFlow navigates to the Grafana login page, optionally clicks
+// the OAuth button, fills in credentials, handles stay-signed-in prompts, then
+// blocks until context is cancelled or a message triggers a reload.
+func genericOauthLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
+	log.Println("Navigating to ", url)
 	log.Println("Oauth_Auto_Login enabled: ", cfg.GoAuth.AutoLogin)
 
-	if cfg.GoAuth.AutoLogin {
-		if err := chromedp.Run(taskCtx,
-			waitForPageLoad(cfg),
-			cycleWindowState(cfg),
-			chromedp.Navigate(generatedURL),
-		); err != nil {
-			panic(err)
+	if err := b.Navigate(ctx, url); err != nil {
+		return err
+	}
+
+	if !cfg.GoAuth.AutoLogin {
+		// XPATH of Generic OAUTH login button = //*[@href="login/generic_oauth"]
+		if err := b.WaitVisible(ctx, `//*[@href="login/generic_oauth"]`); err != nil {
+			return err
 		}
-	} else {
-		if err := chromedp.Run(taskCtx,
-			waitForPageLoad(cfg),
-			cycleWindowState(cfg),
-			chromedp.Navigate(generatedURL),
-			chromedp.WaitVisible(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),
-			chromedp.Click(`//*[@href="login/generic_oauth"]`, chromedp.BySearch),
-		); err != nil {
-			panic(err)
+		if err := b.Click(ctx, `//*[@href="login/generic_oauth"]`); err != nil {
+			return err
 		}
 	}
 
 	waitForBrowserStartup(cfg)
 
-	// Fill out OAUTH login page
-
+	// Fill out OAuth login page
 	if cfg.GoAuth.WaitForPasswordField {
-		if err := chromedp.Run(taskCtx,
-			chromedp.WaitVisible(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, chromedp.BySearch),
-			chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, cfg.Target.Username+kb.Enter, chromedp.BySearch),
-			chromedp.WaitVisible(`//input[@name="`+cfg.GoAuth.PasswordField+`" and not(@class="`+cfg.GoAuth.WaitForPasswordFieldIgnoreClass+`")]`, chromedp.BySearch),
-			chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-		); err != nil {
-			panic(err)
+		if err := b.WaitVisible(ctx, `//input[@name="`+cfg.GoAuth.UsernameField+`"]`); err != nil {
+			return err
+		}
+		if err := b.SendKeys(ctx, `//input[@name="`+cfg.GoAuth.UsernameField+`"]`, cfg.Target.Username+kb.Enter); err != nil {
+			return err
+		}
+		if err := b.WaitVisible(ctx, `//input[@name="`+cfg.GoAuth.PasswordField+`" and not(@class="`+cfg.GoAuth.WaitForPasswordFieldIgnoreClass+`")]`); err != nil {
+			return err
+		}
+		if err := b.SendKeys(ctx, `//input[@name="`+cfg.GoAuth.PasswordField+`"]`, cfg.Target.Password+kb.Enter); err != nil {
+			return err
 		}
 	} else {
-		if err := chromedp.Run(taskCtx,
-			chromedp.WaitVisible(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, chromedp.BySearch),
-			chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.UsernameField+`"]`, cfg.Target.Username, chromedp.BySearch),
-			chromedp.SendKeys(`//input[@name="`+cfg.GoAuth.PasswordField+`"]`, cfg.Target.Password+kb.Enter, chromedp.BySearch),
-		); err != nil {
-			panic(err)
+		if err := b.WaitVisible(ctx, `//input[@name="`+cfg.GoAuth.UsernameField+`"]`); err != nil {
+			return err
+		}
+		if err := b.SendKeys(ctx, `//input[@name="`+cfg.GoAuth.UsernameField+`"]`, cfg.Target.Username); err != nil {
+			return err
+		}
+		if err := b.SendKeys(ctx, `//input[@name="`+cfg.GoAuth.PasswordField+`"]`, cfg.Target.Password+kb.Enter); err != nil {
+			return err
 		}
 	}
+
 	if cfg.GoAuth.WaitForStaySignedInPrompt {
-		if err := chromedp.Run(taskCtx,
-			chromedp.WaitVisible(`//input[@type="submit" and @value="Yes"]`, chromedp.BySearch),
-			chromedp.Click(`//input[@type="submit" and @value="Yes"]`, chromedp.BySearch),
-		); err != nil {
-			panic(err)
+		if err := b.WaitVisible(ctx, `//input[@type="submit" and @value="Yes"]`); err != nil {
+			return err
+		}
+		if err := b.Click(ctx, `//input[@type="submit" and @value="Yes"]`); err != nil {
+			return err
 		}
 	}
-	// blocking wait until context is cancelled or a message triggers a reload
+
 	for {
 		select {
 		case <-ctx.Done():
-			return
-		case messageFromChrome := <-messages:
-			if err := chromedp.Run(taskCtx,
-				chromedp.Navigate(generatedURL),
-			); err != nil {
-				return
+			return nil
+		case msg := <-messages:
+			if err := b.Navigate(ctx, url); err != nil {
+				return nil
 			}
-			log.Println("Browser output:", messageFromChrome)
+			log.Println("Browser output:", msg)
 		}
 	}
 }

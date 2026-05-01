@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
+
+	"github.com/grafana/grafana-kiosk/pkg/browser"
 )
 
 // GrafanaKioskAzureAD creates a chrome-based kiosk using an Azure Active Directory authenticated account.
-func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, messages chan string) {
+func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, b browser.Browser, messages chan string) {
 	opts := generateExecutorOptions(dir, cfg)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -28,93 +30,83 @@ func GrafanaKioskAzureAD(ctx context.Context, cfg *Config, dir string, messages 
 
 	waitForBrowserStartup(cfg)
 
-	var generatedURL = GenerateURL(cfg)
-
-	log.Println("Navigating to ", generatedURL)
-	/*
-		Launch chrome, click the azuread button on the Grafana login page,
-		which redirects to the Microsoft login page. Fill out the email and
-		password fields and submit.
-
-		Microsoft login page fields:
-		  email:    input[name="loginfmt"]  (type="email")
-		  password: input[name="passwd"]    (type="password")
-		  next/submit button: input[id="idSIButton9"]
-	*/
-
-	// Click the AzureAD login button on the Grafana login page
 	if err := chromedp.Run(taskCtx,
 		waitForPageLoad(cfg),
 		cycleWindowState(cfg),
-		chromedp.Navigate(generatedURL),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("waiting for azuread login button")
-			return nil
-		}),
-		chromedp.WaitVisible(`//a[contains(@href,'login/azuread')]`, chromedp.BySearch),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("azuread login button detected")
-			return nil
-		}),
-		chromedp.Click(`//a[contains(@href,'login/azuread')]`, chromedp.BySearch),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("azuread button clicked, waiting for Microsoft login page")
-			time.Sleep(1 * time.Second)
-			return nil
-		}),
 	); err != nil {
 		panic(err)
 	}
 
-	// Fill out the Microsoft login email field
-	if err := chromedp.Run(taskCtx,
-		chromedp.WaitVisible(`//input[@name="loginfmt"]`, chromedp.BySearch),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("Microsoft login page detected, entering username")
-			return nil
-		}),
-		chromedp.SendKeys(`//input[@name="loginfmt"]`, cfg.Target.Username, chromedp.BySearch),
-		chromedp.Click(`//input[@id="idSIButton9"]`, chromedp.BySearch),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("username submitted, waiting for password field")
-			time.Sleep(1 * time.Second)
-			return nil
-		}),
-	); err != nil {
+	if err := azureADLoginFlow(taskCtx, cfg, b, GenerateURL(cfg), messages); err != nil {
 		panic(err)
 	}
+}
 
-	// Fill out the Microsoft login password field and click Sign in
-	if err := chromedp.Run(taskCtx,
-		chromedp.WaitVisible(`//input[@name="passwd"]`, chromedp.BySearch),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("password field detected, entering password")
-			return nil
-		}),
-		chromedp.SendKeys(`//input[@name="passwd"]`, cfg.Target.Password, chromedp.BySearch),
-		chromedp.WaitVisible(`//input[@id="idSIButton9"]`, chromedp.BySearch),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("clicking sign in button")
-			return nil
-		}),
-		chromedp.Click(`//input[@id="idSIButton9"]`, chromedp.BySearch),
-		chromedp.ActionFunc(func(context.Context) error {
-			log.Println("sign in button clicked")
-			time.Sleep(1 * time.Second)
-			return nil
-		}),
-	); err != nil {
-		panic(err)
+// azureADLoginFlow navigates to Grafana, clicks the AzureAD login button, fills
+// in Microsoft credentials, then blocks until context is cancelled or a message
+// triggers a reload.
+//
+// Microsoft login page fields:
+//
+//	email:    input[name="loginfmt"]  (type="email")
+//	password: input[name="passwd"]    (type="password")
+//	next/submit button: input[id="idSIButton9"]
+func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, url string, messages chan string) error {
+	log.Println("Navigating to ", url)
+
+	log.Println("waiting for azuread login button")
+	if err := b.Navigate(ctx, url); err != nil {
+		return err
 	}
+	if err := b.WaitVisible(ctx, `//a[contains(@href,'login/azuread')]`); err != nil {
+		return err
+	}
+	log.Println("azuread login button detected")
+	if err := b.Click(ctx, `//a[contains(@href,'login/azuread')]`); err != nil {
+		return err
+	}
+	log.Println("azuread button clicked, waiting for Microsoft login page")
+	time.Sleep(1 * time.Second)
 
-	// blocking wait for reload messages
+	if err := b.WaitVisible(ctx, `//input[@name="loginfmt"]`); err != nil {
+		return err
+	}
+	log.Println("Microsoft login page detected, entering username")
+	if err := b.SendKeys(ctx, `//input[@name="loginfmt"]`, cfg.Target.Username); err != nil {
+		return err
+	}
+	if err := b.Click(ctx, `//input[@id="idSIButton9"]`); err != nil {
+		return err
+	}
+	log.Println("username submitted, waiting for password field")
+	time.Sleep(1 * time.Second)
+
+	if err := b.WaitVisible(ctx, `//input[@name="passwd"]`); err != nil {
+		return err
+	}
+	log.Println("password field detected, entering password")
+	if err := b.SendKeys(ctx, `//input[@name="passwd"]`, cfg.Target.Password); err != nil {
+		return err
+	}
+	if err := b.WaitVisible(ctx, `//input[@id="idSIButton9"]`); err != nil {
+		return err
+	}
+	log.Println("clicking sign in button")
+	if err := b.Click(ctx, `//input[@id="idSIButton9"]`); err != nil {
+		return err
+	}
+	log.Println("sign in button clicked")
+	time.Sleep(1 * time.Second)
+
 	for {
-		messageFromChrome := <-messages
-		if err := chromedp.Run(taskCtx,
-			chromedp.Navigate(generatedURL),
-		); err != nil {
-			panic(err)
+		select {
+		case <-ctx.Done():
+			return nil
+		case msg := <-messages:
+			if err := b.Navigate(ctx, url); err != nil {
+				return nil
+			}
+			log.Println("Browser output:", msg)
 		}
-		log.Println("Browser output:", messageFromChrome)
 	}
 }

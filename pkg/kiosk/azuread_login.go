@@ -3,7 +3,6 @@ package kiosk
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/chromedp/chromedp"
 
@@ -92,9 +91,7 @@ func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashb
 		return err
 	}
 	log.Println("sign in button clicked")
-	if cfg.General.PageLoadDelayMS > 0 {
-		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
-	}
+	sleepPageLoad(cfg)
 
 	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

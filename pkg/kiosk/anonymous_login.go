@@ -3,7 +3,6 @@ package kiosk
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/grafana/grafana-kiosk/pkg/browser"
@@ -45,9 +44,6 @@ func anonymousLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, das
 	if err := b.Navigate(ctx, dashboardURL); err != nil {
 		return err
 	}
-	if cfg.General.PageLoadDelayMS > 0 {
-		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
-		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
-	}
+	sleepPageLoad(cfg)
 	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

@@ -344,10 +344,13 @@ func main() {
 		cancel()
 	}()
 
-	messages := make(chan string)
 	restartDelay := time.Duration(cfg.General.RestartDelayMS) * time.Millisecond
 
 	for {
+		// Fresh channel each iteration so stale messages from a crashed
+		// session cannot be delivered to the next one.
+		messages := make(chan string)
+
 		func() {
 			defer func() {
 				if r := recover(); r != nil {
@@ -388,9 +391,11 @@ func main() {
 			return
 		default:
 			log.Printf("Kiosk session ended — restarting in %.0f seconds", restartDelay.Seconds())
+			timer := time.NewTimer(restartDelay)
 			select {
-			case <-time.After(restartDelay):
+			case <-timer.C:
 			case <-ctx.Done():
+				timer.Stop()
 				return
 			}
 		}

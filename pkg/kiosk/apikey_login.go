@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/chromedp/cdproto/fetch"
 	"github.com/chromedp/chromedp"
@@ -129,9 +128,6 @@ func apikeyLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashbo
 	if err := b.Navigate(ctx, dashboardURL); err != nil {
 		return err
 	}
-	if cfg.General.PageLoadDelayMS > 0 {
-		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
-		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
-	}
+	sleepPageLoad(cfg)
 	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

@@ -13,6 +13,7 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 
+	"github.com/grafana/grafana-kiosk/pkg/browser"
 	"github.com/grafana/grafana-kiosk/pkg/initialize"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk"
 )
@@ -339,7 +340,7 @@ func main() {
 	switch cfg.Target.LoginMethod {
 	case "local":
 		log.Printf("Launching local login kiosk")
-		kiosk.GrafanaKioskLocal(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskLocal(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	case "gcom":
 		log.Printf("Launching GCOM login kiosk")
 		kiosk.GrafanaKioskGCOM(ctx, &cfg, dir, messages)
@@ -360,6 +361,6 @@ func main() {
 		kiosk.GrafanaKioskAzureAD(ctx, &cfg, dir, messages)
 	default:
 		log.Printf("Launching ANON login kiosk")
-		kiosk.GrafanaKioskAnonymous(ctx, &cfg, dir, messages)
+		kiosk.GrafanaKioskAnonymous(ctx, &cfg, dir, &browser.ChromeDP{}, messages)
 	}
 }

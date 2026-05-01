@@ -15,10 +15,28 @@ and this project adheres to
   launched browser
 - Add `-browser-path` flag (env `KIOSK_BROWSER_PATH`) to point at an explicit Chromium-based browser executable;
   overrides `-browser`
+- Extract `browser.Browser` interface to decouple login providers from chromedp ([#257](https://github.com/grafana/grafana-kiosk/issues/257))
+
+### Chores
+
+- Cache `getVersion()` in Magefile — was called once per arch (9 git subprocesses); now called once
+- Parallelize lint and test in `Build.CI` — format runs first, then lint and test run concurrently
+
+### CI/CD
+
+- Add `concurrency` group to all workflows to cancel superseded runs on push
+- Update `securego/gosec` from v2.25.0 to v2.26.1 in CI workflow
+- Update `DavidAnson/markdownlint-cli2-action` from v23.0.0 to v23.1.0 in markdownlint workflow
+- Normalize action version comments to full semver across all workflows
+
+### Dependencies
+
+- Update `google.golang.org/api` to v0.277.0
 
 ### Tests
 
 - Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers
+- Add unit tests for `anonymousLoginFlow` and `localLoginFlow` calling real production functions via mock browser
 
 ## [1.0.12] - 2026-04-29
 
@@ -32,6 +50,8 @@ and this project adheres to
 - Refactor `summary()` into `logGeneralSettings`, `logTargetSettings`, `logGoAuthSettings`
 
 ### Bug Fixes
+
+- Fix Windows binary missing `.exe` suffix in Mage build output
 
 - Fix `hideLogo` query parameter from `_dash.hideLogo` to `hideLogo` to match Grafana's native format
 - Fix Grafana 12+ scenes viewport changes causing kiosk to not autofit panels ([#177](https://github.com/grafana/grafana-kiosk/issues/177))

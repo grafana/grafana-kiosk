@@ -19,7 +19,7 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 	taskCtx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	listenChromeEvents(taskCtx, cfg, targetCrashed)
+	listenBrowserEvents(taskCtx, cfg, targetCrashed)
 
 	// ensure that the browser process is started
 	if err := chromedp.Run(taskCtx); err != nil {
@@ -101,7 +101,7 @@ func GrafanaKioskGenericOauth(ctx context.Context, cfg *Config, dir string, mess
 			); err != nil {
 				return
 			}
-			log.Println("Chromium output:", messageFromChrome)
+			log.Println("Browser output:", messageFromChrome)
 		}
 	}
 }

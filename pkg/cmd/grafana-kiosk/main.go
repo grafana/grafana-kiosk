@@ -79,7 +79,7 @@ type Args struct {
 }
 
 // ProcessArgs processes and handles CLI arguments.
-func ProcessArgs(cfg interface{}) (Args, *flag.FlagSet) {
+func ProcessArgs(cfg any) (Args, *flag.FlagSet) {
 	var processedArgs Args
 
 	flagSettings := flag.NewFlagSet("grafana-kiosk", flag.ContinueOnError)

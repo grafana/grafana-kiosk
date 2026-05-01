@@ -88,17 +88,7 @@ func GrafanaKioskIDToken(ctx context.Context, cfg *Config, dir string, b browser
 // reload. The initial navigation is handled by the outer function to keep
 // fetch interception and navigation atomic.
 func idtokenLoginFlow(ctx context.Context, b browser.Browser, dashboardURL string, messages chan string) error {
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, dashboardURL); err != nil {
-				return nil
-			}
-			log.Println("Browser output:", messageFromBrowser)
-		}
-	}
+	return runMessageLoop(ctx, b, dashboardURL, messages)
 }
 
 // GetExecutor returns executor for chromedp

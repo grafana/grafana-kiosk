@@ -98,15 +98,5 @@ func azureADLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashb
 	log.Println("sign in button clicked")
 	time.Sleep(1 * time.Second)
 
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, dashboardURL); err != nil {
-				return nil
-			}
-			log.Println("Browser output:", messageFromBrowser)
-		}
-	}
+	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

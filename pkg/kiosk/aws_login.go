@@ -81,15 +81,5 @@ func awsLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboard
 			return err
 		}
 	}
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, dashboardURL); err != nil {
-				return nil
-			}
-			log.Println("Browser output:", messageFromBrowser)
-		}
-	}
+	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

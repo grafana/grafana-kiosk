@@ -54,7 +54,6 @@ func genericOauthLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, 
 	}
 
 	if !cfg.GoAuth.AutoLogin {
-		// XPATH of Generic OAUTH login button = //*[@href="login/generic_oauth"]
 		if err := b.WaitVisible(ctx, `//*[@href="login/generic_oauth"]`); err != nil {
 			return err
 		}
@@ -100,15 +99,5 @@ func genericOauthLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, 
 		}
 	}
 
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, dashboardURL); err != nil {
-				return nil
-			}
-			log.Println("Browser output:", messageFromBrowser)
-		}
-	}
+	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

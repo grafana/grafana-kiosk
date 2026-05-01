@@ -49,15 +49,5 @@ func anonymousLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, das
 		log.Printf("Sleeping %d MS for page load", cfg.General.PageLoadDelayMS)
 		time.Sleep(time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond)
 	}
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, dashboardURL); err != nil {
-				return nil
-			}
-			log.Println("Browser output:", messageFromBrowser)
-		}
-	}
+	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

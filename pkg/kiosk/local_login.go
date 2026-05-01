@@ -72,8 +72,8 @@ func GrafanaKioskLocal(ctx context.Context, cfg *Config, dir string, b browser.B
 
 // localLoginFlow drives the local-account login sequence and then blocks until
 // context is cancelled or a message triggers a reload.
-func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generatedURL string, messages chan string) error {
-	log.Println("Navigating to ", generatedURL)
+func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, dashboardURL string, messages chan string) error {
+	log.Println("Navigating to ", dashboardURL)
 	delay := time.Duration(cfg.General.PageLoadDelayMS) * time.Millisecond
 
 	// Login form fields: name=user (text), name=password (password, id=inputPassword)
@@ -110,7 +110,7 @@ func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generat
 			time.Sleep(delay)
 		}
 
-		if err := b.Navigate(ctx, generatedURL); err != nil {
+		if err := b.Navigate(ctx, dashboardURL); err != nil {
 			return err
 		}
 	} else {
@@ -119,7 +119,7 @@ func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generat
 			time.Sleep(delay)
 		}
 
-		if err := b.Navigate(ctx, generatedURL); err != nil {
+		if err := b.Navigate(ctx, dashboardURL); err != nil {
 			return err
 		}
 
@@ -133,16 +133,5 @@ func localLoginFlow(ctx context.Context, cfg *Config, b browser.Browser, generat
 		}
 	}
 
-	// blocking wait until context is cancelled or a message triggers a reload
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case messageFromBrowser := <-messages:
-			if err := b.Navigate(ctx, generatedURL); err != nil {
-				return nil
-			}
-			log.Println("Browser output:", messageFromBrowser)
-		}
-	}
+	return runMessageLoop(ctx, b, dashboardURL, messages)
 }

@@ -7,7 +7,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.12] - 2026-04-29
+## [Unreleased]
 
 ### Features
 
@@ -15,6 +15,15 @@ and this project adheres to
   launched browser
 - Add `-browser-path` flag (env `KIOSK_BROWSER_PATH`) to point at an explicit Chromium-based browser executable;
   overrides `-browser`
+
+### Tests
+
+- Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers
+
+## [1.0.12] - 2026-04-29
+
+### Features
+
 - Add `--incognito` flag to optionally disable Chrome incognito mode ([#127](https://github.com/grafana/grafana-kiosk/issues/127))
 - Add `-hide-logo` flag to hide Powered by Grafana logo ([#240](https://github.com/grafana/grafana-kiosk/issues/240))
 - Add `-hide-playlist-nav` flag to hide playlist navigation controls ([#240](https://github.com/grafana/grafana-kiosk/issues/240))
@@ -36,7 +45,6 @@ and this project adheres to
 
 ### Tests
 
-- Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers
 - Add tests for `IsDataSourceQueryRequest` and `IsTargetHostRequest` in apikey login
 - Add tests for `sanitize` in main and initialize packages
 - Add tests for `GenerateURL` playlist mode

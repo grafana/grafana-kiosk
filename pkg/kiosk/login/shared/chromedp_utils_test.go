@@ -2,6 +2,7 @@ package shared
 
 import (
 	"fmt"
+	"path/filepath"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -139,6 +140,68 @@ func TestResolveBrowserExecPathInShared(t *testing.T) {
 		Convey("Unknown Browser value returns empty", func() {
 			cfg := &config.Config{General: config.General{Browser: "firefox"}}
 			So(ResolveBrowserExecPath(cfg), ShouldEqual, "")
+		})
+
+		Convey("Browser=edge on Windows falls back to standard install location", func() {
+			origGOOS := GOOS
+			origFileExists := FileExists
+			defer func() { GOOS = origGOOS; FileExists = origFileExists }()
+			GOOS = "windows"
+			LookPath = func(string) (string, error) { return "", fmt.Errorf("not found") }
+			t.Setenv("ProgramFiles(x86)", `C:\Program Files (x86)`)
+			t.Setenv("ProgramFiles", "")
+			t.Setenv("ProgramW6432", "")
+			want := filepath.Join(`C:\Program Files (x86)`, `Microsoft\Edge\Application\msedge.exe`)
+			FileExists = func(p string) bool { return p == want }
+			cfg := &config.Config{General: config.General{Browser: "edge"}}
+			So(ResolveBrowserExecPath(cfg), ShouldEqual, want)
+		})
+
+		Convey("Browser=edge on Windows with no install location returns empty", func() {
+			origGOOS := GOOS
+			origFileExists := FileExists
+			defer func() { GOOS = origGOOS; FileExists = origFileExists }()
+			GOOS = "windows"
+			LookPath = func(string) (string, error) { return "", fmt.Errorf("not found") }
+			t.Setenv("ProgramFiles(x86)", `C:\Program Files (x86)`)
+			t.Setenv("ProgramFiles", `C:\Program Files`)
+			t.Setenv("ProgramW6432", `C:\Program Files`)
+			FileExists = func(string) bool { return false }
+			cfg := &config.Config{General: config.General{Browser: "edge"}}
+			So(ResolveBrowserExecPath(cfg), ShouldEqual, "")
+		})
+	})
+}
+
+func TestIsEdgeBrowser(t *testing.T) {
+	Convey("Given isEdgeBrowser", t, func() {
+		Convey("Browser=edge returns true", func() {
+			cfg := &config.Config{General: config.General{Browser: "edge"}}
+			So(isEdgeBrowser(cfg), ShouldBeTrue)
+		})
+		Convey("Browser=EDGE (case-insensitive) returns true", func() {
+			cfg := &config.Config{General: config.General{Browser: "EDGE"}}
+			So(isEdgeBrowser(cfg), ShouldBeTrue)
+		})
+		Convey("Browser=chrome returns false", func() {
+			cfg := &config.Config{General: config.General{Browser: "chrome"}}
+			So(isEdgeBrowser(cfg), ShouldBeFalse)
+		})
+		Convey("BrowserPath ending in msedge.exe returns true", func() {
+			cfg := &config.Config{General: config.General{BrowserPath: `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`}}
+			So(isEdgeBrowser(cfg), ShouldBeTrue)
+		})
+		Convey("BrowserPath containing microsoft-edge returns true", func() {
+			cfg := &config.Config{General: config.General{BrowserPath: "/usr/bin/microsoft-edge-stable"}}
+			So(isEdgeBrowser(cfg), ShouldBeTrue)
+		})
+		Convey("BrowserPath pointing to chrome returns false", func() {
+			cfg := &config.Config{General: config.General{BrowserPath: "/usr/bin/google-chrome"}}
+			So(isEdgeBrowser(cfg), ShouldBeFalse)
+		})
+		Convey("Empty config returns false", func() {
+			cfg := &config.Config{}
+			So(isEdgeBrowser(cfg), ShouldBeFalse)
 		})
 	})
 }

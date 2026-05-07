@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -27,6 +29,19 @@ var EdgeBinaryCandidates = []string{
 
 // LookPath is overridable in tests.
 var LookPath = exec.LookPath
+
+// FileExists is overridable in tests. Returns true if path refers to an
+// existing file (not a directory).
+var FileExists = func(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !info.IsDir()
+}
+
+// GOOS is overridable in tests for cross-platform branches.
+var GOOS = runtime.GOOS
 
 // GenerateURL constructs URL with appropriate parameters for kiosk mode.
 func GenerateURL(cfg *config.Config) string {
@@ -209,11 +224,32 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 		execAllocatorOption = append(execAllocatorOption, chromedp.ExecPath(path))
 	}
 
+	// Edge on Windows relaunches through a compatibility layer; the initial
+	// process exits immediately and chromedp never gets the DevTools websocket.
+	// Skip the relaunch so chromedp can attach.
+	if GOOS == "windows" && isEdgeBrowser(cfg) {
+		execAllocatorOption = append(execAllocatorOption,
+			chromedp.Flag("edge-skip-compat-layer-relaunch", true))
+	}
+
 	return execAllocatorOption
 }
 
-// ResolveBrowserExecPath returns the explicit browser executable path to pass to
-// chromedp.ExecPath. An empty string means "let chromedp auto-detect".
+// isEdgeBrowser reports whether cfg targets Microsoft Edge, either by the
+// Browser selector or by an explicit BrowserPath that names an Edge binary.
+func isEdgeBrowser(cfg *config.Config) bool {
+	if strings.ToLower(cfg.General.Browser) == "edge" {
+		return true
+	}
+	if p := cfg.General.BrowserPath; p != "" {
+		lower := strings.ToLower(filepath.Base(p))
+		if strings.Contains(lower, "msedge") || strings.Contains(lower, "microsoft-edge") {
+			return true
+		}
+	}
+	return false
+}
+
 // ResolveBrowserExecPath returns the explicit browser executable path to pass to
 // chromedp.ExecPath. An empty string means "let chromedp auto-detect".
 func ResolveBrowserExecPath(cfg *config.Config) string {
@@ -229,8 +265,31 @@ func ResolveBrowserExecPath(cfg *config.Config) string {
 				return p
 			}
 		}
+		if GOOS == "windows" {
+			if p := lookupEdgeOnWindows(); p != "" {
+				return p
+			}
+		}
 		log.Println("Browser 'edge' requested but no Edge binary found on PATH; set -browser-path or KIOSK_BROWSER_PATH to the Edge executable")
 		return ""
+	}
+	return ""
+}
+
+// lookupEdgeOnWindows checks the standard Edge install locations on Windows.
+// Returns the first existing msedge.exe path, or "" if none found.
+func lookupEdgeOnWindows() string {
+	envVars := []string{"ProgramFiles(x86)", "ProgramFiles", "ProgramW6432"}
+	const rel = `Microsoft\Edge\Application\msedge.exe`
+	for _, v := range envVars {
+		base := os.Getenv(v)
+		if base == "" {
+			continue
+		}
+		candidate := filepath.Join(base, rel)
+		if FileExists(candidate) {
+			return candidate
+		}
 	}
 	return ""
 }

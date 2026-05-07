@@ -36,6 +36,10 @@ and this project adheres to
 
 ### Bug Fixes
 
+- Fix Edge browser failing to start on Windows — pass `--edge-skip-compat-layer-relaunch` when Edge is detected on
+  Windows so chromedp can attach to the DevTools websocket
+- Fix Edge browser not found on Windows when `msedge.exe` is not on `PATH` — `ResolveBrowserExecPath` now also
+  checks standard Edge install locations under `%ProgramFiles(x86)%`, `%ProgramFiles%`, `%ProgramW6432%`
 - Fix browser validation blocking `-browser-path` escape hatch — validation now skipped when `BrowserPath` is set,
   allowing arbitrary Chromium-based binaries via `-browser-path` regardless of `-browser` value
 - Fix silent Chrome fallback when Edge binary missing — startup now exits with a clear error message instead of

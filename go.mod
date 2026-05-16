@@ -8,7 +8,8 @@ require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/magefile/mage v1.17.2
 	github.com/smartystreets/goconvey v1.8.1
-	google.golang.org/api v0.277.0
+	github.com/testcontainers/testcontainers-go v0.42.0
+	google.golang.org/api v0.279.0
 )
 
 require (
@@ -77,7 +78,6 @@ require (
 	github.com/shirou/gopsutil/v4 v4.26.3 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
-	github.com/testcontainers/testcontainers-go v0.42.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
 	github.com/tklauser/numcpus v0.11.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect

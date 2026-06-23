@@ -61,6 +61,38 @@ func TestAwsLoginFlow(t *testing.T) {
 			So(mock.CallsTo("WaitNotVisible")[0].Args[0], ShouldContainSubstring, "awsui-input-2")
 		})
 
+		Convey("With MFA TOTP code: fills the MFA field and submits", func() {
+			cfg.Target.MFATOTP = "123456"
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- awsLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			<-done
+
+			sendCalls := mock.CallsTo("SendKeys")
+			So(len(sendCalls), ShouldEqual, 3)
+			So(sendCalls[2].Args[0], ShouldEqual, "input#awsui-input-2")
+			So(sendCalls[2].Args[1], ShouldContainSubstring, "123456")
+			So(mock.CallCount("WaitNotVisible"), ShouldEqual, 1)
+			So(mock.CallsTo("WaitNotVisible")[0].Args[0], ShouldContainSubstring, "awsui-input-2")
+		})
+
+		Convey("TOTP code takes precedence over UseMFA wait-only behavior", func() {
+			cfg.Target.UseMFA = true
+			cfg.Target.MFATOTP = "654321"
+			ctx, cancel := context.WithCancel(context.Background())
+			done := make(chan error, 1)
+			go func() { done <- awsLoginFlow(ctx, cfg, mock, url, make(chan string)) }()
+			time.Sleep(10 * time.Millisecond)
+			cancel()
+			<-done
+
+			So(mock.CallCount("SendKeys"), ShouldEqual, 3)
+			So(mock.CallsTo("SendKeys")[2].Args[1], ShouldContainSubstring, "654321")
+			So(mock.CallCount("WaitNotVisible"), ShouldEqual, 1)
+		})
+
 		Convey("Reloads on message", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			messages := make(chan string, 1)

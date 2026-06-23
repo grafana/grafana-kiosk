@@ -40,6 +40,7 @@ type Target struct {
 	URL                     string `yaml:"URL" env:"KIOSK_URL" env-default:"https://play.grafana.org" env-description:"URL to Grafana server"`
 	Username                string `yaml:"username" env:"KIOSK_LOGIN_USER" env-default:"guest" env-description:"username"`
 	UseMFA                  bool   `yaml:"use-mfa" env:"KIOSK_USE_MFA" env-default:"false" env-description:"MFA is enabled for given account"`
+	MFATOTP                 string `yaml:"aws-mfa-totp" env:"KIOSK_AWS_MFA_TOTP" env-default:"" env-description:"AWS MFA code to prefill the MFA field"`
 }
 
 // GoAuth OAuth

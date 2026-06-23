@@ -51,6 +51,7 @@ type Args struct {
 	OauthWaitForStaySignedInPrompt       bool
 	LXDEEnabled                          bool
 	UseMFA                               bool
+	AwsMfaTotp                           string
 	Audience                             string
 	KeyFile                              string
 	APIKey                               string
@@ -90,6 +91,7 @@ func ProcessArgs(cfg any) (Args, *flag.FlagSet) {
 	flagSettings.StringVar(&processedArgs.Username, "username", "guest", "username")
 	flagSettings.StringVar(&processedArgs.Password, "password", "guest", "password")
 	flagSettings.BoolVar(&processedArgs.UseMFA, "use-mfa", false, "password")
+	flagSettings.StringVar(&processedArgs.AwsMfaTotp, "aws-mfa-totp", "", "AWS MFA code to prefill the MFA field")
 	flagSettings.StringVar(&processedArgs.Mode, "kiosk-mode", "full", "Kiosk Display Mode [full|tv|disabled]\nfull = No TOPNAV and No SIDEBAR\ntv = No SIDEBAR\ndisabled = omit option\n")
 	flagSettings.StringVar(&processedArgs.URL, "URL", "https://play.grafana.org", "URL to Grafana server")
 	flagSettings.StringVar(&processedArgs.WindowPosition, "window-position", "0,0", "Top Left Position of Kiosk")
@@ -166,6 +168,7 @@ func loadConfig(args Args, fs *flag.FlagSet, cfg *config.Config) error {
 		"ignore-certificate-errors": func() { cfg.Target.IgnoreCertificateErrors = args.IgnoreCertificateErrors },
 		"playlists":                 func() { cfg.Target.IsPlayList = args.IsPlayList },
 		"use-mfa":                   func() { cfg.Target.UseMFA = args.UseMFA },
+		"aws-mfa-totp":              func() { cfg.Target.MFATOTP = args.AwsMfaTotp },
 		//
 		"autofit":            func() { cfg.General.AutoFit = args.AutoFit },
 		"lxde":               func() { cfg.General.LXDEEnabled = args.LXDEEnabled },
@@ -277,6 +280,9 @@ func logTargetSettings(cfg *config.Config) {
 	log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
 	log.Println("IsPlayList:", cfg.Target.IsPlayList)
 	log.Println("UseMFA:", cfg.Target.UseMFA)
+	if cfg.Target.MFATOTP != "" {
+		log.Println("AwsMfaTotp:", "*redacted*")
+	}
 }
 
 func logGoAuthSettings(cfg *config.Config) {

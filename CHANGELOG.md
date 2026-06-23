@@ -11,6 +11,8 @@ and this project adheres to
 
 ### Features
 
+- Add `-aws-mfa-totp` flag (env `KIOSK_AWS_MFA_TOTP`, default empty) to prefill the AWS Managed Grafana MFA field with a
+  six-digit code, allowing unattended login; the code is a literal value typed verbatim, not a TOTP secret
 - Add `-headless` flag (env `KIOSK_HEADLESS`, default `false`) to run the browser without a display; required for
   integration testing and useful for CI pipelines
 - Add `-disable-chromium-kiosk-optimizations` flag (env `KIOSK_DISABLE_CHROMIUM_KIOSK_OPTIMIZATIONS`, default `false`)

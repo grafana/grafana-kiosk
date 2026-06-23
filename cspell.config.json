@@ -80,6 +80,7 @@
     "overrideuser",
     "pcmanfm",
     "pcmanfs",
+    "prefill",
     "raspberrypi",
     "rhysd",
     "safebrowsing",
@@ -93,6 +94,7 @@
     "testdata",
     "testpass",
     "testuser",
+    "totp",
     "xset",
     "zizmor"
   ],

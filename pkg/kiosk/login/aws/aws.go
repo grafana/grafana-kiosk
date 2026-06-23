@@ -30,8 +30,9 @@ func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser,
 }
 
 // awsLoginFlow navigates to the AWS Managed Grafana login page, accepts the
-// cookie banner, clicks the SSO button, fills in credentials, waits for MFA
-// if enabled, then blocks until context is cancelled or a message triggers a reload.
+// cookie banner, clicks the SSO button, fills in credentials, prefills the MFA
+// code when one is supplied (otherwise waits for MFA if enabled), then blocks
+// until context is cancelled or a message triggers a reload.
 func awsLoginFlow(ctx context.Context, cfg *config.Config, b browser.Browser, dashboardURL string, messages chan string) error {
 	log.Printf("Navigating to %s", dashboardURL)
 	if err := b.Navigate(ctx, dashboardURL); err != nil {
@@ -61,7 +62,17 @@ func awsLoginFlow(ctx context.Context, cfg *config.Config, b browser.Browser, da
 	if err := b.SendKeys(ctx, `input#awsui-input-1`, cfg.Target.Password+kb.Enter); err != nil {
 		return err
 	}
-	if cfg.Target.UseMFA {
+	if cfg.Target.MFATOTP != "" {
+		if err := b.WaitVisible(ctx, `input#awsui-input-2`); err != nil {
+			return err
+		}
+		if err := b.SendKeys(ctx, `input#awsui-input-2`, cfg.Target.MFATOTP+kb.Enter); err != nil {
+			return err
+		}
+		if err := b.WaitNotVisible(ctx, `input#awsui-input-2`); err != nil {
+			return err
+		}
+	} else if cfg.Target.UseMFA {
 		if err := b.WaitNotVisible(ctx, `input#awsui-input-2`); err != nil {
 			return err
 		}

@@ -75,6 +75,8 @@ NOTE: Flags with parameters should use an "equals"
       oauth_auto_login is enabled in grafana config
   -autofit
       Fit panels to screen (default true)
+  -aws-mfa-totp string
+      AWS MFA code to prefill the MFA field
   -browser string
       Browser to launch [chrome|edge] (default "chrome")
   -browser-path string
@@ -184,6 +186,8 @@ They can also be used instead of a configuration file.
       APIKEY
   KIOSK_AUTOFIT bool
       fit panels to screen (default "true")
+  KIOSK_AWS_MFA_TOTP string
+      AWS MFA code to prefill the MFA field (default "")
   KIOSK_DEBUG bool
       enables debug output (default "false")
   KIOSK_GOAUTH_AUTO_LOGIN bool

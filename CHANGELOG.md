@@ -7,97 +7,45 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.13] - 2026-09-06
 
 ### Features
 
-- Add `-headless` flag (env `KIOSK_HEADLESS`, default `false`) to run the browser without a display; required for
-  integration testing and useful for CI pipelines
+- Add `-headless` flag (env `KIOSK_HEADLESS`, default `false`) to run the browser without a display, for servers
+  and CI pipelines with no attached screen
 - Add `-disable-chromium-kiosk-optimizations` flag (env `KIOSK_DISABLE_CHROMIUM_KIOSK_OPTIMIZATIONS`, default `false`)
   to opt out of kiosk-specific Chromium flags if they cause compatibility issues
 - Add Chrome flags for reliable kiosk operation: disable background timer throttling (keeps Grafana auto-refresh
   running when the window loses focus), disable hang monitor (suppresses "Page Unresponsive" dialogs), disable
   Safe Browsing updates, suppress telemetry uploads, allow drill-down popups
-- Add integration test package (`pkg/kiosk/integration`) with build tag `integration` — spins up a real Grafana
-  instance via testcontainers and runs functional and smoke tests in headless Chrome; run with
-  `mage test:integration` or `CGO_ENABLED=0 go test -tags integration ./pkg/kiosk/integration/...`
-- Add `mage test:integration` target to run integration tests via Mage
-- Functional tests assert page title contains "Grafana", URL contains `kiosk=1`, and no login form is present
 - Add `-restart-delay-ms` flag (env `KIOSK_RESTART_DELAY_MS`, default `5000`) to set the delay before automatically
   restarting after a session error; kiosk now recovers from browser crashes instead of exiting
 - Add `-browser` flag (env `KIOSK_BROWSER`, default `chrome`) to choose between Chrome and Microsoft Edge as the
   launched browser
 - Add `-browser-path` flag (env `KIOSK_BROWSER_PATH`) to point at an explicit Chromium-based browser executable;
   overrides `-browser`
-- Extract `browser.Browser` interface to decouple login providers from chromedp ([#257](https://github.com/grafana/grafana-kiosk/issues/257))
-- Add `WaitNotVisible` to `browser.Browser` interface and `ChromeDP`/`Mock` implementations (required for AWS MFA path)
-- Extract inner flow functions for all remaining login providers: `gcomLoginFlow`, `genericOauthLoginFlow`,
-  `idtokenLoginFlow`, `apikeyLoginFlow`, `awsLoginFlow`, `azureADLoginFlow` ([#274](https://github.com/grafana/grafana-kiosk/issues/274))
 
 ### Bug Fixes
 
-- Fix browser validation blocking `-browser-path` escape hatch — validation now skipped when `BrowserPath` is set,
-  allowing arbitrary Chromium-based binaries via `-browser-path` regardless of `-browser` value
+- Fix `-browser-path` being rejected at startup — an explicit browser path is now honored regardless of the
+  `-browser` value, so any Chromium-based binary can be used
 - Fix silent Chrome fallback when Edge binary missing — startup now exits with a clear error message instead of
   silently launching Chrome when `browser=edge` is set but no Edge binary is found on PATH
-- Fix azuread message loop missing `ctx.Done()` case — loop previously could not exit cleanly on shutdown
-- Remove dead `enableFetch` helper in idtoken login — no longer called after fetch setup moved to outer function
-- Fix goroutine panics in apikey and idtoken fetch interceptors — panics inside `go func()` blocks escape
-  `defer/recover` in the outer function and crash the process; replaced with `log+return`
-- Fix `gcomLoginFlow` `#submit` selector — XPath full-document scan restored to CSS ID selector
-- Restore `fetch.Enable() + Navigate` atomicity in idtoken — original `enableFetch` bundled them intentionally
-  to prevent unfiltered requests slipping through the interception window
-- Fix silent exits on bad config — all startup validation failures now log a descriptive message with a fix
+- Fix Azure AD login hanging on shutdown instead of exiting cleanly
+- Fix crashes during API key and ID token login — an error while intercepting requests would take down the whole
+  kiosk process; these are now logged and the session continues
+- Fix Grafana Cloud login failing to submit the login form on some pages
+- Fix ID token login occasionally letting requests through without the configured token attached
+- Fix silent exits on bad config — startup validation failures now log a descriptive message with a fix
   suggestion before exiting
-- Replace hardcoded `time.Sleep` with `WaitVisible` in azuread and gcom login flows — sleeps were redundant
-  since the next step already calls `WaitVisible`; removes 3 s from azuread and 3 s from gcom per session
-- Fix double-space in log messages across all login flow files (`"Navigating to "` → `log.Printf`)
-
-### Chores
-
-- Cache `getVersion()` in Magefile — was called once per arch (9 git subprocesses); now called once
-- Parallelize lint and test in `Build.CI` — format runs first, then lint and test run concurrently
-- Move anonymous login provider to `pkg/kiosk/login/anonymous` package with public `Run()` entrypoint
-- Move local login provider to `pkg/kiosk/login/local` package with public `Run()` entrypoint;
-  `LocalLoginBypassURL` renamed to `local.BypassURL`
-- Move gcom login provider to `pkg/kiosk/login/gcom` package with public `Run()` entrypoint
-- Move generic oauth login provider to `pkg/kiosk/login/goauth` package with public `Run()` entrypoint
-- Move idtoken login provider to `pkg/kiosk/login/idtoken` package with public `Run()` entrypoint
-- Move apikey login provider to `pkg/kiosk/login/apikey` package with public `Run()` entrypoint
-- Move aws login provider to `pkg/kiosk/login/aws` package with public `Run()` entrypoint
-- Move azuread login provider to `pkg/kiosk/login/azuread` package with public `Run()` entrypoint
-- Reorganize login providers into dedicated sub-packages under `pkg/kiosk/login/`; each provider
-  exports `Run()` and depends only on `pkg/kiosk/config` and `pkg/kiosk/login/shared`
-  ([#261](https://github.com/grafana/grafana-kiosk/issues/261))
-- Extract `shared.NewBrowserContext` helper — identical 10-line chromedp lifecycle setup removed
-  from all 8 provider `Run()` functions
-- Eliminate duplicate `resolveBrowserExecPath` — `ValidateBrowserConfig` now delegates to
-  `shared.ResolveBrowserExecPath`; single source of truth for Edge binary lookup
-
-### CI/CD
-
-- Add `concurrency` group to all workflows to cancel superseded runs on push
-- Update `securego/gosec` from v2.25.0 to v2.26.1 in CI workflow
-- Update `DavidAnson/markdownlint-cli2-action` from v23.0.0 to v23.1.0 in markdownlint workflow
-- Normalize action version comments to full semver across all workflows
-- Add `integration` CI job running integration tests against a real Grafana container; skips forked PRs
-  to prevent Docker socket abuse
-- Enable Go build cache in CI to speed up cross-compilation of foreign OS/arch targets
+- Speed up Azure AD and Grafana Cloud login by 3 seconds each — fixed delays replaced with waits that continue as
+  soon as the page is ready
 
 ### Dependencies
 
-- Update `google.golang.org/api` to v0.277.0
-
-### Tests
-
-- Add tests for `resolveBrowserExecPath` covering chrome default, custom path override, edge PATH lookup, and unknown browsers
-- Add unit tests for `anonymousLoginFlow` and `localLoginFlow` calling real production functions via mock browser
-- Add unit tests for all six new login flow functions: gcom, generic oauth, idtoken, apikey, aws (with and without MFA),
-  azuread
-- Add unit tests for `shared` package: `GenerateURL`, `ResolveBrowserExecPath`, `SleepPageLoad`, `RunMessageLoop`,
-  `isFullscreenMode`
-- Expand login flow tests: aws WaitVisible/Click/SendKeys errors, goauth SendKeys and WaitForStaySignedInPrompt
-  errors, local AutoLogin WaitVisible error and delay path
+- Update `chromedp` to v0.16.0 and `cdproto` to the 2026-08-04 snapshot, picking up upstream Chrome DevTools
+  Protocol fixes
+- Update `google.golang.org/api` to v0.297.0
 
 ## [1.0.12] - 2026-04-29
 

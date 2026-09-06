@@ -281,10 +281,14 @@ Key deltas from vanilla Go:
 
 ### Policies
 
-- **Changelog**: every commit that modifies code, docs, deps, or config
-  needs a matching entry in `CHANGELOG.md` under the unreleased section,
-  categorized as Features / Bug Fixes / Tests / CI/CD / Dependencies /
-  Chores (omit empty categories). Max line length 120.
+- **Changelog**: `CHANGELOG.md` is user-facing. Only add entries a person
+  running the kiosk binary would care about: flags, env vars, defaults,
+  login behavior, crashes, and dependency bumps that change runtime
+  behavior. Do NOT log internal refactors, package moves, test additions,
+  or CI changes. Categorize as Features / Bug Fixes / Dependencies (omit
+  empty categories). Describe the user-visible symptom, not the code
+  change — no internal identifiers, file paths, or function names.
+  Max line length 120.
 - **README**: update when CLI flags, env vars, defaults, login methods, or
   build targets change. Procedure:
   [`.agents/readme-policy.md`](.agents/readme-policy.md).

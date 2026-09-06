@@ -78,4 +78,9 @@ duplicated across files and must be changed together:
 5. **Update the version table** — Update the table above to reflect the new
    version.
 
-6. **Update the changelog** — Add an entry to `CHANGELOG.md`.
+6. **Update the changelog** — Only when the change affects the released
+   artifact. A bump to a build or scanning action (checkout, gosec,
+   actionlint, cspell) changes nothing a person running the kiosk binary can
+   observe, so it gets no entry. Bumps that alter the shipped binary or the
+   release packaging — a Go toolchain change, or `mage-action` building with
+   a different mage — do get one.

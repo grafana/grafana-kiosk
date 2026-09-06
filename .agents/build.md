@@ -70,6 +70,27 @@ violations.
 **If `go.mod` or `go.sum` changes**, always run `mage -v` to verify the
 project builds successfully before committing.
 
+### Upgrading the Go version
+
+`golangci-lint` and `gosec` analyze Go source, so each must be built with a
+Go at least as new as the `go` directive in `go.mod`. A binary built with an
+older toolchain refuses to run:
+
+```text
+can't load config: the Go language version (go1.26) used to build
+golangci-lint is lower than the targeted Go version (1.27.0)
+```
+
+After bumping `go` in `mise.toml` and `go.mod`, rebuild both analyzers.
+`mise` does not rebuild pinned tools on a Go upgrade:
+
+```sh
+mise install --force
+```
+
+`mage` is unaffected — it shells out to the `go` on `PATH` rather than
+type-checking source, so an older `mage` binary keeps working.
+
 ## Cross-compilation Targets
 
 darwin (amd64, arm64), linux (386, amd64, arm64, armv5, armv6, armv7),

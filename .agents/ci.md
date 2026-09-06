@@ -22,7 +22,6 @@ zizmor). Current versions:
 | `actions/checkout`                    | v7.0.1                  |
 | `actions/setup-go`                    | v7.0.0 (cache enabled)  |
 | `golangci/golangci-lint-action`       | v9.3.0                  |
-| `securego/gosec`                      | v2.29.0                 |
 | `magefile/mage-action`                | v4.0.0                  |
 | `jwalton/gh-find-current-pr`          | v1.3.5                  |
 | `actions/upload-artifact`             | v7.0.1                  |
@@ -49,8 +48,13 @@ duplicated across files and must be changed together:
 | Tool            | CI                                    | Local       |
 | --------------- | ------------------------------------- | ----------- |
 | `golangci-lint` | `version:` on `golangci-lint-action`  | `mise.toml` |
-| `gosec`         | action tag (`securego/gosec`)         | `mise.toml` |
+| `gosec`         | `go install` version in `ci.yml`      | `mise.toml` |
 | `mage`          | `version:` on `mage-action`           | `go.mod`    |
+
+`gosec` is installed with `go install` instead of the `securego/gosec` action.
+That action is a Docker action whose image ships its own Go, so it ignores the
+toolchain from `setup-go` and fails to load any package whenever `go.mod`
+requires a newer Go than the image was built with.
 
 ## Checking for Action Updates
 

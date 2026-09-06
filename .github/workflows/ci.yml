@@ -52,10 +52,13 @@ jobs:
           version: v2.13.2 # keep in sync with mise.toml
           skip-cache: true
 
+      # Installed rather than run via securego/gosec, whose Docker image ships its own
+      # Go and ignores the toolchain set up above. gosec must be built with a Go at
+      # least as new as the go directive in go.mod or it cannot load any package.
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@deb54465fea23d19a77f037e11e6589021f8501d # v2.29.0
-        with:
-          args: ./...
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@v2.29.0 # keep in sync with mise.toml
+          gosec ./...
 
       - name: Get BRANCH, NAME, TAG
         id: branch_name

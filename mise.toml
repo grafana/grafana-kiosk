@@ -1,2 +1,3 @@
 [tools]
-go = "1.26"
+go = "1.27.1"
+"go:github.com/securego/gosec/v2/cmd/gosec" = "2.26.1"

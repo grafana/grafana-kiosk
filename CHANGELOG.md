@@ -46,6 +46,8 @@ and this project adheres to
 - Update `chromedp` to v0.16.0 and `cdproto` to the 2026-08-04 snapshot, picking up upstream Chrome DevTools
   Protocol fixes
 - Update `google.golang.org/api` to v0.297.0
+- Build with Go 1.27.1
+- Update transitive dependencies to their latest releases, including `golang.org/x/crypto` v0.56.0
 
 ## [1.0.12] - 2026-04-29
 

@@ -20,18 +20,18 @@ zizmor). Current versions:
 | Action                                | Version                 |
 | ------------------------------------- | ----------------------- |
 | `actions/checkout`                    | v6.0.2                  |
-| `actions/setup-go`                    | v6.4.0 (cache disabled) |
+| `actions/setup-go`                    | v6.4.0 (cache enabled)  |
 | `golangci/golangci-lint-action`       | v9.2.0                  |
-| `securego/gosec`                      | v2.25.0                 |
+| `securego/gosec`                      | v2.26.1                 |
 | `magefile/mage-action`                | v4.0.0                  |
 | `jwalton/gh-find-current-pr`          | v1.3.5                  |
 | `actions/upload-artifact`             | v7.0.1                  |
-| `softprops/action-gh-release`         | v2.6.1                  |
+| `softprops/action-gh-release`         | v3.0.0                  |
 | `actions/stale`                       | v10.2.0                 |
-| `k1LoW/octocov-action`                | v1.5.0                  |
+| `k1LoW/octocov-action`                | v1.5.1                  |
 | `google/osv-scanner-action`           | v2.3.5                  |
 | `rhysd/actionlint`                    | v1.7.12                 |
-| `DavidAnson/markdownlint-cli2-action` | v23.0.0                 |
+| `DavidAnson/markdownlint-cli2-action` | v23.1.0                 |
 | `streetsidesoftware/cspell-action`    | v8.4.0                  |
 
 When updating actions, always pin to full commit SHA with a version comment:

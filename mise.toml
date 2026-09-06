@@ -1,4 +1,4 @@
 [tools]
 go = "1.27.1"
 golangci-lint = "2.13.2"
-"go:github.com/securego/gosec/v2/cmd/gosec" = "2.26.1"
+"go:github.com/securego/gosec/v2/cmd/gosec" = "2.29.0"

@@ -19,26 +19,38 @@ zizmor). Current versions:
 
 | Action                                | Version                 |
 | ------------------------------------- | ----------------------- |
-| `actions/checkout`                    | v6.0.2                  |
-| `actions/setup-go`                    | v6.4.0 (cache enabled)  |
-| `golangci/golangci-lint-action`       | v9.2.0                  |
-| `securego/gosec`                      | v2.26.1                 |
+| `actions/checkout`                    | v7.0.1                  |
+| `actions/setup-go`                    | v7.0.0 (cache enabled)  |
+| `golangci/golangci-lint-action`       | v9.3.0                  |
+| `securego/gosec`                      | v2.29.0                 |
 | `magefile/mage-action`                | v4.0.0                  |
 | `jwalton/gh-find-current-pr`          | v1.3.5                  |
 | `actions/upload-artifact`             | v7.0.1                  |
-| `softprops/action-gh-release`         | v3.0.0                  |
-| `actions/stale`                       | v10.2.0                 |
-| `k1LoW/octocov-action`                | v1.5.1                  |
-| `google/osv-scanner-action`           | v2.3.5                  |
+| `softprops/action-gh-release`         | v3.0.3                  |
+| `actions/stale`                       | v11.0.0                 |
+| `k1LoW/octocov-action`                | v1.5.2                  |
+| `google/osv-scanner-action`           | v2.5.1                  |
 | `rhysd/actionlint`                    | v1.7.12                 |
-| `DavidAnson/markdownlint-cli2-action` | v23.1.0                 |
-| `streetsidesoftware/cspell-action`    | v8.4.0                  |
+| `DavidAnson/markdownlint-cli2-action` | v24.2.0                 |
+| `streetsidesoftware/cspell-action`    | v9.1.0                  |
 
 When updating actions, always pin to full commit SHA with a version comment:
 
 ```yaml
-uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 ```
+
+## Pinned Tool Versions
+
+Pinning the action is not enough when the action installs a tool — the tool
+version must be pinned too, or CI silently drifts from local. These are
+duplicated across files and must be changed together:
+
+| Tool            | CI                                    | Local       |
+| --------------- | ------------------------------------- | ----------- |
+| `golangci-lint` | `version:` on `golangci-lint-action`  | `mise.toml` |
+| `gosec`         | action tag (`securego/gosec`)         | `mise.toml` |
+| `mage`          | `version:` on `mage-action`           | `go.mod`    |
 
 ## Checking for Action Updates
 

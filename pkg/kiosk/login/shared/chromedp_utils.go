@@ -28,6 +28,10 @@ var EdgeBinaryCandidates = []string{
 // LookPath is overridable in tests.
 var LookPath = exec.LookPath
 
+// browserStartupTimeout is how long to wait for Chromium to print its DevTools
+// websocket URL before giving up on the launch.
+const browserStartupTimeout = 60 * time.Second
+
 // GenerateURL constructs URL with appropriate parameters for kiosk mode.
 func GenerateURL(cfg *config.Config) string {
 	parsedURI, _ := url.ParseRequestURI(cfg.Target.URL)
@@ -94,6 +98,11 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 	}
 
 	execAllocatorOption := []chromedp.ExecAllocatorOption{
+		// Wait longer than chromedp's 20s default for the browser to report its
+		// DevTools websocket URL. A cold Chromium start on a low-powered device
+		// or a loaded machine can exceed 20s, and missing the deadline aborts
+		// startup entirely.
+		chromedp.WSURLReadTimeout(browserStartupTimeout),
 		// Skip first-run wizard and default browser prompt on startup.
 		chromedp.NoFirstRun,
 		chromedp.NoDefaultBrowserCheck,
@@ -212,8 +221,6 @@ func GenerateExecutorOptions(dir string, cfg *config.Config) []chromedp.ExecAllo
 	return execAllocatorOption
 }
 
-// ResolveBrowserExecPath returns the explicit browser executable path to pass to
-// chromedp.ExecPath. An empty string means "let chromedp auto-detect".
 // ResolveBrowserExecPath returns the explicit browser executable path to pass to
 // chromedp.ExecPath. An empty string means "let chromedp auto-detect".
 func ResolveBrowserExecPath(cfg *config.Config) string {

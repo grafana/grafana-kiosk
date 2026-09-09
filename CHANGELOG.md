@@ -38,6 +38,8 @@ and this project adheres to
 - Fix ID token login occasionally letting requests through without the configured token attached
 - Fix silent exits on bad config — startup validation failures now log a descriptive message with a fix
   suggestion before exiting
+- Fix startup failures on slow or busy devices — the browser is now given 60 seconds instead of 20 to come up,
+  so a cold start on hardware like a Raspberry Pi no longer aborts the session and forces a restart
 - Speed up Azure AD and Grafana Cloud login by 3 seconds each — fixed delays replaced with waits that continue as
   soon as the page is ready
 

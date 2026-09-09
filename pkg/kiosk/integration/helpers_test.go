@@ -107,10 +107,37 @@ func tempDir(t *testing.T) string {
 	return dir
 }
 
+// browserStartAttempts is how many times to try launching the browser before
+// failing the test. The kiosk binary absorbs a failed launch in its restart
+// loop; tests have no such loop, so without a retry a Chromium that starts
+// slowly or crashes on a busy machine fails the whole run.
+const browserStartAttempts = 3
+
 // newHeadlessBrowserContext creates a chromedp task context using the same
 // options as the kiosk (headless, same browser path).
 func newHeadlessBrowserContext(t *testing.T, cfg *config.Config, dir string) (context.Context, context.CancelFunc) {
 	t.Helper()
-	taskCtx, cancel := shared.NewBrowserContext(context.Background(), cfg, dir, 0)
-	return taskCtx, cancel
+	for attempt := 1; ; attempt++ {
+		taskCtx, cancel, err := tryNewBrowserContext(cfg, dir)
+		if err == nil {
+			return taskCtx, cancel
+		}
+		if attempt == browserStartAttempts {
+			t.Fatalf("start browser after %d attempts: %v", attempt, err)
+		}
+		t.Logf("browser start attempt %d/%d failed, retrying: %v", attempt, browserStartAttempts, err)
+		time.Sleep(2 * time.Second)
+	}
+}
+
+// tryNewBrowserContext turns NewBrowserContext's panic into an error so the
+// caller can retry.
+func tryNewBrowserContext(cfg *config.Config, dir string) (taskCtx context.Context, cancel context.CancelFunc, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("browser start panicked: %v", r)
+		}
+	}()
+	taskCtx, cancel = shared.NewBrowserContext(context.Background(), cfg, dir, 0)
+	return taskCtx, cancel, nil
 }

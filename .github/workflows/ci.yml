@@ -26,7 +26,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write      # badge branch push, releases
+      contents: write      # releases
       pull-requests: write # octocov PR body insertion
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -77,34 +77,6 @@ jobs:
 
       - name: Report coverage
         uses: k1LoW/octocov-action@a167dc0dee441b7ffc45e1b862ab55ec0d87f278 # v1.5.2
-
-      - name: Push coverage badge endpoint
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          # Extract coverage percentage
-          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%')
-          # Pick color based on coverage
-          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then COLOR="brightgreen"
-          elif (( $(echo "$COVERAGE >= 60" | bc -l) )); then COLOR="yellow"
-          else COLOR="red"; fi
-          # Build shields.io endpoint JSON
-          mkdir -p /tmp/badges
-          cat > /tmp/badges/coverage.json <<BADGE
-          {"schemaVersion":1,"label":"coverage","message":"${COVERAGE}%","color":"${COLOR}"}
-          BADGE
-          # Push to badges branch
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan badges
-          git rm -rf .
-          mkdir -p badges
-          cp /tmp/badges/coverage.json badges/
-          git add badges/
-          git commit -m "Update coverage badge"
-          git push origin badges --force
-          git checkout "${{ github.sha }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload coverage report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

@@ -70,10 +70,14 @@ requires a newer Go than the image was built with.
 3. **Compare SHAs** — If a newer version exists, get its commit SHA:
 
    ```sh
-   gh api repos/<owner>/<repo>/git/ref/tags/<tag> --jq '.object.sha'
+   gh api repos/<owner>/<repo>/commits/<tag> --jq '.sha'
    ```
 
    Compare against the SHA currently pinned in the workflow file.
+
+   Do not use `git/ref/tags/<tag>`. For an annotated tag that returns the tag
+   object's SHA, not the commit's, so correctly pinned actions look stale.
+   `commits/<tag>` dereferences to the commit either way.
 
 4. **Update the workflow file** — Replace the old SHA and version comment
    with the new SHA and version tag. Always use the full 40-character

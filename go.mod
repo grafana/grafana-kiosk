@@ -44,7 +44,7 @@ require (
 	github.com/gobwas/ws v1.4.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/googleapis/enterprise-certificate-proxy v0.3.21 // indirect
+	github.com/googleapis/enterprise-certificate-proxy v0.3.22 // indirect
 	github.com/googleapis/gax-go/v2 v2.24.1 // indirect
 	github.com/gopherjs/gopherjs v1.21.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect

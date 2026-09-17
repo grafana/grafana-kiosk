@@ -11,7 +11,7 @@ require (
 	github.com/magefile/mage v1.17.2
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/testcontainers/testcontainers-go v0.44.0
-	google.golang.org/api v0.297.0
+	google.golang.org/api v0.298.0
 )
 
 require (

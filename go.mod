@@ -2,7 +2,7 @@ module github.com/grafana/grafana-kiosk
 
 go 1.27.0
 
-toolchain go1.27.1
+toolchain go1.27.2
 
 require (
 	github.com/chromedp/cdproto v0.0.0-20260804232424-e85f50dbfd32

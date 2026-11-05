@@ -6,6 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chromedp/cdproto/fetch"
+	"github.com/chromedp/cdproto/network"
+
 	"github.com/grafana/grafana-kiosk/pkg/browser/browsertest"
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
 	. "github.com/smartystreets/goconvey/convey"
@@ -163,6 +166,50 @@ func TestApikeyLoginFlow(t *testing.T) {
 			cancel()
 			<-done
 			So(mock.CallCount("Navigate"), ShouldEqual, 2)
+		})
+	})
+}
+
+func headerMap(entries []*fetch.HeaderEntry) map[string][]string {
+	m := map[string][]string{}
+	for _, e := range entries {
+		m[e.Name] = append(m[e.Name], e.Value)
+	}
+	return m
+}
+
+func TestRequestHeaders(t *testing.T) {
+	Convey("Given an intercepted request", t, func() {
+		Convey("When it is a POST to the target host, the original headers are kept", func() {
+			orig := network.Headers{
+				"Accept":           "application/json, text/plain, */*",
+				"Content-Type":     "application/json",
+				"X-Grafana-Org-Id": "1",
+			}
+			h := headerMap(RequestHeaders(orig, false, true, "glsa_test"))
+			So(h["Content-Type"], ShouldResemble, []string{"application/json"})
+			So(h["Accept"], ShouldResemble, []string{"application/json, text/plain, */*"})
+			So(h["X-Grafana-Org-Id"], ShouldResemble, []string{"1"})
+			So(h["Authorization"], ShouldResemble, []string{"Bearer glsa_test"})
+		})
+
+		Convey("When it already has an Authorization header, it is replaced", func() {
+			orig := network.Headers{"authorization": "Basic abc"}
+			h := headerMap(RequestHeaders(orig, false, true, "glsa_test"))
+			So(h, ShouldNotContainKey, "authorization")
+			So(h["Authorization"], ShouldResemble, []string{"Bearer glsa_test"})
+		})
+
+		Convey("When it is a datasource query without Content-Type, JSON is added", func() {
+			h := headerMap(RequestHeaders(network.Headers{"Accept": "*/*"}, true, true, "k"))
+			So(h["Content-Type"], ShouldResemble, []string{"application/json"})
+		})
+
+		Convey("When it is a datasource query with Content-Type, it is not duplicated", func() {
+			orig := network.Headers{"content-type": "application/json"}
+			h := headerMap(RequestHeaders(orig, true, true, "k"))
+			So(h["content-type"], ShouldResemble, []string{"application/json"})
+			So(h, ShouldNotContainKey, "Content-Type")
 		})
 	})
 }

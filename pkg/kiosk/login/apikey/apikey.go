@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"sort"
 	"strings"
 
 	"github.com/chromedp/cdproto/fetch"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 
 	"github.com/grafana/grafana-kiosk/pkg/browser"
@@ -34,6 +36,36 @@ func IsDataSourceQueryRequest(requestURL, targetScheme, targetHost string) bool 
 
 	path := strings.SplitN(rest, "?", 2)[0]
 	return strings.Contains(rest, "/apis/query.grafana.app/") && strings.HasSuffix(path, "/query")
+}
+
+// RequestHeaders returns the headers to continue an intercepted request with.
+// The original headers are kept, Content-Type is defaulted to JSON for
+// datasource queries, and Authorization is set for the target host.
+func RequestHeaders(orig network.Headers, isQuery, isTarget bool, apiKey string) []*fetch.HeaderEntry {
+	keys := make([]string, 0, len(orig))
+	for k := range orig {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	headers := make([]*fetch.HeaderEntry, 0, len(keys)+2)
+	hasContentType := false
+	for _, k := range keys {
+		if isTarget && strings.EqualFold(k, "Authorization") {
+			continue
+		}
+		if strings.EqualFold(k, "Content-Type") {
+			hasContentType = true
+		}
+		headers = append(headers, &fetch.HeaderEntry{Name: k, Value: fmt.Sprintf("%v", orig[k])})
+	}
+	if isQuery && !hasContentType {
+		headers = append(headers, &fetch.HeaderEntry{Name: "Content-Type", Value: "application/json"})
+	}
+	if isTarget {
+		headers = append(headers, &fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + apiKey})
+	}
+	return headers
 }
 
 // IsTargetHostRequest checks if the request URL host matches the target host.
@@ -66,23 +98,15 @@ func Run(ctx context.Context, cfg *config.Config, dir string, b browser.Browser,
 					log.Printf("apikey url.Parse error: %v", err)
 					return
 				}
-				if IsDataSourceQueryRequest(ev.Request.URL, targetURL.Scheme, targetURL.Host) {
-					if cfg.General.DebugEnabled {
-						log.Println("Appending Content-Type Header for Metric Query")
-					}
-					fetchReq.Headers = append(
-						fetchReq.Headers,
-						&fetch.HeaderEntry{Name: "Content-Type", Value: "application/json"},
-					)
-				}
-				if IsTargetHostRequest(requestURL.Host, targetURL.Host) {
-					if cfg.General.DebugEnabled {
+				isQuery := IsDataSourceQueryRequest(ev.Request.URL, targetURL.Scheme, targetURL.Host)
+				isTarget := IsTargetHostRequest(requestURL.Host, targetURL.Host)
+				if isQuery || isTarget {
+					if isTarget && cfg.General.DebugEnabled {
 						log.Println("Appending Header Authorization: Bearer REDACTED")
 					}
-					fetchReq.Headers = append(
-						fetchReq.Headers,
-						&fetch.HeaderEntry{Name: "Authorization", Value: "Bearer " + cfg.APIKey.APIKey},
-					)
+					// ContinueRequest replaces the whole header set, so start from
+					// the original request headers instead of dropping them.
+					fetchReq.Headers = RequestHeaders(ev.Request.Headers, isQuery, isTarget, cfg.APIKey.APIKey)
 				}
 				if err = fetchReq.Do(shared.GetExecutor(taskCtx)); err != nil {
 					log.Printf("apikey fetchReq error: %v", err)

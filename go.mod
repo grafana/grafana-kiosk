@@ -5,7 +5,7 @@ go 1.27.0
 toolchain go1.27.1
 
 require (
-	github.com/chromedp/cdproto v0.0.0-20260804232424-e85f50dbfd32
+	github.com/chromedp/cdproto v0.159.3
 	github.com/chromedp/chromedp v0.16.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/magefile/mage v1.17.2
@@ -24,7 +24,6 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/chromedp/sysutil v1.1.0 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect

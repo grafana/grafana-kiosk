@@ -79,7 +79,7 @@ jobs:
         uses: k1LoW/octocov-action@a167dc0dee441b7ffc45e1b862ab55ec0d87f278 # v1.5.2
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-report
           path: |
@@ -94,7 +94,7 @@ jobs:
           state: open
 
       - name: Archive Build
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: success() && steps.findPr.outputs.number
         env:
           PR: ${{ steps.findPr.outputs.number }}
@@ -127,7 +127,7 @@ jobs:
           mv "grafana-kiosk-${SOURCE_TAG}.zip" "$RELEASE_TARGET_DIR"
 
       - name: Upload Release Artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: upload-release-artifacts
